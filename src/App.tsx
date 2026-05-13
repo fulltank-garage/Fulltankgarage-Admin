@@ -288,41 +288,53 @@ function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void }) {
   }
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-[#070707] px-4 text-white">
+    <main className="grid min-h-dvh place-items-center bg-[#070707] px-4 py-8 text-white">
       <form
-        className="w-full max-w-md rounded-[1.5rem] border border-white/12 bg-[#151515] p-5 shadow-[0_0_42px_rgba(255,35,30,0.18)]"
+        className="w-full max-w-md rounded-[1.5rem] border border-white/12 bg-[#151515] p-5 shadow-[0_0_42px_rgba(255,35,30,0.18)] sm:p-6"
         onSubmit={submit}
       >
-        <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff403b]">
-          Admin Login
-        </p>
-        <img
-          alt="FullTank Garage"
-          className="mt-4 h-auto w-60 rounded-xl object-cover"
-          src={fulltankGarageLogo}
-        />
-        <h1 className="mt-2 text-3xl font-black">เข้าสู่ระบบ Admin</h1>
-        <label className="mt-6 block text-sm font-bold text-white/72">
-          อีเมล
-          <input
-            className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
-            onChange={(event) => setEmail(event.target.value)}
-            type="email"
-            value={email}
+        <div className="flex flex-col items-center text-center">
+          <img
+            alt="FullTank Garage"
+            className="h-auto w-44 rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.36)] sm:w-52"
+            src={fulltankGarageLogo}
           />
-        </label>
-        <label className="mt-4 block text-sm font-bold text-white/72">
-          รหัสผ่าน
-          <input
-            className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
-            onChange={(event) => setPassword(event.target.value)}
-            type="password"
-            value={password}
-          />
-        </label>
-        {error ? <p className="mt-3 text-sm font-bold text-[#ff6965]">{error}</p> : null}
+          <p className="mt-5 text-xs font-black uppercase tracking-normal text-[#ff403b]">
+            Admin Login
+          </p>
+          <h1 className="mt-1 text-3xl font-black leading-tight">เข้าสู่ระบบ</h1>
+        </div>
+
+        <div className="mt-7 space-y-4">
+          <label className="block text-sm font-bold text-white/72">
+            อีเมล
+            <input
+              autoComplete="email"
+              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
+              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              value={email}
+            />
+          </label>
+          <label className="block text-sm font-bold text-white/72">
+            รหัสผ่าน
+            <input
+              autoComplete="current-password"
+              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
+              onChange={(event) => setPassword(event.target.value)}
+              type="password"
+              value={password}
+            />
+          </label>
+        </div>
+
+        {error ? (
+          <p className="mt-4 rounded-xl border border-[#ff403b]/30 bg-[#ff403b]/12 px-3 py-2 text-sm font-bold text-[#ffd7d5]">
+            {error}
+          </p>
+        ) : null}
         <button
-          className="mt-5 h-12 w-full rounded-xl bg-[#ff332f] text-base font-black text-white disabled:opacity-60"
+          className="mt-5 h-12 w-full rounded-xl bg-[#ff332f] text-base font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.22)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isLoading}
           type="submit"
         >
