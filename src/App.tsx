@@ -80,7 +80,13 @@ function App() {
 
   useEffect(() => {
     const progressTimer = window.setInterval(() => {
-      setBootProgress((current) => Math.min(96, current + 14))
+      setBootProgress((current) => {
+        if (current >= 100) {
+          return 100
+        }
+
+        return Math.min(96, current + 14)
+      })
     }, 120)
     const doneTimer = window.setTimeout(() => {
       setBootProgress(100)
