@@ -119,21 +119,21 @@ function App() {
         />
       </aside>
 
-      <main className="min-w-0 px-4 py-5 md:pl-[19rem] md:pr-6 lg:px-8 lg:pl-[20rem]">
-        <header className="sticky top-0 z-20 -mx-4 -mt-5 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/94 px-4 py-3 backdrop-blur md:hidden">
+      <main className="min-w-0 px-4 pb-6 md:pl-[19rem] md:pr-6 lg:px-8 lg:pl-[20rem]">
+        <header className="sticky top-0 z-20 -mx-4 mb-6 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/94 px-4 py-3 backdrop-blur md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
           <button
             aria-label="เปิดเมนู"
-            className="grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white"
+            className="grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
             onClick={() => setIsSidebarOpen(true)}
             type="button"
           >
             <Menu size={20} />
           </button>
-          <div className="min-w-0 text-right">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ff403b]">
+          <div className="ml-auto min-w-0 text-right">
+            <p className="text-xs font-black uppercase tracking-normal text-[#ff403b]">
               FullTank Admin
             </p>
-            <p className="truncate text-sm font-black">
+            <p className="truncate text-lg font-black md:text-2xl">
               {pages.find((page) => page.id === activePage)?.label}
             </p>
           </div>
@@ -620,16 +620,10 @@ function PageShell({
   title: string
 }) {
   return (
-    <>
-      <header className="mb-5">
-        <p className="text-sm font-black uppercase tracking-[0.2em] text-[#ff403b]">
-          FullTank Admin
-        </p>
-        <h1 className="mt-2 text-3xl font-black">{title}</h1>
-        <p className="mt-1 text-sm font-semibold text-white/52">{subtitle}</p>
-      </header>
+    <section aria-label={title}>
+      <p className="sr-only">{subtitle}</p>
       {children}
-    </>
+    </section>
   )
 }
 
