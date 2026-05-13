@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   Plus,
+  Shuffle,
   Search,
   Trash2,
   UsersRound,
@@ -71,6 +72,29 @@ const detectInstalledAppUpdate = () => {
   } catch {
     return false
   }
+}
+
+const generateSerialNumber = (existingSerials: SerialNumber[]) => {
+  const existing = new Set(existingSerials.map((item) => item.serialNumber.toUpperCase()))
+  const now = new Date()
+  const datePart = [
+    String(now.getFullYear()).slice(-2),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('')
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const randomPart = Array.from({ length: 6 }, () =>
+      alphabet[Math.floor(Math.random() * alphabet.length)],
+    ).join('')
+    const serialNumber = `FTG${datePart}${randomPart}`
+    if (!existing.has(serialNumber)) {
+      return serialNumber
+    }
+  }
+
+  return `FTG${datePart}${Date.now().toString(36).toUpperCase().slice(-6)}`
 }
 
 const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
@@ -739,6 +763,10 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     }
   }
 
+  const fillGeneratedSerial = () => {
+    setSerialInput(generateSerialNumber(serials))
+  }
+
   return (
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกันและ Serial Number">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -756,15 +784,25 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         </div>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <h2 className="text-lg font-black">Serial Number</h2>
-          <form className="mt-3 flex gap-2" onSubmit={createSerial}>
-            <input
-              className="h-11 min-w-0 flex-1 rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold uppercase text-white outline-none focus:border-[#ff403b]"
-              onChange={(event) => setSerialInput(event.target.value)}
-              placeholder="FTG-0001"
-              value={serialInput}
-            />
-            <button className="grid size-11 place-items-center rounded-xl bg-[#ff332f]" type="submit">
-              <Plus size={18} />
+          <form className="mt-3 grid gap-2" onSubmit={createSerial}>
+            <div className="flex gap-2">
+              <input
+                className="h-11 min-w-0 flex-1 rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold uppercase text-white outline-none focus:border-[#ff403b]"
+                onChange={(event) => setSerialInput(event.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
+                placeholder="FTG260514A1B2C3"
+                value={serialInput}
+              />
+              <button className="grid size-11 place-items-center rounded-xl bg-[#ff332f]" type="submit" aria-label="เพิ่ม Serial Number">
+                <Plus size={18} />
+              </button>
+            </div>
+            <button
+              className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#ff403b]/45 bg-[#ff403b]/12 px-3 text-sm font-black text-[#ff6965]"
+              onClick={fillGeneratedSerial}
+              type="button"
+            >
+              <Shuffle size={16} />
+              เจน Serial Number
             </button>
           </form>
           <div className="mt-4 max-h-[34rem] space-y-2 overflow-auto pr-1">
