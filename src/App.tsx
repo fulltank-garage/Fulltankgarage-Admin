@@ -36,6 +36,43 @@ import { StartupSplash } from './components/StartupSplash'
 type Page = 'dashboard' | 'promotions' | 'films' | 'customers'
 type NoticeTone = 'success' | 'error' | 'info'
 
+const appVersionStorageKey = 'fulltank_admin_app_version'
+
+const getLoadedAppVersion = () => {
+  const assets = Array.from(
+    document.querySelectorAll<HTMLLinkElement | HTMLScriptElement>(
+      'script[src^="/assets/"], link[href^="/assets/"]',
+    ),
+  )
+    .map((element) => {
+      if (element instanceof HTMLScriptElement) {
+        return element.src
+      }
+
+      return element.href
+    })
+    .filter(Boolean)
+    .sort()
+
+  return assets.join('|')
+}
+
+const detectInstalledAppUpdate = () => {
+  try {
+    const currentVersion = getLoadedAppVersion()
+    if (!currentVersion) {
+      return false
+    }
+
+    const previousVersion = window.localStorage.getItem(appVersionStorageKey)
+    window.localStorage.setItem(appVersionStorageKey, currentVersion)
+
+    return Boolean(previousVersion && previousVersion !== currentVersion)
+  } catch {
+    return false
+  }
+}
+
 const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard },
   { id: 'promotions', label: 'จัดการโปรโมชัน', icon: BadgePercent },
@@ -79,6 +116,10 @@ function App() {
   }
 
   useEffect(() => {
+    const updateCheckTimer = window.setTimeout(() => {
+      setHasAppUpdate(detectInstalledAppUpdate())
+    }, 0)
+
     const progressTimer = window.setInterval(() => {
       setBootProgress((current) => {
         if (current >= 100) {
@@ -95,6 +136,11 @@ function App() {
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
+        .register('/admin-sw.js', { scope: '/' })
+        .then((registration) => registration.update())
+        .catch(() => undefined)
+
+      navigator.serviceWorker
         .getRegistration('/admin-sw.js')
         .then((registration) => registration?.update())
         .catch(() => undefined)
@@ -105,6 +151,7 @@ function App() {
     }
 
     return () => {
+      window.clearTimeout(updateCheckTimer)
       window.clearInterval(progressTimer)
       window.clearTimeout(doneTimer)
     }

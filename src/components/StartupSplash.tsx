@@ -16,7 +16,7 @@ export function StartupSplash({ isUpdated, progress }: StartupSplashProps) {
           FullTank Garage
         </h1>
         <p className="mt-2 text-sm font-bold text-white/58">
-          {isUpdated ? 'แอปมีการอัปเดต' : 'กำลังเปิดระบบ Admin'}
+          {isUpdated ? 'มีการอัพเดตแอป' : 'กำลังเปิดระบบ Admin'}
         </p>
         <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/10">
           <div
