@@ -2,6 +2,7 @@ import {
   BadgePercent,
   Car,
   Film as FilmIcon,
+  ImagePlus,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -21,6 +22,7 @@ import {
   getStoredSession,
   promotionApi,
   storeSession,
+  uploadApi,
   warrantyApi,
   type AuthSession,
   type Film,
@@ -29,6 +31,7 @@ import {
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
+import { StartupSplash } from './components/StartupSplash'
 
 type Page = 'dashboard' | 'promotions' | 'films' | 'customers'
 type NoticeTone = 'success' | 'error' | 'info'
@@ -60,6 +63,9 @@ const emptyFilm: Partial<Film> = {
 }
 
 function App() {
+  const [isBooting, setIsBooting] = useState(true)
+  const [bootProgress, setBootProgress] = useState(12)
+  const [hasAppUpdate, setHasAppUpdate] = useState(false)
   const [session, setSession] = useState<AuthSession | null>(() => getStoredSession())
   const [activePage, setActivePage] = useState<Page>('dashboard')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -70,6 +76,36 @@ function App() {
     setNotice(message)
     setNoticeTone(tone)
     window.setTimeout(() => setNotice(''), 3200)
+  }
+
+  useEffect(() => {
+    const progressTimer = window.setInterval(() => {
+      setBootProgress((current) => Math.min(96, current + 14))
+    }, 120)
+    const doneTimer = window.setTimeout(() => {
+      setBootProgress(100)
+      window.setTimeout(() => setIsBooting(false), 220)
+    }, 780)
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .getRegistration('/admin-sw.js')
+        .then((registration) => registration?.update())
+        .catch(() => undefined)
+
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        setHasAppUpdate(true)
+      })
+    }
+
+    return () => {
+      window.clearInterval(progressTimer)
+      window.clearTimeout(doneTimer)
+    }
+  }, [])
+
+  if (isBooting) {
+    return <StartupSplash isUpdated={hasAppUpdate} progress={bootProgress} />
   }
 
   if (!session) {
@@ -367,6 +403,7 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [items, setItems] = useState<Promotion[]>([])
   const [form, setForm] = useState<Partial<Promotion>>(emptyPromotion)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -396,42 +433,77 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
     }
   }
 
+  const uploadPromotionImage = async (file: File) => {
+    try {
+      setIsUploadingImage(true)
+      const imageUrl = await uploadApi.image(file)
+      setForm((current) => ({ ...current, imageUrl }))
+      onNotice('อัปโหลดรูปโปรโมชันแล้ว', 'success')
+    } catch {
+      onNotice('อัปโหลดรูปโปรโมชันไม่สำเร็จ', 'error')
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
   return (
     <PageShell title="จัดการโปรโมชัน" subtitle="เพิ่มรูปภาพและคำอธิบายสำหรับหน้าโปรโมชัน">
-      <EditorGrid
-        form={
-          <form className="space-y-3" onSubmit={save}>
-            <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} value={form.title} />
-            <TextInput label="คำอธิบาย" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
-            <TextInput label="URL รูปภาพ" onChange={(value) => setForm((current) => ({ ...current, imageUrl: value }))} value={form.imageUrl} />
-            <div className="grid grid-cols-2 gap-3">
-              <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
-              <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
-            </div>
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-              <Plus size={17} />
-              บันทึกโปรโมชัน
-            </button>
-          </form>
-        }
-        list={
-          <div className="space-y-3">
-            {items.map((item) => (
-              <AdminListItem
-                description={item.description}
-                imageUrl={item.imageUrl}
-                key={item.id}
-                onDelete={async () => {
-                  await promotionApi.remove(item.id)
-                  await load()
-                }}
-                onEdit={() => setForm(item)}
-                title={item.title}
-              />
-            ))}
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+        <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
+          <UploadedImageField
+            imageUrl={form.imageUrl}
+            isUploading={isUploadingImage}
+            label="รูปโปรโมชัน"
+            onFileSelect={uploadPromotionImage}
+          />
+          <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} value={form.title} />
+          <TextInput label="คำอธิบาย" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
+          <div className="grid grid-cols-2 gap-3">
+            <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
+            <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
           </div>
-        }
-      />
+          <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+            <Plus size={17} />
+            บันทึกโปรโมชัน
+          </button>
+        </form>
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => (
+              <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
+                <div className="aspect-[16/10] bg-gradient-to-br from-[#ff403b] to-[#171717]">
+                  {item.imageUrl ? <img alt="" className="size-full object-cover" src={item.imageUrl} /> : null}
+                </div>
+                <div className="p-3">
+                  <p className="break-words text-base font-black">{item.title}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-white/52">{item.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
+                      แก้ไข
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
+                      onClick={async () => {
+                        await promotionApi.remove(item.id)
+                        await load()
+                      }}
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                      ลบ
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+            {items.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
+                ยังไม่มีโปรโมชัน
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
     </PageShell>
   )
 }
@@ -439,6 +511,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
 function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [items, setItems] = useState<Film[]>([])
   const [form, setForm] = useState<Partial<Film>>(emptyFilm)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -458,6 +531,11 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!form.imageUrl) {
+      onNotice('กรุณาอัปโหลดรูปฟิล์ม', 'error')
+      return
+    }
+
     try {
       await filmApi.save(form)
       setForm(emptyFilm)
@@ -468,27 +546,44 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     }
   }
 
+  const uploadFilmImage = async (file: File) => {
+    try {
+      setIsUploadingImage(true)
+      const imageUrl = await uploadApi.image(file)
+      setForm((current) => ({ ...current, imageUrl }))
+      onNotice('อัปโหลดรูปฟิล์มแล้ว', 'success')
+    } catch {
+      onNotice('อัปโหลดรูปฟิล์มไม่สำเร็จ', 'error')
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
   return (
     <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลที่ใช้แสดงในหน้า Film App">
-      <EditorGrid
-        form={
-          <form className="space-y-3" onSubmit={save}>
-            <div className="grid grid-cols-2 gap-3">
-              <TextInput label="Slug" onChange={(value) => setForm((current) => ({ ...current, slug: value }))} value={form.slug} />
-              <TextInput label="Logo" onChange={(value) => setForm((current) => ({ ...current, logo: value }))} value={form.logo} />
-            </div>
-            <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} value={form.name} />
-            <TextInput label="คำอธิบายสั้น" onChange={(value) => setForm((current) => ({ ...current, summary: value }))} value={form.summary} />
-            <TextInput label="รายละเอียด" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
-            <TextInput label="URL รูป/โลโก้" onChange={(value) => setForm((current) => ({ ...current, imageUrl: value }))} value={form.imageUrl} />
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-              <Plus size={17} />
-              บันทึกฟิล์ม
-            </button>
-          </form>
-        }
-        list={
-          <div className="space-y-3">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+        <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
+          <UploadedImageField
+            help="รองรับเฉพาะไฟล์รูปภาพ ไม่ใช้ URL"
+            imageUrl={form.imageUrl}
+            isUploading={isUploadingImage}
+            label="รูป/โลโก้ฟิล์ม"
+            onFileSelect={uploadFilmImage}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <TextInput label="Slug" onChange={(value) => setForm((current) => ({ ...current, slug: value }))} value={form.slug} />
+            <TextInput label="Logo" onChange={(value) => setForm((current) => ({ ...current, logo: value }))} value={form.logo} />
+          </div>
+          <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} value={form.name} />
+          <TextInput label="คำอธิบายสั้น" onChange={(value) => setForm((current) => ({ ...current, summary: value }))} value={form.summary} />
+          <TextInput label="รายละเอียด" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
+          <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+            <Plus size={17} />
+            บันทึกฟิล์ม
+          </button>
+        </form>
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {items.map((item) => (
               <AdminListItem
                 description={item.summary}
@@ -502,9 +597,14 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                 title={item.name}
               />
             ))}
+            {items.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
+                ยังไม่มีข้อมูลฟิล์ม
+              </p>
+            ) : null}
           </div>
-        }
-      />
+        </div>
+      </section>
     </PageShell>
   )
 }
@@ -635,12 +735,56 @@ function PageShell({
   )
 }
 
-function EditorGrid({ form, list }: { form: ReactNode; list: ReactNode }) {
+function UploadedImageField({
+  help = 'เลือกไฟล์รูปภาพจากเครื่อง',
+  imageUrl,
+  isUploading,
+  label,
+  onFileSelect,
+}: {
+  help?: string
+  imageUrl?: string
+  isUploading: boolean
+  label: string
+  onFileSelect: (file: File) => void
+}) {
   return (
-    <section className="grid gap-4 xl:grid-cols-[24rem_1fr]">
-      <div className="rounded-2xl border border-white/10 bg-[#151515] p-4">{form}</div>
-      <div className="rounded-2xl border border-white/10 bg-[#151515] p-4">{list}</div>
-    </section>
+    <label className="block text-sm font-bold text-white/68">
+      {label}
+      <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
+        <div className="grid aspect-[16/10] place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
+          {imageUrl ? (
+            <img alt="" className="size-full object-cover" src={imageUrl} />
+          ) : (
+            <div className="text-center text-white/42">
+              <ImagePlus className="mx-auto" size={34} />
+              <p className="mt-2 text-xs font-black">{help}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-3 px-3 py-3">
+          <span className="min-w-0 text-xs font-bold text-white/48">
+            {isUploading ? 'กำลังอัปโหลดรูป...' : help}
+          </span>
+          <span className="shrink-0 rounded-lg bg-[#ff332f] px-3 py-2 text-xs font-black text-white">
+            เลือกรูป
+          </span>
+        </div>
+      </div>
+      <input
+        accept="image/*"
+        className="sr-only"
+        disabled={isUploading}
+        onChange={(event) => {
+          const file = event.currentTarget.files?.[0]
+          if (file) {
+            onFileSelect(file)
+          }
+          event.currentTarget.value = ''
+        }}
+        type="file"
+      />
+    </label>
   )
 }
 

@@ -172,3 +172,13 @@ export const promotionApi = {
     await api.delete(`/promotions/${id}`)
   },
 }
+
+export const uploadApi = {
+  async image(file: File) {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const { data } = await api.post<{ imageUrl: string }>('/uploads/images', formData)
+    return data.imageUrl
+  },
+}
