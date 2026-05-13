@@ -18,13 +18,7 @@ export function StartupSplash({ isUpdated, progress }: StartupSplashProps) {
         <p className="mt-2 text-sm font-bold text-white/58">
           {isUpdated ? 'มีการอัพเดตแอป' : 'กำลังเปิดระบบ Admin'}
         </p>
-        <div className="mt-6 h-3 w-full overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-[#ff332f] transition-[width] duration-150 ease-out"
-            style={{ width: `${normalizedProgress}%` }}
-          />
-        </div>
-        <p className="mt-3 text-sm font-black text-white/58">
+        <p className="mt-8 grid size-24 place-items-center rounded-full border border-[#ff403b]/28 bg-[#ff403b]/10 text-3xl font-black text-white shadow-[0_0_36px_rgba(255,64,59,0.16)]">
           {normalizedProgress}%
         </p>
       </section>
