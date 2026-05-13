@@ -423,12 +423,16 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     promotions: Promotion[]
     films: Film[]
   } | null>(null)
+  const [isLoadingDashboard, setIsLoadingDashboard] = useState(true)
 
   const loadData = useCallback(async () => {
     try {
+      setIsLoadingDashboard(true)
       setData(await dashboardApi.summary())
     } catch {
       onNotice('โหลดข้อมูลแดชบอร์ดไม่สำเร็จ', 'error')
+    } finally {
+      setIsLoadingDashboard(false)
     }
   }, [onNotice])
 
@@ -475,7 +479,11 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
                 <p className="text-sm font-black leading-5 text-white/62">{item.label}</p>
                 <Icon className="shrink-0 text-[#ff403b]" size={22} />
               </div>
-              <p className="mt-5 text-4xl font-black leading-none">{item.value.toLocaleString('th-TH')}</p>
+              {isLoadingDashboard ? (
+                <SkeletonBlock className="mt-5 h-10 w-20 rounded-xl" />
+              ) : (
+                <p className="mt-5 text-4xl font-black leading-none">{item.value.toLocaleString('th-TH')}</p>
+              )}
             </article>
           )
         })}
@@ -483,7 +491,7 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
       <section className="mt-4 rounded-2xl border border-white/10 bg-[#151515] p-4">
         <h2 className="text-lg font-black">รายการล่าสุด</h2>
-        <CustomerTable customers={(data?.registrations ?? []).slice(0, 6)} />
+        <CustomerTable customers={(data?.registrations ?? []).slice(0, 6)} isLoading={isLoadingDashboard} />
       </section>
     </PageShell>
   )
@@ -492,13 +500,17 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [items, setItems] = useState<Promotion[]>([])
   const [form, setForm] = useState<Partial<Promotion>>(emptyPromotion)
+  const [isLoadingPromotions, setIsLoadingPromotions] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const load = useCallback(async () => {
     try {
+      setIsLoadingPromotions(true)
       setItems(await promotionApi.list())
     } catch {
       onNotice('โหลดโปรโมชันไม่สำเร็จ', 'error')
+    } finally {
+      setIsLoadingPromotions(false)
     }
   }, [onNotice])
 
@@ -558,6 +570,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {items.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
                 <div className="aspect-[16/10] bg-gradient-to-br from-[#ff403b] to-[#171717]">
@@ -585,7 +598,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                 </div>
               </article>
             ))}
-            {items.length === 0 ? (
+            {!isLoadingPromotions && items.length === 0 ? (
               <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
                 ยังไม่มีโปรโมชัน
               </p>
@@ -600,13 +613,17 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
 function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [items, setItems] = useState<Film[]>([])
   const [form, setForm] = useState<Partial<Film>>(emptyFilm)
+  const [isLoadingFilms, setIsLoadingFilms] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   const load = useCallback(async () => {
     try {
+      setIsLoadingFilms(true)
       setItems(await filmApi.list())
     } catch {
       onNotice('โหลดข้อมูลฟิล์มไม่สำเร็จ', 'error')
+    } finally {
+      setIsLoadingFilms(false)
     }
   }, [onNotice])
 
@@ -673,6 +690,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {isLoadingFilms ? <AdminGridSkeleton /> : null}
             {items.map((item) => (
               <AdminListItem
                 description={item.summary}
@@ -686,7 +704,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                 title={item.name}
               />
             ))}
-            {items.length === 0 ? (
+            {!isLoadingFilms && items.length === 0 ? (
               <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
                 ยังไม่มีข้อมูลฟิล์ม
               </p>
@@ -701,11 +719,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [registrations, setRegistrations] = useState<WarrantyRegistration[]>([])
   const [serials, setSerials] = useState<SerialNumber[]>([])
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [query, setQuery] = useState('')
   const [serialInput, setSerialInput] = useState('')
 
   const load = useCallback(async () => {
     try {
+      setIsLoadingCustomers(true)
       const [nextRegistrations, nextSerials] = await Promise.all([
         warrantyApi.listRegistrations(),
         warrantyApi.listSerials(),
@@ -714,6 +734,8 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
       setSerials(nextSerials)
     } catch {
       onNotice('โหลดข้อมูลลูกค้าไม่สำเร็จ', 'error')
+    } finally {
+      setIsLoadingCustomers(false)
     }
   }, [onNotice])
 
@@ -780,7 +802,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
               value={query}
             />
           </label>
-          <CustomerTable customers={filtered} />
+          <CustomerTable customers={filtered} isLoading={isLoadingCustomers} />
         </div>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <h2 className="text-lg font-black">Serial Number</h2>
@@ -806,6 +828,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
             </button>
           </form>
           <div className="mt-4 max-h-[34rem] space-y-2 overflow-auto pr-1">
+            {isLoadingCustomers ? <SerialListSkeleton /> : null}
             {serials.map((serial) => (
               <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-2" key={serial.id}>
                 <span className="min-w-0 truncate text-sm font-black">{serial.serialNumber}</span>
@@ -950,7 +973,148 @@ function AdminListItem({
   )
 }
 
-function CustomerTable({ customers }: { customers: WarrantyRegistration[] }) {
+function SkeletonBlock({ className }: { className: string }) {
+  return <span aria-hidden="true" className={`block skeleton-shimmer ${className}`} />
+}
+
+function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion' }) {
+  return (
+    <>
+      {Array.from({ length: 6 }, (_, index) => (
+        <article
+          aria-hidden="true"
+          className={[
+            'overflow-hidden rounded-2xl border border-white/10 bg-[#101010]',
+            variant === 'list' ? 'flex gap-3 p-3' : '',
+          ].join(' ')}
+          key={index}
+        >
+          {variant === 'promotion' ? (
+            <>
+              <SkeletonBlock className="aspect-[16/10] w-full rounded-none" />
+              <div className="p-3">
+                <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
+                <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
+                <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
+                <div className="mt-3 flex gap-2">
+                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <SkeletonBlock className="size-20 shrink-0 rounded-xl" />
+              <div className="min-w-0 flex-1">
+                <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
+                <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
+                <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
+                <div className="mt-3 flex gap-2">
+                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                </div>
+              </div>
+            </>
+          )}
+        </article>
+      ))}
+    </>
+  )
+}
+
+function SerialListSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 8 }, (_, index) => (
+        <div
+          aria-hidden="true"
+          className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-2"
+          key={index}
+        >
+          <SkeletonBlock className="h-5 w-40 rounded-xl" />
+          <SkeletonBlock className="h-4 w-16 rounded-xl" />
+        </div>
+      ))}
+    </>
+  )
+}
+
+function CustomerTableSkeleton() {
+  return (
+    <>
+      <div className="space-y-3 md:hidden">
+        {Array.from({ length: 4 }, (_, index) => (
+          <article
+            aria-hidden="true"
+            className="rounded-2xl border border-white/10 bg-[#101010] p-3"
+            key={index}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <SkeletonBlock className="h-5 w-36 max-w-full rounded-xl" />
+                <SkeletonBlock className="mt-2 h-4 w-24 rounded-xl" />
+              </div>
+              <SkeletonBlock className="h-6 w-28 rounded-full" />
+            </div>
+            <div className="mt-3 grid gap-2">
+              {Array.from({ length: 4 }, (_, fieldIndex) => (
+                <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3" key={fieldIndex}>
+                  <SkeletonBlock className="h-4 w-12 rounded-xl" />
+                  <SkeletonBlock className="h-4 w-full rounded-xl" />
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="min-w-[58rem] w-full border-separate border-spacing-y-2">
+          <thead>
+            <tr className="text-left text-xs font-black uppercase tracking-wide text-white/42">
+              <th className="px-3 py-2">Serial</th>
+              <th className="px-3 py-2">ลูกค้า</th>
+              <th className="px-3 py-2">รถ</th>
+              <th className="px-3 py-2">ฟิล์ม</th>
+              <th className="px-3 py-2">ติดตั้ง</th>
+              <th className="px-3 py-2">สาขา</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }, (_, index) => (
+              <tr className="bg-[#101010]" key={index}>
+                {Array.from({ length: 6 }, (_, cellIndex) => (
+                  <td
+                    className={[
+                      'px-3 py-3',
+                      cellIndex === 0 ? 'rounded-l-xl' : '',
+                      cellIndex === 5 ? 'rounded-r-xl' : '',
+                    ].join(' ')}
+                    key={cellIndex}
+                  >
+                    <SkeletonBlock className="h-5 w-full rounded-xl" />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
+}
+
+function CustomerTable({
+  customers,
+  isLoading = false,
+}: {
+  customers: WarrantyRegistration[]
+  isLoading?: boolean
+}) {
+  if (isLoading) {
+    return <CustomerTableSkeleton />
+  }
+
   return (
     <>
       <div className="space-y-3 md:hidden">
