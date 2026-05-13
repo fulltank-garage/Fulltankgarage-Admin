@@ -130,10 +130,10 @@ function App() {
             <Menu size={20} />
           </button>
           <div className="ml-auto min-w-0 text-right">
-            <p className="text-xs font-black uppercase tracking-normal text-[#ff403b]">
+            <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#ff403b]">
               FullTank Admin
             </p>
-            <p className="truncate text-lg font-black md:text-2xl">
+            <p className="truncate text-[21px] font-bold leading-[1.12] md:text-[32px]">
               {pages.find((page) => page.id === activePage)?.label}
             </p>
           </div>
