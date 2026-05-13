@@ -1,14 +1,14 @@
 import fulltankGarageLogo from '../assets/fulltank-garage-logo.jpg'
 
-type MikiJapanLogoProps = {
+type FullTankGarageLogoProps = {
   className?: string
   title?: string
 }
 
-export function MikiJapanLogo({
+export function FullTankGarageLogo({
   className = 'size-10',
   title = 'FullTank Garage logo',
-}: MikiJapanLogoProps) {
+}: FullTankGarageLogoProps) {
   return (
     <img
       alt={title}

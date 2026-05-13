@@ -1,4 +1,4 @@
-import { MikiJapanLogo } from './MikiJapanLogo'
+import { FullTankGarageLogo } from './FullTankGarageLogo'
 
 type StartupSplashProps = {
   isUpdated: boolean
@@ -11,9 +11,9 @@ export function StartupSplash({ isUpdated, progress }: StartupSplashProps) {
   return (
     <main className="grid min-h-screen place-items-center bg-[#fbf6f0] px-6 text-[#3f2e23]">
       <section className="flex w-full max-w-sm flex-col items-center text-center">
-        <MikiJapanLogo className="size-24 shadow-lg shadow-[#c9a98a]/30" />
+        <FullTankGarageLogo className="size-24 shadow-lg shadow-[#c9a98a]/30" />
         <h1 className="mt-6 text-2xl font-semibold text-slate-950">
-          Miki Japan
+          FullTank Garage
         </h1>
         <p className="mt-2 text-sm text-[#6f5238]">
           {isUpdated ? 'แอปมีการอัปเดต' : 'กำลังเปิดระบบ Admin'}

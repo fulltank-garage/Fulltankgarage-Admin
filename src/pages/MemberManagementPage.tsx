@@ -14,7 +14,7 @@ import { AdminMobileMenu } from '../components/AdminMobileMenu'
 import { AppSnackbar } from '../components/AppSnackbar'
 import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { LoadingSkeletonBlock } from '../components/LoadingSkeleton'
-import { MikiJapanLogo } from '../components/MikiJapanLogo'
+import { FullTankGarageLogo } from '../components/FullTankGarageLogo'
 import {
   isApiConfigured,
   memberApi,
@@ -224,9 +224,9 @@ export function MemberManagementPage({
 
       <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col bg-[#6f5238] px-5 py-6 text-white xl:flex">
         <div className="mb-9 flex items-center gap-3">
-          <MikiJapanLogo className="size-11 shrink-0" />
+          <FullTankGarageLogo className="size-11 shrink-0" />
           <div>
-            <p className="text-lg font-semibold">Miki Japan</p>
+            <p className="text-lg font-semibold">FullTank Garage</p>
           </div>
         </div>
 

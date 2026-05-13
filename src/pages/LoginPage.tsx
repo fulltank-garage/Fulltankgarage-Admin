@@ -1,7 +1,7 @@
 import { ShieldCheck } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { AppSnackbar } from '../components/AppSnackbar'
-import { MikiJapanLogo } from '../components/MikiJapanLogo'
+import { FullTankGarageLogo } from '../components/FullTankGarageLogo'
 import { authApi, type AuthSession, type LoginPayload } from '../services/api'
 
 type LoginPageProps = {
@@ -47,9 +47,9 @@ export function LoginPage({ initialNotice = '', onLogin }: LoginPageProps) {
           onSubmit={handleSubmit}
         >
           <div className="mb-8 flex flex-col items-center text-center">
-            <MikiJapanLogo className="size-16 shrink-0 sm:size-20" />
+            <FullTankGarageLogo className="size-16 shrink-0 sm:size-20" />
             <h1 className="mt-4 text-2xl font-semibold text-slate-950">
-              Miki Japan
+              FullTank Garage
             </h1>
           </div>
 

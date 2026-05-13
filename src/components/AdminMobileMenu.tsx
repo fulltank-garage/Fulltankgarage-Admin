@@ -6,7 +6,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect } from 'react'
-import { MikiJapanLogo } from './MikiJapanLogo'
+import { FullTankGarageLogo } from './FullTankGarageLogo'
 import type { AuthSession } from '../services/api'
 
 type AdminPageKey = 'dashboard' | 'customers' | 'messages'
@@ -135,9 +135,9 @@ export function AdminMobileMenu({
         >
           <div className="mb-8 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <MikiJapanLogo className="size-11 shrink-0" />
+              <FullTankGarageLogo className="size-11 shrink-0" />
               <div>
-                <p className="text-lg font-semibold text-white">Miki Japan</p>
+                <p className="text-lg font-semibold text-white">FullTank Garage</p>
               </div>
             </div>
             <button
