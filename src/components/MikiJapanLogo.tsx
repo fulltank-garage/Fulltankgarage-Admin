@@ -1,4 +1,4 @@
-import mikiJapanLogo from '../assets/miki-japan-logo.jpg'
+import fulltankGarageLogo from '../assets/fulltank-garage-logo.jpg'
 
 type MikiJapanLogoProps = {
   className?: string
@@ -7,13 +7,13 @@ type MikiJapanLogoProps = {
 
 export function MikiJapanLogo({
   className = 'size-10',
-  title = 'Miki Japan logo',
+  title = 'FullTank Garage logo',
 }: MikiJapanLogoProps) {
   return (
     <img
       alt={title}
-      className={`${className} rounded-full border border-[#ead8c7] bg-[#f7eadc] object-cover`}
-      src={mikiJapanLogo}
+      className={`${className} rounded-xl border border-white/12 bg-[#0b0b0b] object-cover`}
+      src={fulltankGarageLogo}
     />
   )
 }

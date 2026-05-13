@@ -28,6 +28,7 @@ import {
   type SerialNumber,
   type WarrantyRegistration,
 } from './services/fulltankApi'
+import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
 
 type Page = 'dashboard' | 'promotions' | 'films' | 'customers'
 type NoticeTone = 'success' | 'error' | 'info'
@@ -165,9 +166,11 @@ function Sidebar({
     <>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-[#ff403b]">
-            FullTank Garage
-          </p>
+          <img
+            alt="FullTank Garage"
+            className="h-auto w-40 rounded-lg object-cover"
+            src={fulltankGarageLogo}
+          />
           <h1 className="mt-1 text-xl font-black">Admin Home</h1>
         </div>
         <button
@@ -249,8 +252,13 @@ function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void }) {
         onSubmit={submit}
       >
         <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff403b]">
-          FullTank Garage
+          Admin Login
         </p>
+        <img
+          alt="FullTank Garage"
+          className="mt-4 h-auto w-60 rounded-xl object-cover"
+          src={fulltankGarageLogo}
+        />
         <h1 className="mt-2 text-3xl font-black">เข้าสู่ระบบ Admin</h1>
         <label className="mt-6 block text-sm font-bold text-white/72">
           อีเมล
