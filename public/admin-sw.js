@@ -27,8 +27,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
-      badge: '/favicon-32.png',
-      icon: '/pwa-icons/icon-192.png',
+      badge: '/fulltank-favicon-32.png',
+      icon: '/pwa-icons/fulltank-icon-192.png',
       data: {
         url: payload.url || '/',
       },
