@@ -4,10 +4,12 @@ import {
   Film as FilmIcon,
   LayoutDashboard,
   LogOut,
+  Menu,
   Plus,
   Search,
   Trash2,
   UsersRound,
+  X,
 } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -59,6 +61,7 @@ const emptyFilm: Partial<Film> = {
 function App() {
   const [session, setSession] = useState<AuthSession | null>(() => getStoredSession())
   const [activePage, setActivePage] = useState<Page>('dashboard')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [noticeTone, setNoticeTone] = useState<NoticeTone>('info')
 
@@ -82,68 +85,59 @@ function App() {
   const logout = () => {
     clearSession()
     setSession(null)
+    setIsSidebarOpen(false)
+  }
+
+  const selectPage = (page: Page) => {
+    setActivePage(page)
+    setIsSidebarOpen(false)
   }
 
   return (
-    <div className="min-h-dvh bg-[#070707] text-white lg:flex">
-      <aside className="border-b border-white/10 bg-[#101010] px-4 py-4 lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 lg:border-b-0 lg:border-r lg:px-5 lg:py-6">
-        <div className="flex items-center justify-between gap-3 lg:block">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#ff403b]">
-              FullTank Garage
-            </p>
-            <h1 className="mt-1 text-xl font-black">Admin Home</h1>
-          </div>
-          <button
-            className="grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 lg:hidden"
-            onClick={logout}
-            type="button"
-          >
-            <LogOut size={18} />
-          </button>
-        </div>
+    <div className="min-h-dvh bg-[#070707] text-white">
+      {isSidebarOpen ? (
+        <button
+          aria-label="ปิดเมนู"
+          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          type="button"
+        />
+      ) : null}
 
-        <nav className="mt-5 grid grid-cols-2 gap-2 lg:block lg:space-y-2">
-          {pages.map((page) => {
-            const Icon = page.icon
-            const isActive = activePage === page.id
-
-            return (
-              <button
-                className={[
-                  'flex h-12 items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition lg:w-full',
-                  isActive
-                    ? 'bg-[#ff332f] text-white shadow-[0_12px_28px_rgba(255,51,47,0.22)]'
-                    : 'bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white',
-                ].join(' ')}
-                key={page.id}
-                onClick={() => setActivePage(page.id)}
-                type="button"
-              >
-                <Icon size={18} />
-                <span className="min-w-0 truncate">{page.label}</span>
-              </button>
-            )
-          })}
-        </nav>
-
-        <div className="mt-6 hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 lg:block">
-          <p className="text-sm font-black">{session.user.name}</p>
-          <p className="mt-1 break-all text-xs font-semibold text-white/48">
-            {session.user.email}
-          </p>
-          <button
-            className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-black text-white/72"
-            onClick={logout}
-            type="button"
-          >
-            <LogOut size={17} />
-            ออกจากระบบ
-          </button>
-        </div>
+      <aside
+        className={[
+          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-200 md:translate-x-0',
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        ].join(' ')}
+      >
+        <Sidebar
+          activePage={activePage}
+          onClose={() => setIsSidebarOpen(false)}
+          onLogout={logout}
+          onSelect={selectPage}
+          session={session}
+        />
       </aside>
 
-      <main className="min-w-0 flex-1 px-4 py-5 lg:ml-72 lg:px-7">
+      <main className="min-w-0 px-4 py-5 md:pl-[19rem] md:pr-6 lg:px-8 lg:pl-[20rem]">
+        <header className="sticky top-0 z-20 -mx-4 -mt-5 mb-5 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/94 px-4 py-3 backdrop-blur md:hidden">
+          <button
+            aria-label="เปิดเมนู"
+            className="grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white"
+            onClick={() => setIsSidebarOpen(true)}
+            type="button"
+          >
+            <Menu size={20} />
+          </button>
+          <div className="min-w-0 text-right">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ff403b]">
+              FullTank Admin
+            </p>
+            <p className="truncate text-sm font-black">
+              {pages.find((page) => page.id === activePage)?.label}
+            </p>
+          </div>
+        </header>
         {notice ? <Notice message={notice} tone={noticeTone} /> : null}
         {activePage === 'dashboard' ? <DashboardPage onNotice={showNotice} /> : null}
         {activePage === 'promotions' ? <PromotionsPage onNotice={showNotice} /> : null}
@@ -151,6 +145,81 @@ function App() {
         {activePage === 'customers' ? <CustomersPage onNotice={showNotice} /> : null}
       </main>
     </div>
+  )
+}
+
+function Sidebar({
+  activePage,
+  onClose,
+  onLogout,
+  onSelect,
+  session,
+}: {
+  activePage: Page
+  onClose: () => void
+  onLogout: () => void
+  onSelect: (page: Page) => void
+  session: AuthSession
+}) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-[#ff403b]">
+            FullTank Garage
+          </p>
+          <h1 className="mt-1 text-xl font-black">Admin Home</h1>
+        </div>
+        <button
+          aria-label="ปิดเมนู"
+          className="grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 md:hidden"
+          onClick={onClose}
+          type="button"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <nav className="mt-7 space-y-2">
+        {pages.map((page) => {
+          const Icon = page.icon
+          const isActive = activePage === page.id
+
+          return (
+            <button
+              aria-current={isActive ? 'page' : undefined}
+              className={[
+                'flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition',
+                isActive
+                  ? 'bg-[#ff332f] text-white shadow-[0_12px_28px_rgba(255,51,47,0.22)]'
+                  : 'bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white',
+              ].join(' ')}
+              key={page.id}
+              onClick={() => onSelect(page.id)}
+              type="button"
+            >
+              <Icon size={18} />
+              <span className="min-w-0 truncate">{page.label}</span>
+            </button>
+          )
+        })}
+      </nav>
+
+      <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+        <p className="text-sm font-black">{session.user.name}</p>
+        <p className="mt-1 break-all text-xs font-semibold text-white/48">
+          {session.user.email}
+        </p>
+        <button
+          className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-black text-white/72"
+          onClick={onLogout}
+          type="button"
+        >
+          <LogOut size={17} />
+          ออกจากระบบ
+        </button>
+      </div>
+    </>
   )
 }
 
