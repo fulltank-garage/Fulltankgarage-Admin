@@ -164,14 +164,14 @@ function Sidebar({
 }) {
   return (
     <>
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <img
             alt="FullTank Garage"
-            className="h-auto w-40 rounded-lg object-cover"
+            className="size-14 shrink-0 rounded-lg object-cover"
             src={fulltankGarageLogo}
           />
-          <h1 className="mt-1 text-xl font-black">Admin Home</h1>
+          <h1 className="min-w-0 text-lg font-black leading-tight">Admin Home</h1>
         </div>
         <button
           aria-label="ปิดเมนู"
@@ -340,17 +340,17 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
   return (
     <PageShell title="แดชบอร์ด" subtitle="ภาพรวมระบบรับประกันสินค้าและ App Home">
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3">
         {stats.map((item) => {
           const Icon = item.icon
 
           return (
-            <article className="rounded-2xl border border-white/10 bg-[#151515] p-4" key={item.label}>
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-black text-white/56">{item.label}</p>
-                <Icon className="text-[#ff403b]" size={22} />
+            <article className="min-h-32 rounded-2xl border border-white/10 bg-[#151515] p-4" key={item.label}>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-black leading-5 text-white/62">{item.label}</p>
+                <Icon className="shrink-0 text-[#ff403b]" size={22} />
               </div>
-              <p className="mt-4 text-4xl font-black">{item.value.toLocaleString('th-TH')}</p>
+              <p className="mt-5 text-4xl font-black leading-none">{item.value.toLocaleString('th-TH')}</p>
             </article>
           )
         })}
@@ -576,8 +576,8 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
   return (
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกันและ Serial Number">
-      <section className="grid gap-4 xl:grid-cols-[1fr_22rem]">
-        <div className="rounded-2xl border border-white/10 bg-[#151515] p-4">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <label className="relative mb-4 block">
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
             <input
@@ -589,7 +589,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
           </label>
           <CustomerTable customers={filtered} />
         </div>
-        <div className="rounded-2xl border border-white/10 bg-[#151515] p-4">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <h2 className="text-lg font-black">Serial Number</h2>
           <form className="mt-3 flex gap-2" onSubmit={createSerial}>
             <input
@@ -705,8 +705,59 @@ function AdminListItem({
 
 function CustomerTable({ customers }: { customers: WarrantyRegistration[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-[58rem] w-full border-separate border-spacing-y-2">
+    <>
+      <div className="space-y-3 md:hidden">
+        {customers.map((customer) => (
+          <article
+            className="rounded-2xl border border-white/10 bg-[#101010] p-3 text-sm font-bold text-white/72"
+            key={customer.id}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words text-base font-black text-white">
+                  {customer.customerName || '-'}
+                </p>
+                <p className="mt-1 break-all text-xs text-white/42">
+                  {customer.phone || '-'}
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full bg-[#ff403b]/12 px-2.5 py-1 text-xs font-black text-[#ff6965]">
+                {customer.serialNumber}
+              </span>
+            </div>
+
+            <dl className="mt-3 grid gap-2">
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">รถ</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {customer.carModel || '-'} / {customer.licensePlate || '-'}
+                </dd>
+              </div>
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">ฟิล์ม</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {customer.filmBrand || '-'} {customer.filmModel || ''}
+                </dd>
+              </div>
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">ติดตั้ง</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {customer.installDate || '-'}
+                </dd>
+              </div>
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">สาขา</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {customer.branch || '-'}
+                </dd>
+              </div>
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="min-w-[58rem] w-full border-separate border-spacing-y-2">
         <thead>
           <tr className="text-left text-xs font-black uppercase tracking-wide text-white/42">
             <th className="px-3 py-2">Serial</th>
@@ -736,12 +787,13 @@ function CustomerTable({ customers }: { customers: WarrantyRegistration[] }) {
           ))}
         </tbody>
       </table>
+      </div>
       {customers.length === 0 ? (
         <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
           ยังไม่มีข้อมูล
         </p>
       ) : null}
-    </div>
+    </>
   )
 }
 
