@@ -1645,12 +1645,12 @@ function Notice({ message, tone }: { message: string; tone: NoticeTone }) {
   return (
     <div
       className={[
-        'fixed right-4 top-4 z-50 rounded-xl border px-4 py-3 text-sm font-black shadow-xl',
+        'snackbar-notice fixed left-1/2 top-[4.75rem] z-50 w-[min(calc(100vw-2rem),28rem)] rounded-2xl border px-4 py-3 text-center text-sm font-black text-white shadow-[0_18px_42px_rgba(0,0,0,0.35)]',
         tone === 'success'
-          ? 'border-emerald-400/30 bg-emerald-500/20 text-emerald-100'
+          ? 'border-[#00d084]/30 bg-[#00d084]'
           : tone === 'error'
-            ? 'border-[#ff403b]/30 bg-[#ff403b]/20 text-[#ffd7d5]'
-            : 'border-white/12 bg-[#151515] text-white',
+            ? 'border-[#ff5a76]/30 bg-[#ff5a76]'
+            : 'border-[#00b5e8]/30 bg-[#00b5e8]',
       ].join(' ')}
     >
       {message}
