@@ -736,10 +736,10 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             value={form.description}
           />
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-4">
-            <div className="min-w-0 overflow-hidden">
+            <div className="min-w-0">
               <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
             </div>
-            <div className="min-w-0 overflow-hidden">
+            <div className="min-w-0">
               <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
             </div>
           </div>
@@ -1332,7 +1332,7 @@ function TextInput({
       {label}
       <input
         className={[
-          'mt-2 h-11 w-full min-w-0 rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#ff403b]',
+          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#ff403b]',
           isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
         ].join(' ')}
         onChange={(event) => onChange(event.target.value)}
