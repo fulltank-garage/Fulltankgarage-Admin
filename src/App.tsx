@@ -3,6 +3,7 @@ import {
   Car,
   Film as FilmIcon,
   ImagePlus,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -37,7 +38,7 @@ import {
 import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
 import { StartupSplash } from './components/StartupSplash'
 
-type Page = 'dashboard' | 'promotions' | 'films' | 'customers'
+type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
 type NoticeTone = 'success' | 'error' | 'info'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
@@ -155,6 +156,7 @@ const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'promotions', label: 'จัดการโปรโมชัน', icon: BadgePercent },
   { id: 'films', label: 'จัดการฟิล์ม', icon: FilmIcon },
   { id: 'customers', label: 'จัดการข้อมูลลูกค้า', icon: UsersRound },
+  { id: 'serials', label: 'จัดการ Serial Number', icon: KeyRound },
 ]
 
 const emptyPromotion: Partial<Promotion> = {
@@ -329,6 +331,7 @@ function App() {
         {activePage === 'promotions' ? <PromotionsPage onNotice={showNotice} /> : null}
         {activePage === 'films' ? <FilmsPage onNotice={showNotice} /> : null}
         {activePage === 'customers' ? <CustomersPage onNotice={showNotice} /> : null}
+        {activePage === 'serials' ? <SerialNumbersPage onNotice={showNotice} /> : null}
       </main>
     </div>
   )
@@ -864,20 +867,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 
 function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [registrations, setRegistrations] = useState<WarrantyRegistration[]>([])
-  const [serials, setSerials] = useState<SerialNumber[]>([])
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [query, setQuery] = useState('')
-  const [serialInput, setSerialInput] = useState('')
 
   const load = useCallback(async () => {
     try {
       setIsLoadingCustomers(true)
-      const [nextRegistrations, nextSerials] = await Promise.all([
-        warrantyApi.listRegistrations(),
-        warrantyApi.listSerials(),
-      ])
-      setRegistrations(nextRegistrations)
-      setSerials(nextSerials)
+      setRegistrations(await warrantyApi.listRegistrations())
     } catch {
       onNotice('โหลดข้อมูลลูกค้าไม่สำเร็จ', 'error')
     } finally {
@@ -900,13 +896,6 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         event.type === 'warranty_registration.linked'
       ) {
         setRegistrations((current) => upsertWarrantyRegistration(current, event.data))
-      }
-
-      if (
-        event.type === 'serial_number.created' ||
-        event.type === 'serial_number.updated'
-      ) {
-        setSerials((current) => upsertSerialNumber(current, event.data))
       }
 
       if (shouldShowRealtimeNotice(event)) {
@@ -947,6 +936,60 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     )
   }, [query, registrations])
 
+  return (
+    <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกัน">
+      <section className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
+        <label className="relative mb-4 block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
+          <input
+            className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="ค้นหาชื่อ เบอร์โทร Serial ทะเบียนรถ"
+            value={query}
+          />
+        </label>
+        <CustomerTable customers={filtered} isLoading={isLoadingCustomers} />
+      </section>
+    </PageShell>
+  )
+}
+
+function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
+  const [serials, setSerials] = useState<SerialNumber[]>([])
+  const [isLoadingSerials, setIsLoadingSerials] = useState(true)
+  const [query, setQuery] = useState('')
+  const [serialInput, setSerialInput] = useState('')
+
+  const load = useCallback(async () => {
+    try {
+      setIsLoadingSerials(true)
+      setSerials(await warrantyApi.listSerials())
+    } catch {
+      onNotice('โหลด Serial Number ไม่สำเร็จ', 'error')
+    } finally {
+      setIsLoadingSerials(false)
+    }
+  }, [onNotice])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void load()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
+  }, [load])
+
+  useEffect(() => subscribeFulltankEvents({
+    onEvent: (event) => {
+      if (
+        event.type === 'serial_number.created' ||
+        event.type === 'serial_number.updated'
+      ) {
+        setSerials((current) => upsertSerialNumber(current, event.data))
+      }
+    },
+  }), [])
+
   const createSerial = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!serialInput.trim()) {
@@ -967,35 +1010,35 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     setSerialInput(generateSerialNumber(serials))
   }
 
+  const filteredSerials = useMemo(() => {
+    const term = query.trim().toLowerCase()
+    if (!term) {
+      return serials
+    }
+
+    return serials.filter((serial) =>
+      [serial.serialNumber, serial.status].join(' ').toLowerCase().includes(term),
+    )
+  }, [query, serials])
+  const availableCount = serials.filter((serial) => serial.status === 'available').length
+  const usedCount = serials.filter((serial) => serial.status === 'used').length
+
   return (
-    <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกันและ Serial Number">
-      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
-          <label className="relative mb-4 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
-            <input
-              className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="ค้นหาชื่อ เบอร์โทร Serial ทะเบียนรถ"
-              value={query}
+    <PageShell title="จัดการ Serial Number" subtitle="เจนและจัดการ Serial สำหรับลงทะเบียนรับประกัน">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,23rem)_1fr]">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
+          <div className="grid grid-cols-2 gap-3">
+            <SerialStatCard label="พร้อมใช้งาน" value={availableCount} tone="available" />
+            <SerialStatCard label="ถูกใช้แล้ว" value={usedCount} tone="used" />
+          </div>
+
+          <form className="mt-4 grid gap-3" onSubmit={createSerial}>
+            <TextInput
+              label="Serial Number"
+              onChange={(value) => setSerialInput(value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
+              placeholder="FTG260514A1B2C3"
+              value={serialInput}
             />
-          </label>
-          <CustomerTable customers={filtered} isLoading={isLoadingCustomers} />
-        </div>
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
-          <h2 className="text-lg font-black">Serial Number</h2>
-          <form className="mt-3 grid gap-2" onSubmit={createSerial}>
-            <div className="flex gap-2">
-              <input
-                className="h-11 min-w-0 flex-1 rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold uppercase text-white outline-none focus:border-[#ff403b]"
-                onChange={(event) => setSerialInput(event.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
-                placeholder="FTG260514A1B2C3"
-                value={serialInput}
-              />
-              <button className="grid size-11 place-items-center rounded-xl bg-[#ff332f]" type="submit" aria-label="เพิ่ม Serial Number">
-                <Plus size={18} />
-              </button>
-            </div>
             <button
               className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#ff403b]/45 bg-[#ff403b]/12 px-3 text-sm font-black text-[#ff6965]"
               onClick={fillGeneratedSerial}
@@ -1004,17 +1047,33 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
               <Shuffle size={16} />
               เจน Serial Number
             </button>
+            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+              <Plus size={17} />
+              เพิ่ม Serial Number
+            </button>
           </form>
-          <div className="mt-4 max-h-[34rem] space-y-2 overflow-auto pr-1">
-            {isLoadingCustomers ? <SerialListSkeleton /> : null}
-            {serials.map((serial) => (
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-2" key={serial.id}>
-                <span className="min-w-0 truncate text-sm font-black">{serial.serialNumber}</span>
-                <span className={serial.status === 'available' ? 'text-xs font-black text-emerald-300' : 'text-xs font-black text-[#ff6965]'}>
-                  {serial.status === 'available' ? 'available' : 'used'}
-                </span>
-              </div>
+        </div>
+
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
+          <label className="relative mb-4 block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
+            <input
+              className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="ค้นหา Serial หรือสถานะ"
+              value={query}
+            />
+          </label>
+          <div className="max-h-[calc(100dvh-15rem)] space-y-2 overflow-auto pr-1">
+            {isLoadingSerials ? <SerialListSkeleton /> : null}
+            {filteredSerials.map((serial) => (
+              <SerialRow key={serial.id} serial={serial} />
             ))}
+            {!isLoadingSerials && filteredSerials.length === 0 ? (
+              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
+                ไม่พบ Serial Number
+              </p>
+            ) : null}
           </div>
         </div>
       </section>
@@ -1036,6 +1095,55 @@ function PageShell({
       <p className="sr-only">{subtitle}</p>
       {children}
     </section>
+  )
+}
+
+function SerialStatCard({
+  label,
+  tone,
+  value,
+}: {
+  label: string
+  tone: 'available' | 'used'
+  value: number
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-[#101010] p-3">
+      <p className="text-xs font-black text-white/52">{label}</p>
+      <p
+        className={[
+          'mt-2 text-3xl font-black leading-none',
+          tone === 'available' ? 'text-emerald-300' : 'text-[#ff6965]',
+        ].join(' ')}
+      >
+        {value.toLocaleString('th-TH')}
+      </p>
+    </article>
+  )
+}
+
+function SerialRow({ serial }: { serial: SerialNumber }) {
+  const isAvailable = serial.status === 'available'
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-black text-white">{serial.serialNumber}</p>
+        <p className="mt-1 text-xs font-semibold text-white/38">
+          {serial.createdAt ? `สร้างเมื่อ ${new Date(serial.createdAt).toLocaleDateString('th-TH')}` : 'ยังไม่มีวันที่สร้าง'}
+        </p>
+      </div>
+      <span
+        className={[
+          'shrink-0 rounded-full px-3 py-1 text-xs font-black',
+          isAvailable
+            ? 'bg-emerald-400/12 text-emerald-300'
+            : 'bg-[#ff403b]/12 text-[#ff6965]',
+        ].join(' ')}
+      >
+        {isAvailable ? 'available' : 'used'}
+      </span>
+    </div>
   )
 }
 
@@ -1095,11 +1203,13 @@ function UploadedImageField({
 function TextInput({
   label,
   onChange,
+  placeholder,
   type = 'text',
   value,
 }: {
   label: string
   onChange: (value: string) => void
+  placeholder?: string
   type?: string
   value?: string
 }) {
@@ -1109,6 +1219,7 @@ function TextInput({
       <input
         className="mt-2 h-11 w-full rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
         onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
         type={type}
         value={value ?? ''}
       />
