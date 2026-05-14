@@ -17,7 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   authApi,
   clearSession,
@@ -211,12 +211,20 @@ function App() {
     session ? 'connecting' : 'off',
   )
   const [latestRealtimeAt, setLatestRealtimeAt] = useState<Date | null>(null)
+  const noticeTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null)
 
-  const showNotice = (message: string, tone: NoticeTone = 'info') => {
+  const showNotice = useCallback((message: string, tone: NoticeTone = 'info') => {
+    if (noticeTimerRef.current) {
+      window.clearTimeout(noticeTimerRef.current)
+    }
+
     setNotice(message)
     setNoticeTone(tone)
-    window.setTimeout(() => setNotice(''), 3200)
-  }
+    noticeTimerRef.current = window.setTimeout(() => {
+      setNotice('')
+      noticeTimerRef.current = null
+    }, 3200)
+  }, [])
 
   useEffect(() => {
     const updateCheckTimer = window.setTimeout(() => {
@@ -270,6 +278,12 @@ function App() {
       onStatus: setRealtimeStatus,
     })
   }, [session])
+
+  useEffect(() => () => {
+    if (noticeTimerRef.current) {
+      window.clearTimeout(noticeTimerRef.current)
+    }
+  }, [])
 
   if (isBooting) {
     return <StartupSplash isUpdated={hasAppUpdate} progress={bootProgress} />

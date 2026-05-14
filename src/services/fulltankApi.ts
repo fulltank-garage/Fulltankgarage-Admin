@@ -342,6 +342,10 @@ export const subscribeFulltankEvents = ({
   let retryCount = 0
   let isClosed = false
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+  let isConnecting = false
+
+  const isSocketLive = () =>
+    socket?.readyState === WebSocket.OPEN || socket?.readyState === WebSocket.CONNECTING
 
   const clearRetry = () => {
     if (retryTimer) {
@@ -358,14 +362,16 @@ export const subscribeFulltankEvents = ({
   }
 
   const connect = () => {
-    if (isClosed) {
+    if (isClosed || isConnecting || isSocketLive()) {
       return
     }
 
+    isConnecting = true
     onStatus?.(retryCount === 0 ? 'connecting' : 'reconnecting')
 
     void createFulltankEventsSocket()
       .then((nextSocket) => {
+        isConnecting = false
         if (isClosed) {
           nextSocket?.close()
           return
@@ -406,6 +412,7 @@ export const subscribeFulltankEvents = ({
         }
       })
       .catch(() => {
+        isConnecting = false
         if (isClosed) {
           return
         }
@@ -421,9 +428,12 @@ export const subscribeFulltankEvents = ({
       return
     }
 
+    if (isSocketLive()) {
+      return
+    }
+
     clearRetry()
     clearReconnect()
-    socket?.close()
     onStatus?.('reconnecting')
     reconnectTimer = setTimeout(connect, 100)
   }
@@ -449,6 +459,7 @@ export const subscribeFulltankEvents = ({
     isClosed = true
     clearRetry()
     clearReconnect()
+    isConnecting = false
     window.removeEventListener('focus', reconnectWhenActive)
     window.removeEventListener('online', reconnectWhenActive)
     document.removeEventListener('visibilitychange', handleVisibilityChange)
