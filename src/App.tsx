@@ -735,7 +735,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             placeholder="รายละเอียด เงื่อนไข ส่วนลด หรือข้อความที่ต้องการให้ลูกค้าอ่าน"
             value={form.description}
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2">
             <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
             <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
           </div>
@@ -1322,10 +1322,10 @@ function TextInput({
   value?: string
 }) {
   return (
-    <label className="block text-sm font-bold text-white/68">
+    <label className="block min-w-0 text-sm font-bold text-white/68">
       {label}
       <input
-        className="mt-2 h-11 w-full rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+        className="mt-2 h-11 w-full min-w-0 rounded-xl border border-white/12 bg-[#101010] px-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         type={type}
