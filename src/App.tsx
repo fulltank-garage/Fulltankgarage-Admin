@@ -735,7 +735,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             placeholder="รายละเอียด เงื่อนไข ส่วนลด หรือข้อความที่ต้องการให้ลูกค้าอ่าน"
             value={form.description}
           />
-          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-4">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6">
             <div className="min-w-0">
               <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
             </div>
