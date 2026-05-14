@@ -164,6 +164,7 @@ const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
 const emptyPromotion: Partial<Promotion> = {
   title: '',
   description: '',
+  detail: '',
   imageUrl: '',
   isActive: true,
   startsAt: '',
@@ -730,10 +731,16 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           />
           <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
           <TextAreaInput
-            label="คำอธิบายสำหรับ card และหน้ารายละเอียด"
+            label="คำอธิบายสั้นสำหรับ card"
             onChange={(value) => setForm((current) => ({ ...current, description: value }))}
-            placeholder="รายละเอียด เงื่อนไข ส่วนลด หรือข้อความที่ต้องการให้ลูกค้าอ่าน"
+            placeholder="ข้อความสั้นที่แสดงบน card โปรโมชัน"
             value={form.description}
+          />
+          <TextAreaInput
+            label="รายละเอียดโปรโมชัน"
+            onChange={(value) => setForm((current) => ({ ...current, detail: value }))}
+            placeholder="เงื่อนไข ส่วนลด ระยะเวลา วิธีใช้สิทธิ์ หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
+            value={form.detail}
           />
           <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6">
             <div className="min-w-0">
@@ -1208,7 +1215,8 @@ function SerialRow({ serial }: { serial: SerialNumber }) {
 function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> }) {
   const title = promotion.title?.trim() || 'ชื่อโปรโมชัน'
   const description =
-    promotion.description?.trim() || 'คำอธิบายนี้จะแสดงใน card และหน้าอ่านรายละเอียด'
+    promotion.description?.trim() || 'คำอธิบายสั้นนี้จะแสดงใน card'
+  const detail = promotion.detail?.trim() || 'รายละเอียดโปรโมชันจะแสดงในหน้าอ่านรายละเอียด'
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
@@ -1232,6 +1240,9 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
         <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าโปรโมชัน</p>
         <h3 className="mt-2 break-words text-base font-black text-white">{title}</h3>
         <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{description}</p>
+        <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
+          {detail}
+        </p>
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
           <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
             <CalendarDays size={15} />

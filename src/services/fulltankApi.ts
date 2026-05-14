@@ -49,6 +49,7 @@ export type Promotion = {
   id: number
   title: string
   description: string
+  detail: string
   imageUrl: string
   isActive: boolean
   startsAt: string
