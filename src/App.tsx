@@ -138,6 +138,18 @@ const shouldShowRealtimeNotice = (event: FulltankRealtimeEvent) =>
   event.type === 'warranty_registration.linked' ||
   (event.type === 'rich_menu.sync' && !event.data.success)
 
+const formatLatestRealtimeAt = (value: Date | null) => {
+  if (!value) {
+    return 'ยังไม่มีข้อมูลอัปเดต'
+  }
+
+  return new Intl.DateTimeFormat('th-TH', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(value)
+}
+
 const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard },
   { id: 'promotions', label: 'จัดการโปรโมชัน', icon: BadgePercent },
@@ -173,6 +185,10 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [noticeTone, setNoticeTone] = useState<NoticeTone>('info')
+  const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>(
+    session ? 'connecting' : 'off',
+  )
+  const [latestRealtimeAt, setLatestRealtimeAt] = useState<Date | null>(null)
 
   const showNotice = (message: string, tone: NoticeTone = 'info') => {
     setNotice(message)
@@ -222,6 +238,17 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!session) {
+      return undefined
+    }
+
+    return subscribeFulltankEvents({
+      onEvent: () => setLatestRealtimeAt(new Date()),
+      onStatus: setRealtimeStatus,
+    })
+  }, [session])
+
   if (isBooting) {
     return <StartupSplash isUpdated={hasAppUpdate} progress={bootProgress} />
   }
@@ -240,6 +267,8 @@ function App() {
   const logout = () => {
     clearSession()
     setSession(null)
+    setRealtimeStatus('off')
+    setLatestRealtimeAt(null)
     setIsSidebarOpen(false)
   }
 
@@ -267,9 +296,11 @@ function App() {
       >
         <Sidebar
           activePage={activePage}
+          latestRealtimeAt={latestRealtimeAt}
           onClose={() => setIsSidebarOpen(false)}
           onLogout={logout}
           onSelect={selectPage}
+          realtimeStatus={realtimeStatus}
           session={session}
         />
       </aside>
@@ -305,17 +336,36 @@ function App() {
 
 function Sidebar({
   activePage,
+  latestRealtimeAt,
   onClose,
   onLogout,
   onSelect,
+  realtimeStatus,
   session,
 }: {
   activePage: Page
+  latestRealtimeAt: Date | null
   onClose: () => void
   onLogout: () => void
   onSelect: (page: Page) => void
+  realtimeStatus: RealtimeStatus
   session: AuthSession
 }) {
+  const statusLabel =
+    realtimeStatus === 'connected'
+      ? 'เชื่อมต่อข้อมูลสด'
+      : realtimeStatus === 'off'
+        ? 'ปิดข้อมูลสด'
+        : realtimeStatus === 'connecting'
+          ? 'กำลังเชื่อมต่อ'
+          : 'กำลังเชื่อมต่อใหม่'
+  const statusDotClass =
+    realtimeStatus === 'connected'
+      ? 'bg-emerald-400'
+      : realtimeStatus === 'off'
+        ? 'bg-white/28'
+        : 'bg-[#ff403b]'
+
   return (
     <>
       <div className="flex items-center justify-between gap-3">
@@ -367,6 +417,15 @@ function Sidebar({
         <p className="mt-1 break-all text-xs font-semibold text-white/48">
           {session.user.email}
         </p>
+        <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span className={`size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
+            <p className="text-xs font-black text-white/76">{statusLabel}</p>
+          </div>
+          <p className="mt-1 text-xs font-semibold text-white/42">
+            ข้อมูลล่าสุด {formatLatestRealtimeAt(latestRealtimeAt)}
+          </p>
+        </div>
         <button
           className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-black text-white/72"
           onClick={onLogout}
@@ -465,7 +524,6 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     films: Film[]
   } | null>(null)
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(true)
-  const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>('connecting')
 
   const loadData = useCallback(async () => {
     try {
@@ -486,54 +544,51 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     return () => window.clearTimeout(timer)
   }, [loadData])
 
-  useEffect(() => {
-    return subscribeFulltankEvents({
-      onEvent: (event) => {
-        setData((current) => {
-          if (!current) {
-            return current
-          }
-
-          if (
-            event.type === 'warranty_registration.created' ||
-            event.type === 'warranty_registration.linked'
-          ) {
-            return {
-              ...current,
-              registrations: upsertWarrantyRegistration(current.registrations, event.data),
-            }
-          }
-
-          if (
-            event.type === 'serial_number.created' ||
-            event.type === 'serial_number.updated'
-          ) {
-            return {
-              ...current,
-              serials: upsertSerialNumber(current.serials, event.data),
-            }
-          }
-
+  useEffect(() => subscribeFulltankEvents({
+    onEvent: (event) => {
+      setData((current) => {
+        if (!current) {
           return current
-        })
-
-        if (shouldShowRealtimeNotice(event)) {
-          if (event.type === 'rich_menu.sync') {
-            onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
-            return
-          }
-
-          onNotice(
-            event.type === 'warranty_registration.created'
-              ? `มีการลงทะเบียนใหม่: ${event.data.serialNumber}`
-              : `มีการผูกบัตรรับประกัน: ${event.data.serialNumber}`,
-            'success',
-          )
         }
-      },
-      onStatus: setRealtimeStatus,
-    })
-  }, [onNotice])
+
+        if (
+          event.type === 'warranty_registration.created' ||
+          event.type === 'warranty_registration.linked'
+        ) {
+          return {
+            ...current,
+            registrations: upsertWarrantyRegistration(current.registrations, event.data),
+          }
+        }
+
+        if (
+          event.type === 'serial_number.created' ||
+          event.type === 'serial_number.updated'
+        ) {
+          return {
+            ...current,
+            serials: upsertSerialNumber(current.serials, event.data),
+          }
+        }
+
+        return current
+      })
+
+      if (shouldShowRealtimeNotice(event)) {
+        if (event.type === 'rich_menu.sync') {
+          onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
+          return
+        }
+
+        onNotice(
+          event.type === 'warranty_registration.created'
+            ? `มีการลงทะเบียนใหม่: ${event.data.serialNumber}`
+            : `มีการผูกบัตรรับประกัน: ${event.data.serialNumber}`,
+          'success',
+        )
+      }
+    },
+  }), [onNotice])
 
   const stats = [
     {
@@ -560,7 +615,6 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
   return (
     <PageShell title="แดชบอร์ด" subtitle="ภาพรวมระบบรับประกันสินค้าและ App Home">
-      <RealtimeIndicator status={realtimeStatus} />
       <section className="grid grid-cols-2 gap-3">
         {stats.map((item) => {
           const Icon = item.icon
@@ -814,7 +868,6 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [query, setQuery] = useState('')
   const [serialInput, setSerialInput] = useState('')
-  const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>('connecting')
 
   const load = useCallback(async () => {
     try {
@@ -840,40 +893,37 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     return () => window.clearTimeout(timer)
   }, [load])
 
-  useEffect(() => {
-    return subscribeFulltankEvents({
-      onEvent: (event) => {
-        if (
-          event.type === 'warranty_registration.created' ||
-          event.type === 'warranty_registration.linked'
-        ) {
-          setRegistrations((current) => upsertWarrantyRegistration(current, event.data))
+  useEffect(() => subscribeFulltankEvents({
+    onEvent: (event) => {
+      if (
+        event.type === 'warranty_registration.created' ||
+        event.type === 'warranty_registration.linked'
+      ) {
+        setRegistrations((current) => upsertWarrantyRegistration(current, event.data))
+      }
+
+      if (
+        event.type === 'serial_number.created' ||
+        event.type === 'serial_number.updated'
+      ) {
+        setSerials((current) => upsertSerialNumber(current, event.data))
+      }
+
+      if (shouldShowRealtimeNotice(event)) {
+        if (event.type === 'rich_menu.sync') {
+          onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
+          return
         }
 
-        if (
-          event.type === 'serial_number.created' ||
-          event.type === 'serial_number.updated'
-        ) {
-          setSerials((current) => upsertSerialNumber(current, event.data))
-        }
-
-        if (shouldShowRealtimeNotice(event)) {
-          if (event.type === 'rich_menu.sync') {
-            onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
-            return
-          }
-
-          onNotice(
-            event.type === 'warranty_registration.created'
-              ? `มีลูกค้าลงทะเบียนใหม่: ${event.data.serialNumber}`
-              : `อัปเดตบัตรรับประกัน: ${event.data.serialNumber}`,
-            'success',
-          )
-        }
-      },
-      onStatus: setRealtimeStatus,
-    })
-  }, [onNotice])
+        onNotice(
+          event.type === 'warranty_registration.created'
+            ? `มีลูกค้าลงทะเบียนใหม่: ${event.data.serialNumber}`
+            : `อัปเดตบัตรรับประกัน: ${event.data.serialNumber}`,
+          'success',
+        )
+      }
+    },
+  }), [onNotice])
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -919,7 +969,6 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
   return (
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกันและ Serial Number">
-      <RealtimeIndicator status={realtimeStatus} />
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <label className="relative mb-4 block">
@@ -987,31 +1036,6 @@ function PageShell({
       <p className="sr-only">{subtitle}</p>
       {children}
     </section>
-  )
-}
-
-function RealtimeIndicator({ status }: { status: RealtimeStatus }) {
-  const label =
-    status === 'connected'
-      ? 'Realtime connected'
-      : status === 'off'
-        ? 'Realtime off'
-        : status === 'connecting'
-          ? 'Realtime connecting'
-          : 'Realtime reconnecting'
-  const className =
-    status === 'connected'
-      ? 'border-emerald-400/24 bg-emerald-400/10 text-emerald-300'
-      : status === 'off'
-        ? 'border-white/10 bg-white/5 text-white/46'
-        : 'border-[#ff403b]/28 bg-[#ff403b]/10 text-[#ff8a86]'
-
-  return (
-    <div className="mb-3 flex justify-end">
-      <span className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-black ${className}`}>
-        {label}
-      </span>
-    </div>
   )
 }
 
