@@ -1,6 +1,8 @@
 import {
   BadgePercent,
+  CalendarDays,
   Car,
+  ChevronRight,
   Film as FilmIcon,
   ImagePlus,
   KeyRound,
@@ -167,6 +169,26 @@ const emptyPromotion: Partial<Promotion> = {
   startsAt: '',
   endsAt: '',
 }
+
+const formatPromotionDate = (value?: string) => {
+  if (!value) {
+    return 'สอบถามหน้าร้าน'
+  }
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return 'สอบถามหน้าร้าน'
+  }
+
+  return date.toLocaleDateString('th-TH', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+const getPromotionImageText = (title?: string) =>
+  title?.trim().split(/\s+/).slice(0, 2).join(' ').toUpperCase() || 'PROMOTION'
 
 const emptyFilm: Partial<Film> = {
   slug: '',
@@ -697,7 +719,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
   }
 
   return (
-    <PageShell title="จัดการโปรโมชัน" subtitle="เพิ่มรูปภาพและคำอธิบายสำหรับหน้าโปรโมชัน">
+    <PageShell title="จัดการโปรโมชัน" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card โปรโมชันและหน้าอ่านรายละเอียด">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
@@ -706,12 +728,18 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             label="รูปโปรโมชัน"
             onFileSelect={uploadPromotionImage}
           />
-          <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} value={form.title} />
-          <TextInput label="คำอธิบาย" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
+          <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
+          <TextAreaInput
+            label="คำอธิบายสำหรับ card และหน้ารายละเอียด"
+            onChange={(value) => setForm((current) => ({ ...current, description: value }))}
+            placeholder="รายละเอียด เงื่อนไข ส่วนลด หรือข้อความที่ต้องการให้ลูกค้าอ่าน"
+            value={form.description}
+          />
           <div className="grid grid-cols-2 gap-3">
             <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
             <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
           </div>
+          <AdminPromotionPreview promotion={form} />
           <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
             <Plus size={17} />
             บันทึกโปรโมชัน
@@ -722,12 +750,26 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {items.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
-                <div className="aspect-[16/10] bg-gradient-to-br from-[#ff403b] to-[#171717]">
+                <div className="relative aspect-[16/9] bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
                   {item.imageUrl ? <img alt="" className="size-full object-cover" src={item.imageUrl} /> : null}
+                  <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent,rgba(0,0,0,0.58))]" />
+                  <p className="absolute bottom-4 left-4 right-4 break-words text-3xl font-black tracking-tight text-white">
+                    {getPromotionImageText(item.title)}
+                  </p>
                 </div>
                 <div className="p-3">
                   <p className="break-words text-base font-black">{item.title}</p>
                   <p className="mt-1 text-sm font-semibold leading-6 text-white/52">{item.description}</p>
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+                    <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
+                      <CalendarDays size={15} />
+                      ถึง {formatPromotionDate(item.endsAt)}
+                    </span>
+                    <span className="inline-flex shrink-0 items-center gap-1 text-xs font-black text-[#ff6965]">
+                      อ่านรายละเอียด
+                      <ChevronRight size={16} />
+                    </span>
+                  </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
                       แก้ไข
@@ -1147,6 +1189,48 @@ function SerialRow({ serial }: { serial: SerialNumber }) {
   )
 }
 
+function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> }) {
+  const title = promotion.title?.trim() || 'ชื่อโปรโมชัน'
+  const description =
+    promotion.description?.trim() || 'คำอธิบายนี้จะแสดงใน card และหน้าอ่านรายละเอียด'
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
+      <div className="relative aspect-[16/9] bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
+        {promotion.imageUrl ? (
+          <img alt="" className="absolute inset-0 size-full object-cover" src={promotion.imageUrl} />
+        ) : null}
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent,rgba(0,0,0,0.58))]" />
+        <div className="absolute bottom-4 left-4 right-4">
+          <p className="break-words text-3xl font-black tracking-tight text-white">
+            {getPromotionImageText(title)}
+          </p>
+          <img
+            alt="FullTank Garage"
+            className="mt-2 h-auto w-28 rounded-lg object-cover opacity-90"
+            src={fulltankGarageLogo}
+          />
+        </div>
+      </div>
+      <div className="p-3">
+        <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าโปรโมชัน</p>
+        <h3 className="mt-2 break-words text-base font-black text-white">{title}</h3>
+        <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{description}</p>
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+          <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
+            <CalendarDays size={15} />
+            ถึง {formatPromotionDate(promotion.endsAt)}
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-black text-[#ff6965]">
+            อ่านรายละเอียด
+            <ChevronRight size={16} />
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function UploadedImageField({
   help = 'เลือกไฟล์รูปภาพจากเครื่อง',
   imageUrl,
@@ -1195,6 +1279,30 @@ function UploadedImageField({
           event.currentTarget.value = ''
         }}
         type="file"
+      />
+    </label>
+  )
+}
+
+function TextAreaInput({
+  label,
+  onChange,
+  placeholder,
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  placeholder?: string
+  value?: string
+}) {
+  return (
+    <label className="block text-sm font-bold text-white/68">
+      {label}
+      <textarea
+        className="mt-2 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        value={value ?? ''}
       />
     </label>
   )
@@ -1280,11 +1388,15 @@ function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion
         >
           {variant === 'promotion' ? (
             <>
-              <SkeletonBlock className="aspect-[16/10] w-full rounded-none" />
+              <SkeletonBlock className="aspect-[16/9] w-full rounded-none" />
               <div className="p-3">
                 <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
                 <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
                 <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
+                <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+                  <SkeletonBlock className="h-5 w-28 rounded-xl" />
+                  <SkeletonBlock className="h-5 w-24 rounded-xl" />
+                </div>
                 <div className="mt-3 flex gap-2">
                   <SkeletonBlock className="h-8 w-16 rounded-lg" />
                   <SkeletonBlock className="h-8 w-16 rounded-lg" />
