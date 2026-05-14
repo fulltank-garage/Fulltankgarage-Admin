@@ -1277,17 +1277,9 @@ function UploadedImageField({
           ) : (
             <div className="text-center text-white/42">
               <ImagePlus className="mx-auto" size={34} />
-              <p className="mt-2 text-xs font-black">{help}</p>
+              <p className="mt-2 text-xs font-black">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
             </div>
           )}
-        </div>
-        <div className="flex items-center justify-between gap-3 px-3 py-3">
-          <span className="min-w-0 text-xs font-bold text-white/48">
-            {isUploading ? 'กำลังอัปโหลดรูป...' : help}
-          </span>
-          <span className="shrink-0 rounded-lg bg-[#ff332f] px-3 py-2 text-xs font-black text-white">
-            เลือกรูป
-          </span>
         </div>
       </div>
       <input
