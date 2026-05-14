@@ -770,8 +770,8 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {items.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
-                <div className="promotion-square-media relative bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
-                  {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-cover" src={item.imageUrl} /> : null}
+                <div className="promotion-square-media relative bg-[#080808]">
+                  {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
                 </div>
                 <div className="p-3">
                   <p className="break-words text-base font-black">{item.title}</p>
@@ -1213,9 +1213,9 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-      <div className="promotion-square-media relative bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
+      <div className="promotion-square-media relative bg-[#080808]">
         {promotion.imageUrl ? (
-          <img alt="" className="absolute inset-0 size-full object-cover" src={promotion.imageUrl} />
+          <img alt="" className="absolute inset-0 size-full object-contain" src={promotion.imageUrl} />
         ) : null}
       </div>
       <div className="p-3">
