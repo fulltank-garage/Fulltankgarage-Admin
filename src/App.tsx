@@ -188,9 +188,6 @@ const formatPromotionDate = (value?: string) => {
   })
 }
 
-const getPromotionImageText = (title?: string) =>
-  title?.trim().split(/\s+/).slice(0, 2).join(' ').toUpperCase() || 'PROMOTION'
-
 const emptyFilm: Partial<Film> = {
   slug: '',
   name: '',
@@ -773,12 +770,8 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {items.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
-                <div className="relative aspect-[16/9] bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
+                <div className="relative aspect-square bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
                   {item.imageUrl ? <img alt="" className="size-full object-cover" src={item.imageUrl} /> : null}
-                  <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent,rgba(0,0,0,0.58))]" />
-                  <p className="absolute bottom-4 left-4 right-4 break-words text-3xl font-black tracking-tight text-white">
-                    {getPromotionImageText(item.title)}
-                  </p>
                 </div>
                 <div className="p-3">
                   <p className="break-words text-base font-black">{item.title}</p>
@@ -1220,21 +1213,10 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-      <div className="relative aspect-[16/9] bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
+      <div className="relative aspect-square bg-gradient-to-br from-[#ff403b] via-[#6f0908] to-[#171717]">
         {promotion.imageUrl ? (
           <img alt="" className="absolute inset-0 size-full object-cover" src={promotion.imageUrl} />
         ) : null}
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,transparent,rgba(0,0,0,0.58))]" />
-        <div className="absolute bottom-4 left-4 right-4">
-          <p className="break-words text-3xl font-black tracking-tight text-white">
-            {getPromotionImageText(title)}
-          </p>
-          <img
-            alt="FullTank Garage"
-            className="mt-2 h-auto w-28 rounded-lg object-cover opacity-90"
-            src={fulltankGarageLogo}
-          />
-        </div>
       </div>
       <div className="p-3">
         <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าโปรโมชัน</p>
@@ -1420,7 +1402,7 @@ function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion
         >
           {variant === 'promotion' ? (
             <>
-              <SkeletonBlock className="aspect-[16/9] w-full rounded-none" />
+              <SkeletonBlock className="aspect-square w-full rounded-none" />
               <div className="p-3">
                 <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
                 <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
