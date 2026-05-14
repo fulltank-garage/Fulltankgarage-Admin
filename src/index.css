@@ -44,6 +44,16 @@
 }
 
 @layer utilities {
+  .promotion-square-media {
+    aspect-ratio: 1 / 1;
+    display: block;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+  }
+
   .snackbar-notice {
     transform: translate(-50%, -0.75rem);
     animation: snackbar-slide 3.2s ease both;
