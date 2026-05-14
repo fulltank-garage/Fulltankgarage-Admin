@@ -735,9 +735,13 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             placeholder="รายละเอียด เงื่อนไข ส่วนลด หรือข้อความที่ต้องการให้ลูกค้าอ่าน"
             value={form.description}
           />
-          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
-            <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
-            <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-4">
+            <div className="min-w-0 overflow-hidden">
+              <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
+            </div>
+            <div className="min-w-0 overflow-hidden">
+              <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
+            </div>
           </div>
           <AdminPromotionPreview promotion={form} />
           <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
