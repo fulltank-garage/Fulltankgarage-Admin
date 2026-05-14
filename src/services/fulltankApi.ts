@@ -56,6 +56,25 @@ export type Promotion = {
   createdAt: string
 }
 
+export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'off'
+
+export type RichMenuSyncEvent = {
+  lineUserId?: string
+  serialNumber?: string
+  success: boolean
+  linkedRichMenuId?: string
+  targetRichMenuId?: string
+  source?: string
+  message?: string
+}
+
+export type FulltankRealtimeEvent =
+  | { type: 'warranty_registration.created'; data: WarrantyRegistration }
+  | { type: 'warranty_registration.linked'; data: WarrantyRegistration }
+  | { type: 'serial_number.created'; data: SerialNumber }
+  | { type: 'serial_number.updated'; data: SerialNumber }
+  | { type: 'rich_menu.sync'; data: RichMenuSyncEvent }
+
 const apiBaseUrl =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
   (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api')
@@ -270,4 +289,146 @@ export const uploadApi = {
     const { data } = await api.post<{ imageUrl: string }>('/uploads/images', formData)
     return data.imageUrl
   },
+}
+
+const createFulltankEventsSocket = async () => {
+  const token = await ensureFreshToken()
+  if (!token) {
+    return null
+  }
+
+  const baseUrl = new URL(apiBaseUrl, window.location.origin)
+  baseUrl.protocol = baseUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+  baseUrl.pathname = `${baseUrl.pathname.replace(/\/$/, '')}/members/events`
+  baseUrl.search = ''
+  baseUrl.searchParams.set('token', token)
+
+  return new WebSocket(baseUrl.toString())
+}
+
+export const subscribeFulltankEvents = ({
+  onEvent,
+  onStatus,
+}: {
+  onEvent: (event: FulltankRealtimeEvent) => void
+  onStatus?: (status: RealtimeStatus) => void
+}) => {
+  let socket: WebSocket | null = null
+  let retryTimer: ReturnType<typeof setTimeout> | null = null
+  let retryCount = 0
+  let isClosed = false
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+
+  const clearRetry = () => {
+    if (retryTimer) {
+      clearTimeout(retryTimer)
+      retryTimer = null
+    }
+  }
+
+  const clearReconnect = () => {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer)
+      reconnectTimer = null
+    }
+  }
+
+  const connect = () => {
+    if (isClosed) {
+      return
+    }
+
+    onStatus?.(retryCount === 0 ? 'connecting' : 'reconnecting')
+
+    void createFulltankEventsSocket()
+      .then((nextSocket) => {
+        if (isClosed) {
+          nextSocket?.close()
+          return
+        }
+
+        socket = nextSocket
+        if (!socket) {
+          onStatus?.('off')
+          return
+        }
+
+        socket.onopen = () => {
+          retryCount = 0
+          onStatus?.('connected')
+        }
+
+        socket.onmessage = (message) => {
+          try {
+            onEvent(JSON.parse(message.data) as FulltankRealtimeEvent)
+          } catch {
+            // Ignore malformed realtime payloads so one bad message does not close the stream.
+          }
+        }
+
+        socket.onerror = () => {
+          socket?.close()
+        }
+
+        socket.onclose = () => {
+          if (isClosed) {
+            return
+          }
+
+          retryCount += 1
+          onStatus?.('reconnecting')
+          const retryDelay = Math.min(1000 * retryCount, 10000)
+          retryTimer = setTimeout(connect, retryDelay)
+        }
+      })
+      .catch(() => {
+        if (isClosed) {
+          return
+        }
+
+        retryCount += 1
+        onStatus?.('reconnecting')
+        retryTimer = setTimeout(connect, Math.min(1000 * retryCount, 10000))
+      })
+  }
+
+  const reconnect = () => {
+    if (isClosed || document.visibilityState === 'hidden') {
+      return
+    }
+
+    clearRetry()
+    clearReconnect()
+    socket?.close()
+    onStatus?.('reconnecting')
+    reconnectTimer = setTimeout(connect, 100)
+  }
+
+  const reconnectWhenActive = () => {
+    if (document.visibilityState !== 'hidden') {
+      reconnect()
+    }
+  }
+
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      reconnect()
+    }
+  }
+
+  connect()
+  window.addEventListener('focus', reconnectWhenActive)
+  window.addEventListener('online', reconnectWhenActive)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  return () => {
+    isClosed = true
+    clearRetry()
+    clearReconnect()
+    window.removeEventListener('focus', reconnectWhenActive)
+    window.removeEventListener('online', reconnectWhenActive)
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+    onStatus?.('off')
+    socket?.close()
+  }
 }
