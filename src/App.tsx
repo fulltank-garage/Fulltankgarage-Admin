@@ -774,10 +774,12 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             />
           </label>
           <AdminPromotionPreview promotion={form} />
-          <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-            <Plus size={17} />
-            บันทึกโปรโมชัน
-          </button>
+          <div className="flex justify-end">
+            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+              <Plus size={17} />
+              บันทึกโปรโมชัน
+            </button>
+          </div>
         </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
