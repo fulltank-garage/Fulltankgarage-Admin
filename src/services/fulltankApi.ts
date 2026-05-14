@@ -56,6 +56,29 @@ export type Promotion = {
   createdAt: string
 }
 
+const toDateInputValue = (value?: string | null) => {
+  if (!value) {
+    return ''
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value
+  }
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  return date.toISOString().slice(0, 10)
+}
+
+const normalizePromotion = (promotion: Promotion): Promotion => ({
+  ...promotion,
+  startsAt: toDateInputValue(promotion.startsAt),
+  endsAt: toDateInputValue(promotion.endsAt),
+})
+
 export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'off'
 
 export type RichMenuSyncEvent = {
@@ -266,15 +289,15 @@ export const filmApi = {
 export const promotionApi = {
   async list() {
     const { data } = await api.get<Promotion[]>('/promotions')
-    return data
+    return data.map(normalizePromotion)
   },
   async save(payload: Partial<Promotion>) {
     if (payload.id) {
       const { data } = await api.patch<Promotion>(`/promotions/${payload.id}`, payload)
-      return data
+      return normalizePromotion(data)
     }
     const { data } = await api.post<Promotion>('/promotions', payload)
-    return data
+    return normalizePromotion(data)
   },
   async remove(id: number) {
     await api.delete(`/promotions/${id}`)

@@ -743,6 +743,18 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
               <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
             </div>
           </div>
+          <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
+            <span className="min-w-0">
+              <span className="block text-sm font-black text-white">เปิดใช้งานโปรโมชัน</span>
+              <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าโปรโมชัน</span>
+            </span>
+            <input
+              checked={form.isActive ?? true}
+              className="size-5 shrink-0 accent-[#ff332f]"
+              onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
+              type="checkbox"
+            />
+          </label>
           <AdminPromotionPreview promotion={form} />
           <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
             <Plus size={17} />
