@@ -207,6 +207,29 @@ const formatPromotionDateRange = (startsAt?: string, endsAt?: string) => {
   return `เริ่ม ${start} ถึง ${end}`
 }
 
+const formatCustomerInstallDate = (value?: string) => {
+  if (!value) {
+    return '-'
+  }
+
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (dateOnly) {
+    const [, year, month, day] = dateOnly
+    return `${day}/${month}/${Number(year) + 543}`
+  }
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  return date.toLocaleDateString('th-TH', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
 const emptyFilm: Partial<Film> = {
   slug: '',
   name: '',
@@ -1651,7 +1674,7 @@ function CustomerTable({
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
                 <dt className="text-xs font-black text-white/38">ติดตั้ง</dt>
                 <dd className="min-w-0 break-words text-white/78">
-                  {customer.installDate || '-'}
+                  {formatCustomerInstallDate(customer.installDate)}
                 </dd>
               </div>
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
@@ -1690,7 +1713,7 @@ function CustomerTable({
                 <p className="text-xs text-white/42">{customer.licensePlate}</p>
               </td>
               <td className="px-3 py-3">{customer.filmBrand} {customer.filmModel}</td>
-              <td className="px-3 py-3">{customer.installDate || '-'}</td>
+              <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
               <td className="rounded-r-xl px-3 py-3">{customer.branch || '-'}</td>
             </tr>
           ))}
