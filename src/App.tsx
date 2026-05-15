@@ -188,6 +188,25 @@ const formatPromotionDate = (value?: string) => {
   })
 }
 
+const formatPromotionDateRange = (startsAt?: string, endsAt?: string) => {
+  const start = formatPromotionDate(startsAt)
+  const end = formatPromotionDate(endsAt)
+
+  if (start === 'สอบถามหน้าร้าน' && end === 'สอบถามหน้าร้าน') {
+    return 'สอบถามหน้าร้าน'
+  }
+
+  if (start === 'สอบถามหน้าร้าน') {
+    return `ถึง ${end}`
+  }
+
+  if (end === 'สอบถามหน้าร้าน') {
+    return `เริ่ม ${start}`
+  }
+
+  return `เริ่ม ${start} ถึง ${end}`
+}
+
 const emptyFilm: Partial<Film> = {
   slug: '',
   name: '',
@@ -795,7 +814,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                   <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
                     <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
                       <CalendarDays size={15} />
-                      ถึง {formatPromotionDate(item.endsAt)}
+                      {formatPromotionDateRange(item.startsAt, item.endsAt)}
                     </span>
                     <span className="inline-flex shrink-0 items-center gap-1 text-xs font-black text-[#ff6965]">
                       อ่านรายละเอียด
@@ -1244,7 +1263,7 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
           <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
             <CalendarDays size={15} />
-            ถึง {formatPromotionDate(promotion.endsAt)}
+            {formatPromotionDateRange(promotion.startsAt, promotion.endsAt)}
           </span>
           <span className="inline-flex shrink-0 items-center gap-1 text-xs font-black text-[#ff6965]">
             อ่านรายละเอียด
