@@ -41,6 +41,7 @@ export type Film = {
   summary: string
   description: string
   imageUrl: string
+  galleryImages: string[]
   isActive: boolean
   createdAt: string
 }

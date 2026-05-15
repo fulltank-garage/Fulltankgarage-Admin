@@ -237,6 +237,7 @@ const emptyFilm: Partial<Film> = {
   summary: '',
   description: '',
   imageUrl: '',
+  galleryImages: [],
   isActive: true,
 }
 
@@ -889,6 +890,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const [form, setForm] = useState<Partial<Film>>(emptyFilm)
   const [isLoadingFilms, setIsLoadingFilms] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -943,6 +945,29 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     }
   }
 
+  const uploadFilmGalleryImage = async (file: File) => {
+    try {
+      setIsUploadingGallery(true)
+      const imageUrl = await uploadApi.image(file)
+      setForm((current) => ({
+        ...current,
+        galleryImages: [...(current.galleryImages ?? []), imageUrl],
+      }))
+      onNotice('เพิ่มรูปแกลเลอรีฟิล์มแล้ว', 'success')
+    } catch {
+      onNotice('อัปโหลดรูปแกลเลอรีไม่สำเร็จ', 'error')
+    } finally {
+      setIsUploadingGallery(false)
+    }
+  }
+
+  const removeFilmGalleryImage = (imageUrl: string) => {
+    setForm((current) => ({
+      ...current,
+      galleryImages: (current.galleryImages ?? []).filter((item) => item !== imageUrl),
+    }))
+  }
+
   return (
     <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card ฟิล์มและหน้าอ่านรายละเอียด">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
@@ -965,6 +990,12 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             onChange={(value) => setForm((current) => ({ ...current, description: value }))}
             placeholder="คุณสมบัติ จุดเด่น การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
             value={form.description}
+          />
+          <FilmGalleryField
+            images={form.galleryImages ?? []}
+            isUploading={isUploadingGallery}
+            onFileSelect={uploadFilmGalleryImage}
+            onRemove={removeFilmGalleryImage}
           />
           <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
             <span className="min-w-0">
@@ -1008,6 +1039,15 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                   <p className="mt-2 line-clamp-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-5 text-white/48">
                     {item.description || 'ยังไม่มีรายละเอียดฟิล์ม'}
                   </p>
+                  {item.galleryImages?.length ? (
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      {item.galleryImages.slice(0, 4).map((imageUrl) => (
+                        <div className="aspect-[16/9] overflow-hidden rounded-lg bg-black/30" key={imageUrl}>
+                          <img alt="" className="size-full object-cover" src={imageUrl} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
                       แก้ไข
@@ -1387,6 +1427,15 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {description}
         </p>
+        {film.galleryImages?.length ? (
+          <div className="mt-3 grid gap-2">
+            {film.galleryImages.slice(0, 3).map((imageUrl) => (
+              <div className="aspect-[16/9] overflow-hidden rounded-xl bg-black/30" key={imageUrl}>
+                <img alt="" className="size-full object-cover" src={imageUrl} />
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )
@@ -1434,6 +1483,63 @@ function UploadedImageField({
         type="file"
       />
     </label>
+  )
+}
+
+function FilmGalleryField({
+  images,
+  isUploading,
+  onFileSelect,
+  onRemove,
+}: {
+  images: string[]
+  isUploading: boolean
+  onFileSelect: (file: File) => void
+  onRemove: (imageUrl: string) => void
+}) {
+  return (
+    <div className="text-sm font-bold text-white/68">
+      <div className="flex items-center justify-between gap-3">
+        <span>รูปภาพเพิ่มเติม</span>
+        <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 px-3 text-xs font-black text-white">
+          <ImagePlus size={15} />
+          {isUploading ? 'กำลังอัปโหลด' : 'เพิ่มรูป'}
+          <input
+            accept="image/*"
+            className="sr-only"
+            disabled={isUploading}
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0]
+              if (file) {
+                onFileSelect(file)
+              }
+              event.currentTarget.value = ''
+            }}
+            type="file"
+          />
+        </label>
+      </div>
+      <div className="mt-2 grid gap-2">
+        {images.length === 0 ? (
+          <div className="grid aspect-[16/9] place-items-center rounded-2xl border border-white/10 bg-[#101010] px-5 text-center text-xs font-black leading-5 text-white/42">
+            เพิ่มรูปสี่เหลี่ยมผืนผ้าสำหรับหน้าอ่านรายละเอียดฟิล์ม
+          </div>
+        ) : null}
+        {images.map((imageUrl) => (
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={imageUrl}>
+            <img alt="" className="aspect-[16/9] w-full object-cover" src={imageUrl} />
+            <button
+              aria-label="ลบรูปภาพ"
+              className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/70 text-white"
+              onClick={() => onRemove(imageUrl)}
+              type="button"
+            >
+              <X size={17} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
