@@ -1332,7 +1332,13 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
       <div className="promotion-square-media relative bg-[#080808]">
         {promotion.imageUrl ? (
           <img alt="" className="absolute inset-0 size-full object-contain" src={promotion.imageUrl} />
-        ) : null}
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#2a1111] via-[#151515] to-[#070707] px-5">
+            <span className="text-center text-sm font-black leading-5 text-white/72">
+              ตัวอย่างรูปภาพโปรโมชัน
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-3">
         <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าโปรโมชัน</p>
@@ -1360,7 +1366,6 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const name = film.name?.trim() || 'ชื่อฟิล์ม'
   const summary = film.summary?.trim() || 'คำอธิบายสั้นนี้จะแสดงใน card'
   const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
-  const logo = film.logo?.trim() || createFilmLogo(film.name)
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
@@ -1369,7 +1374,9 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
           <img alt="" className="absolute inset-0 size-full object-contain" src={film.imageUrl} />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#ff403b] via-[#161616] to-[#050505]">
-            <span className="text-5xl font-black text-white/86">{logo}</span>
+            <span className="px-5 text-center text-sm font-black leading-5 text-white/72">
+              ตัวอย่างรูปภาพโลโก้
+            </span>
           </div>
         )}
       </div>
