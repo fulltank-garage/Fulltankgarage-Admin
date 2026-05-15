@@ -801,7 +801,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           </div>
         </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {items.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
