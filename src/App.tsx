@@ -217,6 +217,15 @@ const emptyFilm: Partial<Film> = {
   isActive: true,
 }
 
+const createFilmLogo = (name?: string) =>
+  (name || 'FT')
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'FT'
+
 function App() {
   const [isBooting, setIsBooting] = useState(true)
   const [bootProgress, setBootProgress] = useState(12)
@@ -885,7 +894,11 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     }
 
     try {
-      await filmApi.save(form)
+      await filmApi.save({
+        ...form,
+        logo: form.logo?.trim() || createFilmLogo(form.name),
+        slug: form.slug?.trim() || undefined,
+      })
       setForm(emptyFilm)
       await load()
       onNotice('บันทึกข้อมูลฟิล์มแล้ว', 'success')
@@ -908,46 +921,91 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   }
 
   return (
-    <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลที่ใช้แสดงในหน้า Film App">
+    <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card ฟิล์มและหน้าอ่านรายละเอียด">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
-            help="รองรับเฉพาะไฟล์รูปภาพ ไม่ใช้ URL"
             imageUrl={form.imageUrl}
             isUploading={isUploadingImage}
-            label="รูป/โลโก้ฟิล์ม"
+            label="รูปฟิล์ม"
             onFileSelect={uploadFilmImage}
           />
-          <div className="grid grid-cols-2 gap-3">
-            <TextInput label="Slug" onChange={(value) => setForm((current) => ({ ...current, slug: value }))} value={form.slug} />
-            <TextInput label="Logo" onChange={(value) => setForm((current) => ({ ...current, logo: value }))} value={form.logo} />
+          <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
+          <TextAreaInput
+            label="คำอธิบายสั้นสำหรับ card"
+            onChange={(value) => setForm((current) => ({ ...current, summary: value }))}
+            placeholder="ข้อความสั้นที่แสดงบน card ฟิล์ม"
+            value={form.summary}
+          />
+          <TextAreaInput
+            label="รายละเอียดฟิล์ม"
+            onChange={(value) => setForm((current) => ({ ...current, description: value }))}
+            placeholder="คุณสมบัติ จุดเด่น การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
+            value={form.description}
+          />
+          <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
+            <span className="min-w-0">
+              <span className="block text-sm font-black text-white">เปิดใช้งานฟิล์ม</span>
+              <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าข้อมูลฟิล์ม</span>
+            </span>
+            <input
+              checked={form.isActive ?? true}
+              className="size-5 shrink-0 accent-[#ff332f]"
+              onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
+              type="checkbox"
+            />
+          </label>
+          <AdminFilmPreview film={form} />
+          <div className="flex justify-end">
+            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+              <Plus size={17} />
+              บันทึกฟิล์ม
+            </button>
           </div>
-          <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} value={form.name} />
-          <TextInput label="คำอธิบายสั้น" onChange={(value) => setForm((current) => ({ ...current, summary: value }))} value={form.summary} />
-          <TextInput label="รายละเอียด" onChange={(value) => setForm((current) => ({ ...current, description: value }))} value={form.description} />
-          <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-            <Plus size={17} />
-            บันทึกฟิล์ม
-          </button>
         </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {isLoadingFilms ? <AdminGridSkeleton /> : null}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
             {items.map((item) => (
-              <AdminListItem
-                description={item.summary}
-                imageUrl={item.imageUrl}
-                key={item.id}
-                onDelete={async () => {
-                  await filmApi.remove(item.id)
-                  await load()
-                }}
-                onEdit={() => setForm(item)}
-                title={item.name}
-              />
+              <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
+                <div className="promotion-square-media relative bg-[#080808]">
+                  {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
+                </div>
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="break-words text-base font-black">{item.name}</p>
+                    <span className={[
+                      'shrink-0 rounded-full px-2 py-1 text-[10px] font-black text-white',
+                      item.isActive ? 'bg-[#00d084]' : 'bg-white/14',
+                    ].join(' ')}>
+                      {item.isActive ? 'ใช้งานได้' : 'ปิดอยู่'}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-white/52">{item.summary}</p>
+                  <p className="mt-2 line-clamp-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-5 text-white/48">
+                    {item.description || 'ยังไม่มีรายละเอียดฟิล์ม'}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
+                      แก้ไข
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
+                      onClick={async () => {
+                        await filmApi.remove(item.id)
+                        await load()
+                      }}
+                      type="button"
+                    >
+                      <Trash2 size={14} />
+                      ลบ
+                    </button>
+                  </div>
+                </div>
+              </article>
             ))}
             {!isLoadingFilms && items.length === 0 ? (
-              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
+              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2">
                 ยังไม่มีข้อมูลฟิล์ม
               </p>
             ) : null}
@@ -1275,6 +1333,35 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
   )
 }
 
+function AdminFilmPreview({ film }: { film: Partial<Film> }) {
+  const name = film.name?.trim() || 'ชื่อฟิล์ม'
+  const summary = film.summary?.trim() || 'คำอธิบายสั้นนี้จะแสดงใน card'
+  const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
+  const logo = film.logo?.trim() || createFilmLogo(film.name)
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
+      <div className="promotion-square-media relative bg-[#080808]">
+        {film.imageUrl ? (
+          <img alt="" className="absolute inset-0 size-full object-contain" src={film.imageUrl} />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#ff403b] via-[#161616] to-[#050505]">
+            <span className="text-5xl font-black text-white/86">{logo}</span>
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าฟิล์ม</p>
+        <h3 className="mt-2 break-words text-base font-black text-white">{name}</h3>
+        <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{summary}</p>
+        <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
+          {description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function UploadedImageField({
   help = 'เลือกไฟล์รูปภาพจากเครื่อง',
   imageUrl,
@@ -1376,46 +1463,11 @@ function TextInput({
   )
 }
 
-function AdminListItem({
-  description,
-  imageUrl,
-  onDelete,
-  onEdit,
-  title,
-}: {
-  description?: string
-  imageUrl?: string
-  onDelete: () => void
-  onEdit: () => void
-  title: string
-}) {
-  return (
-    <article className="flex gap-3 rounded-2xl border border-white/10 bg-[#101010] p-3">
-      <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-[#ff403b] to-[#171717]">
-        {imageUrl ? <img alt="" className="size-full object-cover" src={imageUrl} /> : <BadgePercent size={24} />}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-black">{title}</p>
-        <p className="mt-1 line-clamp-2 text-sm font-semibold leading-6 text-white/52">{description}</p>
-        <div className="mt-3 flex gap-2">
-          <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={onEdit} type="button">
-            แก้ไข
-          </button>
-          <button className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]" onClick={onDelete} type="button">
-            <Trash2 size={14} />
-            ลบ
-          </button>
-        </div>
-      </div>
-    </article>
-  )
-}
-
 function SkeletonBlock({ className }: { className: string }) {
   return <span aria-hidden="true" className={`block skeleton-shimmer ${className}`} />
 }
 
-function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion' }) {
+function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion' | 'film' }) {
   return (
     <>
       {Array.from({ length: 6 }, (_, index) => (
@@ -1427,17 +1479,21 @@ function AdminGridSkeleton({ variant = 'list' }: { variant?: 'list' | 'promotion
           ].join(' ')}
           key={index}
         >
-          {variant === 'promotion' ? (
+          {variant === 'promotion' || variant === 'film' ? (
             <>
               <SkeletonBlock className="promotion-square-media w-full rounded-none" />
               <div className="p-3">
                 <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
                 <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
                 <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
-                <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
-                  <SkeletonBlock className="h-5 w-28 rounded-xl" />
-                  <SkeletonBlock className="h-5 w-24 rounded-xl" />
-                </div>
+                {variant === 'promotion' ? (
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+                    <SkeletonBlock className="h-5 w-28 rounded-xl" />
+                    <SkeletonBlock className="h-5 w-24 rounded-xl" />
+                  </div>
+                ) : (
+                  <SkeletonBlock className="mt-3 h-16 w-full rounded-xl" />
+                )}
                 <div className="mt-3 flex gap-2">
                   <SkeletonBlock className="h-8 w-16 rounded-lg" />
                   <SkeletonBlock className="h-8 w-16 rounded-lg" />
