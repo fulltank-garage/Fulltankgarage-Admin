@@ -3,6 +3,7 @@ import {
   CalendarDays,
   Car,
   ChevronRight,
+  Download,
   Film as FilmIcon,
   ImagePlus,
   KeyRound,
@@ -10,6 +11,8 @@ import {
   LogOut,
   Menu,
   Plus,
+  QrCode,
+  RefreshCw,
   Shuffle,
   Search,
   Trash2,
@@ -35,6 +38,7 @@ import {
   type Promotion,
   type RealtimeStatus,
   type SerialNumber,
+  type SystemHealth,
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
@@ -44,6 +48,10 @@ type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
 type NoticeTone = 'success' | 'error' | 'info'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
+const maxImageBytes = 5 * 1024 * 1024
+const warrantyAppUrl =
+  (import.meta.env.VITE_WARRANTY_APP_URL as string | undefined) ||
+  'https://fulltankgarage.vercel.app'
 
 const getLoadedAppVersion = () => {
   const assets = Array.from(
@@ -229,6 +237,80 @@ const formatCustomerInstallDate = (value?: string) => {
     year: 'numeric',
   })
 }
+
+const escapeCsvCell = (value: unknown) => {
+  const text = String(value ?? '')
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`
+  }
+
+  return text
+}
+
+const downloadCsv = (filename: string, headers: string[], rows: unknown[][]) => {
+  const csv = [
+    headers.map(escapeCsvCell).join(','),
+    ...rows.map((row) => row.map(escapeCsvCell).join(',')),
+  ].join('\n')
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+const compressImageFile = async (file: File) => {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('รองรับเฉพาะไฟล์รูปภาพ')
+  }
+
+  if (file.size <= maxImageBytes) {
+    return file
+  }
+
+  const imageBitmap = await createImageBitmap(file)
+  const maxSide = 1800
+  const scale = Math.min(1, maxSide / Math.max(imageBitmap.width, imageBitmap.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(imageBitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(imageBitmap.height * scale))
+  const context = canvas.getContext('2d')
+  if (!context) {
+    imageBitmap.close()
+    throw new Error('ไม่สามารถบีบอัดรูปภาพได้')
+  }
+
+  context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height)
+  imageBitmap.close()
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((nextBlob) => {
+      if (nextBlob) {
+        resolve(nextBlob)
+      } else {
+        reject(new Error('ไม่สามารถบีบอัดรูปภาพได้'))
+      }
+    }, 'image/jpeg', 0.82)
+  })
+
+  return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+    type: 'image/jpeg',
+    lastModified: Date.now(),
+  })
+}
+
+const buildWarrantySerialUrl = (serialNumber: string) => {
+  const url = new URL(warrantyAppUrl)
+  url.searchParams.set('serial', serialNumber)
+  return url.toString()
+}
+
+const buildQrImageUrl = (value: string, size = 220) =>
+  `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}`
+
+const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
 
 const emptyFilm: Partial<Film> = {
   slug: '',
@@ -612,12 +694,18 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     promotions: Promotion[]
     films: Film[]
   } | null>(null)
+  const [health, setHealth] = useState<SystemHealth | null>(null)
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(true)
 
   const loadData = useCallback(async () => {
     try {
       setIsLoadingDashboard(true)
-      setData(await dashboardApi.summary())
+      const [summary, systemHealth] = await Promise.all([
+        dashboardApi.summary(),
+        dashboardApi.health(),
+      ])
+      setData(summary)
+      setHealth(systemHealth)
     } catch {
       onNotice('โหลดข้อมูลแดชบอร์ดไม่สำเร็จ', 'error')
     } finally {
@@ -725,6 +813,29 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
       </section>
 
       <section className="mt-4 rounded-2xl border border-white/10 bg-[#151515] p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-black">สถานะระบบ</h2>
+            <p className="mt-1 text-xs font-bold text-white/42">
+              API {health?.status === 'ok' ? 'พร้อมใช้งาน' : 'กำลังตรวจสอบ'} · {health?.startedAt ? `เริ่มทำงาน ${formatLatestRealtimeAt(new Date(health.startedAt))}` : 'รอข้อมูล'}
+            </p>
+          </div>
+          <button className="grid size-10 place-items-center rounded-xl border border-white/10 bg-[#101010] text-white/70" onClick={() => void loadData()} type="button">
+            <RefreshCw size={16} />
+          </button>
+        </div>
+        {health?.checks ? (
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            {Object.entries(health.checks).map(([name, status]) => (
+              <div className="rounded-xl border border-white/10 bg-[#101010] px-3 py-2" key={name}>
+                <p className="text-[10px] font-black uppercase text-white/38">{name}</p>
+                <p className={['mt-1 text-sm font-black', status === 'ok' ? 'text-[#00d084]' : 'text-[#ff6965]'].join(' ')}>
+                  {status}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <h2 className="text-lg font-black">รายการล่าสุด</h2>
         <CustomerTable customers={(data?.registrations ?? []).slice(0, 6)} isLoading={isLoadingDashboard} />
       </section>
@@ -759,6 +870,22 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!form.title?.trim()) {
+      onNotice('กรุณากรอกชื่อโปรโมชัน', 'error')
+      return
+    }
+    if (!form.imageUrl) {
+      onNotice('กรุณาอัปโหลดรูปโปรโมชัน', 'error')
+      return
+    }
+    if (!form.description?.trim()) {
+      onNotice('กรุณากรอกคำอธิบายสั้นสำหรับ card', 'error')
+      return
+    }
+    if (form.startsAt && form.endsAt && form.startsAt > form.endsAt) {
+      onNotice('วันที่เริ่มโปรโมชันต้องไม่เกินวันที่สิ้นสุด', 'error')
+      return
+    }
     try {
       await promotionApi.save(form)
       setForm(emptyPromotion)
@@ -772,7 +899,8 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
   const uploadPromotionImage = async (file: File) => {
     try {
       setIsUploadingImage(true)
-      const imageUrl = await uploadApi.image(file)
+      const optimizedFile = await compressImageFile(file)
+      const imageUrl = await uploadApi.image(optimizedFile)
       setForm((current) => ({ ...current, imageUrl }))
       onNotice('อัปโหลดรูปโปรโมชันแล้ว', 'success')
     } catch {
@@ -913,8 +1041,20 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!form.name?.trim()) {
+      onNotice('กรุณากรอกชื่อฟิล์ม', 'error')
+      return
+    }
     if (!form.imageUrl) {
       onNotice('กรุณาอัปโหลดรูปฟิล์ม', 'error')
+      return
+    }
+    if (!form.summary?.trim()) {
+      onNotice('กรุณากรอกคำอธิบายสั้นสำหรับ card', 'error')
+      return
+    }
+    if (!form.description?.trim()) {
+      onNotice('กรุณากรอกรายละเอียดฟิล์ม', 'error')
       return
     }
 
@@ -935,7 +1075,8 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const uploadFilmImage = async (file: File) => {
     try {
       setIsUploadingImage(true)
-      const imageUrl = await uploadApi.image(file)
+      const optimizedFile = await compressImageFile(file)
+      const imageUrl = await uploadApi.image(optimizedFile)
       setForm((current) => ({ ...current, imageUrl }))
       onNotice('อัปโหลดรูปฟิล์มแล้ว', 'success')
     } catch {
@@ -948,7 +1089,8 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const uploadFilmGalleryImage = async (file: File) => {
     try {
       setIsUploadingGallery(true)
-      const imageUrl = await uploadApi.image(file)
+      const optimizedFile = await compressImageFile(file)
+      const imageUrl = await uploadApi.image(optimizedFile)
       setForm((current) => ({
         ...current,
         galleryImages: [...(current.galleryImages ?? []), imageUrl],
@@ -1083,6 +1225,8 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
   const [registrations, setRegistrations] = useState<WarrantyRegistration[]>([])
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [query, setQuery] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
 
   const load = useCallback(async () => {
     try {
@@ -1134,8 +1278,12 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
       return registrations
     }
 
-    return registrations.filter((item) =>
-      [
+    return registrations.filter((item) => {
+      const installDate = item.installDate?.slice(0, 10) ?? ''
+      const matchesDate =
+        (!startDate || installDate >= startDate) &&
+        (!endDate || installDate <= endDate)
+      const matchesTerm = [
         item.serialNumber,
         item.customerName,
         item.phone,
@@ -1146,13 +1294,50 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
       ]
         .join(' ')
         .toLowerCase()
-        .includes(term),
+        .includes(term)
+
+      return matchesDate && matchesTerm
+    })
+  }, [endDate, query, registrations, startDate])
+
+  const exportCustomers = () => {
+    downloadCsv(
+      `fulltank-customers-${formatDateInput(new Date())}.csv`,
+      ['Serial', 'ลูกค้า', 'เบอร์โทร', 'รุ่นรถ', 'ทะเบียน', 'แบรนด์ฟิล์ม', 'รุ่นฟิล์ม', 'วันที่ติดตั้ง', 'สาขา', 'ช่างติดตั้ง', 'หมายเหตุ'],
+      filtered.map((customer) => [
+        customer.serialNumber,
+        customer.customerName,
+        customer.phone,
+        customer.carModel,
+        customer.licensePlate,
+        customer.filmBrand,
+        customer.filmModel,
+        formatCustomerInstallDate(customer.installDate),
+        customer.branch,
+        customer.installerName,
+        customer.remarks,
+      ]),
     )
-  }, [query, registrations])
+  }
 
   return (
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกัน">
       <section className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
+        <div className="mb-3 flex flex-wrap items-end gap-2">
+          <div className="min-w-[8.5rem] flex-1">
+            <TextInput label="ตั้งแต่วันที่ติดตั้ง" onChange={setStartDate} type="date" value={startDate} />
+          </div>
+          <div className="min-w-[8.5rem] flex-1">
+            <TextInput label="ถึงวันที่ติดตั้ง" onChange={setEndDate} type="date" value={endDate} />
+          </div>
+          <button className="h-11 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={() => { setStartDate(''); setEndDate('') }} type="button">
+            ล้างวันที่
+          </button>
+          <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
+            <Download size={15} />
+            Export
+          </button>
+        </div>
         <label className="relative mb-4 block">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
           <input
@@ -1173,6 +1358,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   const [isLoadingSerials, setIsLoadingSerials] = useState(true)
   const [query, setQuery] = useState('')
   const [serialInput, setSerialInput] = useState('')
+  const [batchCount, setBatchCount] = useState('10')
 
   const load = useCallback(async () => {
     try {
@@ -1206,12 +1392,17 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
 
   const createSerial = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!serialInput.trim()) {
+    const nextSerial = serialInput.trim().toUpperCase()
+    if (!nextSerial) {
+      return
+    }
+    if (serials.some((serial) => serial.serialNumber.toUpperCase() === nextSerial)) {
+      onNotice('Serial Number นี้มีอยู่แล้ว', 'error')
       return
     }
 
     try {
-      const createdSerial = await warrantyApi.createSerial(serialInput.trim().toUpperCase())
+      const createdSerial = await warrantyApi.createSerial(nextSerial)
       setSerials((current) => upsertSerialNumber(current, createdSerial))
       setSerialInput('')
       onNotice('เพิ่ม Serial Number แล้ว', 'success')
@@ -1222,6 +1413,24 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
 
   const fillGeneratedSerial = () => {
     setSerialInput(generateSerialNumber(serials))
+  }
+
+  const createBatchSerials = async () => {
+    const count = Math.min(100, Math.max(1, Number(batchCount) || 1))
+    const created: SerialNumber[] = []
+    const existing = [...serials]
+
+    try {
+      for (let index = 0; index < count; index += 1) {
+        const nextSerial = generateSerialNumber([...existing, ...created])
+        const createdSerial = await warrantyApi.createSerial(nextSerial)
+        created.push(createdSerial)
+      }
+      setSerials((current) => created.reduce(upsertSerialNumber, current))
+      onNotice(`สร้าง Serial Number แล้ว ${created.length} รายการ`, 'success')
+    } catch {
+      onNotice('สร้าง Serial Number แบบชุดไม่สำเร็จ', 'error')
+    }
   }
 
   const filteredSerials = useMemo(() => {
@@ -1236,6 +1445,66 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   }, [query, serials])
   const availableCount = serials.filter((serial) => serial.status === 'available').length
   const usedCount = serials.filter((serial) => serial.status === 'used').length
+  const availableSerials = filteredSerials.filter((serial) => serial.status === 'available')
+
+  const exportSerials = () => {
+    downloadCsv(
+      `fulltank-serials-${formatDateInput(new Date())}.csv`,
+      ['Serial Number', 'สถานะ', 'วันที่สร้าง', 'URL ลงทะเบียน'],
+      filteredSerials.map((serial) => [
+        serial.serialNumber,
+        serial.status,
+        serial.createdAt ? new Date(serial.createdAt).toLocaleDateString('th-TH') : '',
+        buildWarrantySerialUrl(serial.serialNumber),
+      ]),
+    )
+  }
+
+  const printQrLabels = () => {
+    const targetSerials = availableSerials.length ? availableSerials : filteredSerials
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      onNotice('ไม่สามารถเปิดหน้าพิมพ์ QR ได้ กรุณาอนุญาต pop-up', 'error')
+      return
+    }
+
+    const labels = targetSerials
+      .map((serial) => {
+        const url = buildWarrantySerialUrl(serial.serialNumber)
+        return `
+          <article class="label">
+            <img src="${buildQrImageUrl(url)}" alt="" />
+            <strong>${serial.serialNumber}</strong>
+            <span>FullTank Garage Warranty</span>
+          </article>
+        `
+      })
+      .join('')
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html lang="th">
+        <head>
+          <meta charset="utf-8" />
+          <title>FullTank Serial QR</title>
+          <style>
+            * { box-sizing: border-box; }
+            body { margin: 0; padding: 16px; font-family: Arial, sans-serif; color: #111; }
+            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .label { border: 1px solid #ddd; border-radius: 10px; padding: 10px; text-align: center; break-inside: avoid; }
+            img { width: 120px; height: 120px; }
+            strong { display: block; margin-top: 6px; font-size: 13px; letter-spacing: .02em; }
+            span { display: block; margin-top: 3px; font-size: 10px; color: #555; }
+            @media print { body { padding: 0; } .label { border-color: #bbb; } }
+          </style>
+        </head>
+        <body><main class="grid">${labels}</main></body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    window.setTimeout(() => printWindow.print(), 500)
+  }
 
   return (
     <PageShell title="จัดการ Serial Number" subtitle="เจนและจัดการ Serial สำหรับลงทะเบียนรับประกัน">
@@ -1266,9 +1535,35 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               เพิ่ม Serial Number
             </button>
           </form>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-[#101010] p-3">
+            <TextInput
+              label="จำนวนที่ต้องการเจน"
+              onChange={(value) => setBatchCount(value.replace(/\D/g, ''))}
+              placeholder="10"
+              value={batchCount}
+            />
+            <button
+              className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-white/8 px-4 text-sm font-black text-white"
+              onClick={createBatchSerials}
+              type="button"
+            >
+              <Shuffle size={16} />
+              เจนเป็นชุด
+            </button>
+          </div>
         </div>
 
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
+          <div className="mb-3 grid grid-cols-2 gap-2">
+            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] text-xs font-black text-white/70" onClick={exportSerials} type="button">
+              <Download size={15} />
+              Export CSV
+            </button>
+            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 text-xs font-black text-[#ff6965]" onClick={printQrLabels} type="button">
+              <QrCode size={15} />
+              พิมพ์ QR
+            </button>
+          </div>
           <label className="relative mb-4 block">
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
             <input
