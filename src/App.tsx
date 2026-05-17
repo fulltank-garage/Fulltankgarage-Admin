@@ -443,18 +443,20 @@ function App() {
 
   return (
     <div className="min-h-dvh bg-[#070707] text-white">
-      {isSidebarOpen ? (
-        <button
-          aria-label="ปิดเมนู"
-          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-          type="button"
-        />
-      ) : null}
+      <button
+        aria-label="ปิดเมนู"
+        aria-hidden={!isSidebarOpen}
+        className={[
+          'fixed inset-0 z-30 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ease-out md:hidden',
+          isSidebarOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
+        ].join(' ')}
+        onClick={() => setIsSidebarOpen(false)}
+        type="button"
+      />
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-200 md:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] transform-gpu flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:translate-x-0 md:transition-none',
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >
