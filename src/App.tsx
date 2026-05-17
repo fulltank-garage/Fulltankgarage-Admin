@@ -877,6 +877,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
+            help="ตัวอย่างรูปภาพโปรโมชัน"
             imageUrl={form.imageUrl}
             isUploading={isUploadingImage}
             label="รูปโปรโมชัน"
@@ -1077,6 +1078,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
+            help="ตัวอย่างรูปภาพโลโก้"
             imageUrl={form.imageUrl}
             isUploading={isUploadingImage}
             label="รูปฟิล์ม"
@@ -1666,11 +1668,16 @@ function UploadedImageField({
       <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
         <div className="grid aspect-[16/10] place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
           {imageUrl ? (
-            <img alt="" className="size-full object-cover" src={imageUrl} />
+            <img alt="" className="size-full object-contain" src={imageUrl} />
           ) : (
-            <div className="text-center text-white/42">
-              <ImagePlus className="mx-auto" size={34} />
-              <p className="mt-2 text-xs font-black">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
+            <div className="grid size-full place-items-center px-4 text-center text-white/42">
+              <div>
+                <ImagePlus className="mx-auto" size={34} />
+                <p className="mt-2 text-xs font-black">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
+                <span className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#ff332f] px-4 text-xs font-black text-white">
+                  เลือกรูป
+                </span>
+              </div>
             </div>
           )}
         </div>
