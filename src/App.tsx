@@ -447,7 +447,7 @@ function App() {
         aria-label="ปิดเมนู"
         aria-hidden={!isSidebarOpen}
         className={[
-          'fixed inset-0 z-30 bg-black/68 backdrop-blur-[2px] transition-[opacity,backdrop-filter] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden',
+          'fixed inset-0 z-30 bg-black/68 backdrop-blur-[2px] transition-[opacity,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden',
           isSidebarOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0 backdrop-blur-0',
         ].join(' ')}
         onClick={() => setIsSidebarOpen(false)}
@@ -456,8 +456,8 @@ function App() {
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] transform-gpu flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-[transform,opacity] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform md:translate-x-0 md:opacity-100 md:transition-none',
-          isSidebarOpen ? 'translate-x-0 opacity-100' : '-translate-x-[105%] opacity-0',
+          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] transform-gpu flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:translate-x-0 md:transition-none',
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >
         <Sidebar
