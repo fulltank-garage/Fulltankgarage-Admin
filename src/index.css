@@ -36,6 +36,27 @@
     font: inherit;
   }
 
+  button,
+  a,
+  label:has(input[type="file"]),
+  [role="button"],
+  input[type="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   input,
   textarea,
   select {
