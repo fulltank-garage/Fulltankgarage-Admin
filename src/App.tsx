@@ -45,6 +45,7 @@ type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
 type NoticeTone = 'success' | 'error' | 'info'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
+const appUpdateCheckIntervalMs = 5 * 60 * 1000
 const maxImageBytes = 5 * 1024 * 1024
 const warrantyAppUrl =
   (import.meta.env.VITE_WARRANTY_APP_URL as string | undefined) ||
@@ -330,6 +331,7 @@ function App() {
   const [isBooting, setIsBooting] = useState(true)
   const [bootProgress, setBootProgress] = useState(12)
   const [hasAppUpdate, setHasAppUpdate] = useState(false)
+  const [hasPendingAppUpdate, setHasPendingAppUpdate] = useState(false)
   const [session, setSession] = useState<AuthSession | null>(() => getStoredSession())
   const [activePage, setActivePage] = useState<Page>('dashboard')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -340,6 +342,9 @@ function App() {
   )
   const [latestRealtimeAt, setLatestRealtimeAt] = useState<Date | null>(null)
   const noticeTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null)
+  const appUpdateRegistrationRef = useRef<ServiceWorkerRegistration | null>(null)
+  const isApplyingAppUpdateRef = useRef(false)
+  const watchedServiceWorkerRegistrationsRef = useRef<WeakSet<ServiceWorkerRegistration>>(new WeakSet())
 
   const showNotice = useCallback((message: string, tone: NoticeTone = 'info') => {
     if (noticeTimerRef.current) {
@@ -352,6 +357,55 @@ function App() {
       setNotice('')
       noticeTimerRef.current = null
     }, 3200)
+  }, [])
+
+  const showAppUpdatePrompt = useCallback((registration?: ServiceWorkerRegistration | null) => {
+    if (registration) {
+      appUpdateRegistrationRef.current = registration
+    }
+
+    setHasAppUpdate(true)
+    setHasPendingAppUpdate(true)
+    showNotice('มีการอัปเดตแอป กดอัปเดตเพื่อโหลดเวอร์ชันล่าสุด', 'info')
+  }, [showNotice])
+
+  const watchServiceWorkerUpdate = useCallback((registration: ServiceWorkerRegistration) => {
+    appUpdateRegistrationRef.current = registration
+
+    if (registration.waiting && navigator.serviceWorker.controller) {
+      showAppUpdatePrompt(registration)
+    }
+
+    if (watchedServiceWorkerRegistrationsRef.current.has(registration)) {
+      return
+    }
+    watchedServiceWorkerRegistrationsRef.current.add(registration)
+
+    registration.addEventListener('updatefound', () => {
+      const nextWorker = registration.installing
+      if (!nextWorker) {
+        return
+      }
+
+      nextWorker.addEventListener('statechange', () => {
+        if (nextWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showAppUpdatePrompt(registration)
+        }
+      })
+    })
+  }, [showAppUpdatePrompt])
+
+  const applyAppUpdate = useCallback(() => {
+    const waitingWorker = appUpdateRegistrationRef.current?.waiting
+    isApplyingAppUpdateRef.current = true
+    setHasPendingAppUpdate(false)
+
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' })
+      return
+    }
+
+    window.location.reload()
   }, [])
 
   useEffect(() => {
@@ -376,17 +430,58 @@ function App() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/admin-sw.js', { scope: '/' })
-        .then((registration) => registration.update())
+        .then((registration) => {
+          watchServiceWorkerUpdate(registration)
+          return registration.update()
+        })
         .catch(() => undefined)
 
-      navigator.serviceWorker
-        .getRegistration('/admin-sw.js')
-        .then((registration) => registration?.update())
-        .catch(() => undefined)
+      const checkForAppUpdate = () => {
+        navigator.serviceWorker
+          .getRegistration('/admin-sw.js')
+          .then((registration) => {
+            if (!registration) {
+              return undefined
+            }
 
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
+            watchServiceWorkerUpdate(registration)
+            return registration.update()
+          })
+          .catch(() => undefined)
+      }
+
+      checkForAppUpdate()
+
+      const handleControllerChange = () => {
         setHasAppUpdate(true)
-      })
+
+        if (isApplyingAppUpdateRef.current) {
+          window.location.reload()
+          return
+        }
+
+        setHasPendingAppUpdate(true)
+      }
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          checkForAppUpdate()
+        }
+      }
+      const updateInterval = window.setInterval(checkForAppUpdate, appUpdateCheckIntervalMs)
+
+      navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+      window.addEventListener('focus', checkForAppUpdate)
+
+      return () => {
+        window.clearTimeout(updateCheckTimer)
+        window.clearInterval(progressTimer)
+        window.clearTimeout(doneTimer)
+        window.clearInterval(updateInterval)
+        navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        window.removeEventListener('focus', checkForAppUpdate)
+      }
     }
 
     return () => {
@@ -394,7 +489,7 @@ function App() {
       window.clearInterval(progressTimer)
       window.clearTimeout(doneTimer)
     }
-  }, [])
+  }, [watchServiceWorkerUpdate])
 
   useEffect(() => {
     if (!session) {
@@ -491,6 +586,7 @@ function App() {
           </div>
         </header>
         {notice ? <Notice message={notice} tone={noticeTone} /> : null}
+        {hasPendingAppUpdate ? <AppUpdateDialog onUpdate={applyAppUpdate} /> : null}
         {activePage === 'dashboard' ? <DashboardPage onNotice={showNotice} /> : null}
         {activePage === 'promotions' ? <PromotionsPage onNotice={showNotice} /> : null}
         {activePage === 'films' ? <FilmsPage onNotice={showNotice} /> : null}
@@ -2070,6 +2166,24 @@ function Notice({ message, tone }: { message: string; tone: NoticeTone }) {
       ].join(' ')}
     >
       {message}
+    </div>
+  )
+}
+
+function AppUpdateDialog({ onUpdate }: { onUpdate: () => void }) {
+  return (
+    <div className="fixed inset-x-4 top-[5.25rem] z-[60] mx-auto w-[min(calc(100vw-2rem),25rem)] rounded-2xl border border-[#ff403b]/32 bg-[#151515] p-4 text-white shadow-[0_22px_58px_rgba(0,0,0,0.48)]">
+      <p className="text-sm font-black text-[#ff6965]">มีการอัปเดตแอป</p>
+      <p className="mt-1 text-sm font-bold leading-6 text-white/68">
+        โหลดเวอร์ชันล่าสุดเพื่อป้องกันหน้าค้างหรือจอดำหลัง deploy
+      </p>
+      <button
+        className="mt-3 h-11 w-full rounded-xl bg-[#ff332f] text-sm font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.18)]"
+        onClick={onUpdate}
+        type="button"
+      >
+        อัปเดตตอนนี้
+      </button>
     </div>
   )
 }
