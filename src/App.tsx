@@ -11,8 +11,6 @@ import {
   LogOut,
   Menu,
   Plus,
-  QrCode,
-  RefreshCw,
   Shuffle,
   Search,
   Trash2,
@@ -38,7 +36,6 @@ import {
   type Promotion,
   type RealtimeStatus,
   type SerialNumber,
-  type SystemHealth,
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
@@ -306,9 +303,6 @@ const buildWarrantySerialUrl = (serialNumber: string) => {
   url.searchParams.set('serial', serialNumber)
   return url.toString()
 }
-
-const buildQrImageUrl = (value: string, size = 220) =>
-  `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}`
 
 const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
 
@@ -694,18 +688,13 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     promotions: Promotion[]
     films: Film[]
   } | null>(null)
-  const [health, setHealth] = useState<SystemHealth | null>(null)
   const [isLoadingDashboard, setIsLoadingDashboard] = useState(true)
 
   const loadData = useCallback(async () => {
     try {
       setIsLoadingDashboard(true)
-      const [summary, systemHealth] = await Promise.all([
-        dashboardApi.summary(),
-        dashboardApi.health(),
-      ])
+      const summary = await dashboardApi.summary()
       setData(summary)
-      setHealth(systemHealth)
     } catch {
       onNotice('โหลดข้อมูลแดชบอร์ดไม่สำเร็จ', 'error')
     } finally {
@@ -812,33 +801,6 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         })}
       </section>
 
-      <section className="mt-4 rounded-2xl border border-white/10 bg-[#151515] p-4">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-black">สถานะระบบ</h2>
-            <p className="mt-1 text-xs font-bold text-white/42">
-              API {health?.status === 'ok' ? 'พร้อมใช้งาน' : 'กำลังตรวจสอบ'} · {health?.startedAt ? `เริ่มทำงาน ${formatLatestRealtimeAt(new Date(health.startedAt))}` : 'รอข้อมูล'}
-            </p>
-          </div>
-          <button className="grid size-10 place-items-center rounded-xl border border-white/10 bg-[#101010] text-white/70" onClick={() => void loadData()} type="button">
-            <RefreshCw size={16} />
-          </button>
-        </div>
-        {health?.checks ? (
-          <div className="mb-4 grid grid-cols-2 gap-2">
-            {Object.entries(health.checks).map(([name, status]) => (
-              <div className="rounded-xl border border-white/10 bg-[#101010] px-3 py-2" key={name}>
-                <p className="text-[10px] font-black uppercase text-white/38">{name}</p>
-                <p className={['mt-1 text-sm font-black', status === 'ok' ? 'text-[#00d084]' : 'text-[#ff6965]'].join(' ')}>
-                  {status}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : null}
-        <h2 className="text-lg font-black">รายการล่าสุด</h2>
-        <CustomerTable customers={(data?.registrations ?? []).slice(0, 6)} isLoading={isLoadingDashboard} />
-      </section>
     </PageShell>
   )
 }
@@ -1445,7 +1407,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   }, [query, serials])
   const availableCount = serials.filter((serial) => serial.status === 'available').length
   const usedCount = serials.filter((serial) => serial.status === 'used').length
-  const availableSerials = filteredSerials.filter((serial) => serial.status === 'available')
 
   const exportSerials = () => {
     downloadCsv(
@@ -1458,52 +1419,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
         buildWarrantySerialUrl(serial.serialNumber),
       ]),
     )
-  }
-
-  const printQrLabels = () => {
-    const targetSerials = availableSerials.length ? availableSerials : filteredSerials
-    const printWindow = window.open('', '_blank')
-    if (!printWindow) {
-      onNotice('ไม่สามารถเปิดหน้าพิมพ์ QR ได้ กรุณาอนุญาต pop-up', 'error')
-      return
-    }
-
-    const labels = targetSerials
-      .map((serial) => {
-        const url = buildWarrantySerialUrl(serial.serialNumber)
-        return `
-          <article class="label">
-            <img src="${buildQrImageUrl(url)}" alt="" />
-            <strong>${serial.serialNumber}</strong>
-            <span>FullTank Garage Warranty</span>
-          </article>
-        `
-      })
-      .join('')
-
-    printWindow.document.write(`
-      <!doctype html>
-      <html lang="th">
-        <head>
-          <meta charset="utf-8" />
-          <title>FullTank Serial QR</title>
-          <style>
-            * { box-sizing: border-box; }
-            body { margin: 0; padding: 16px; font-family: Arial, sans-serif; color: #111; }
-            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-            .label { border: 1px solid #ddd; border-radius: 10px; padding: 10px; text-align: center; break-inside: avoid; }
-            img { width: 120px; height: 120px; }
-            strong { display: block; margin-top: 6px; font-size: 13px; letter-spacing: .02em; }
-            span { display: block; margin-top: 3px; font-size: 10px; color: #555; }
-            @media print { body { padding: 0; } .label { border-color: #bbb; } }
-          </style>
-        </head>
-        <body><main class="grid">${labels}</main></body>
-      </html>
-    `)
-    printWindow.document.close()
-    printWindow.focus()
-    window.setTimeout(() => printWindow.print(), 500)
   }
 
   return (
@@ -1554,14 +1469,10 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
         </div>
 
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
-          <div className="mb-3 grid grid-cols-2 gap-2">
+          <div className="mb-3">
             <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] text-xs font-black text-white/70" onClick={exportSerials} type="button">
               <Download size={15} />
               Export CSV
-            </button>
-            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 text-xs font-black text-[#ff6965]" onClick={printQrLabels} type="button">
-              <QrCode size={15} />
-              พิมพ์ QR
             </button>
           </div>
           <label className="relative mb-4 block">

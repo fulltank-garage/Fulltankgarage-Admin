@@ -100,13 +100,6 @@ export type FulltankRealtimeEvent =
   | { type: 'serial_number.updated'; data: SerialNumber }
   | { type: 'rich_menu.sync'; data: RichMenuSyncEvent }
 
-export type SystemHealth = {
-  status: string
-  service: string
-  startedAt: string
-  checks?: Record<string, string>
-}
-
 const apiBaseUrl =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
   (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api')
@@ -259,10 +252,6 @@ export const dashboardApi = {
       promotions: promotions.data,
       films: films.data,
     }
-  },
-  async health() {
-    const { data } = await api.get<SystemHealth>('/health')
-    return data
   },
 }
 
