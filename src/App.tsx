@@ -39,6 +39,7 @@ import {
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
+import { ConfirmationDialog } from './components/ConfirmationDialog'
 import { StartupSplash } from './components/StartupSplash'
 
 type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
@@ -1097,6 +1098,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
   const [form, setForm] = useState<Partial<Promotion>>(emptyPromotion)
   const [isLoadingPromotions, setIsLoadingPromotions] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [pendingDeletePromotion, setPendingDeletePromotion] = useState<Promotion | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -1158,9 +1160,21 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
     }
   }
 
+  const deletePromotion = async (promotion: Promotion) => {
+    try {
+      await promotionApi.remove(promotion.id)
+      setPendingDeletePromotion(null)
+      await load()
+      onNotice('ลบโปรโมชันแล้ว', 'success')
+    } catch {
+      onNotice('ลบโปรโมชันไม่สำเร็จ', 'error')
+    }
+  }
+
   return (
-    <PageShell title="จัดการโปรโมชัน" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card โปรโมชันและหน้าอ่านรายละเอียด">
-      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+    <>
+      <PageShell title="จัดการโปรโมชัน" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card โปรโมชันและหน้าอ่านรายละเอียด">
+        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
             help="ตัวอย่างรูปภาพโปรโมชัน"
@@ -1231,10 +1245,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                     </button>
                     <button
                       className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
-                      onClick={async () => {
-                        await promotionApi.remove(item.id)
-                        await load()
-                      }}
+                      onClick={() => setPendingDeletePromotion(item)}
                       type="button"
                     >
                       <Trash2 size={14} />
@@ -1251,8 +1262,23 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             ) : null}
           </div>
         </div>
-      </section>
-    </PageShell>
+        </section>
+      </PageShell>
+      <ConfirmationDialog
+        confirmLabel="ลบโปรโมชัน"
+        description={`ระบบจะลบโปรโมชัน "${pendingDeletePromotion?.title ?? ''}" ออกจากหน้าโปรโมชันของลูกค้า`}
+        isOpen={Boolean(pendingDeletePromotion)}
+        onCancel={() => setPendingDeletePromotion(null)}
+        onConfirm={() => {
+          if (!pendingDeletePromotion) {
+            return
+          }
+          void deletePromotion(pendingDeletePromotion)
+        }}
+        title="ลบโปรโมชันนี้หรือไม่?"
+        variant="danger"
+      />
+    </>
   )
 }
 
@@ -1262,6 +1288,8 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const [isLoadingFilms, setIsLoadingFilms] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [isUploadingGallery, setIsUploadingGallery] = useState(false)
+  const [pendingDeleteFilm, setPendingDeleteFilm] = useState<Film | null>(null)
+  const [pendingRemoveGalleryImage, setPendingRemoveGalleryImage] = useState('')
 
   const load = useCallback(async () => {
     try {
@@ -1348,11 +1376,24 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       ...current,
       galleryImages: (current.galleryImages ?? []).filter((item) => item !== imageUrl),
     }))
+    setPendingRemoveGalleryImage('')
+  }
+
+  const deleteFilm = async (film: Film) => {
+    try {
+      await filmApi.remove(film.id)
+      setPendingDeleteFilm(null)
+      await load()
+      onNotice('ลบข้อมูลฟิล์มแล้ว', 'success')
+    } catch {
+      onNotice('ลบข้อมูลฟิล์มไม่สำเร็จ', 'error')
+    }
   }
 
   return (
-    <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card ฟิล์มและหน้าอ่านรายละเอียด">
-      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+    <>
+      <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card ฟิล์มและหน้าอ่านรายละเอียด">
+        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
         <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
           <UploadedImageField
             help="ตัวอย่างรูปภาพโลโก้"
@@ -1383,7 +1424,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             images={form.galleryImages ?? []}
             isUploading={isUploadingGallery}
             onFileSelect={uploadFilmGalleryImage}
-            onRemove={removeFilmGalleryImage}
+            onRemove={setPendingRemoveGalleryImage}
           />
           <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
             <span className="min-w-0">
@@ -1441,10 +1482,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                     </button>
                     <button
                       className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
-                      onClick={async () => {
-                        await filmApi.remove(item.id)
-                        await load()
-                      }}
+                      onClick={() => setPendingDeleteFilm(item)}
                       type="button"
                     >
                       <Trash2 size={14} />
@@ -1461,8 +1499,32 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             ) : null}
           </div>
         </div>
-      </section>
-    </PageShell>
+        </section>
+      </PageShell>
+      <ConfirmationDialog
+        confirmLabel="ลบฟิล์ม"
+        description={`ระบบจะลบข้อมูลฟิล์ม "${pendingDeleteFilm?.name ?? ''}" ออกจากหน้าข้อมูลฟิล์มของลูกค้า`}
+        isOpen={Boolean(pendingDeleteFilm)}
+        onCancel={() => setPendingDeleteFilm(null)}
+        onConfirm={() => {
+          if (!pendingDeleteFilm) {
+            return
+          }
+          void deleteFilm(pendingDeleteFilm)
+        }}
+        title="ลบข้อมูลฟิล์มนี้หรือไม่?"
+        variant="danger"
+      />
+      <ConfirmationDialog
+        confirmLabel="ลบรูปภาพ"
+        description="ระบบจะลบรูปภาพนี้ออกจากฟอร์มข้อมูลฟิล์ม ต้องกดบันทึกฟิล์มอีกครั้งเพื่อบันทึกการเปลี่ยนแปลง"
+        isOpen={Boolean(pendingRemoveGalleryImage)}
+        onCancel={() => setPendingRemoveGalleryImage('')}
+        onConfirm={() => removeFilmGalleryImage(pendingRemoveGalleryImage)}
+        title="ลบรูปภาพนี้หรือไม่?"
+        variant="danger"
+      />
+    </>
   )
 }
 
