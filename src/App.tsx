@@ -1099,6 +1099,8 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
   const [isLoadingPromotions, setIsLoadingPromotions] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [pendingDeletePromotion, setPendingDeletePromotion] = useState<Promotion | null>(null)
+  const [query, setQuery] = useState('')
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -1139,6 +1141,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         description: createCardSummary(form.detail) || form.title?.trim() || '',
       })
       setForm(emptyPromotion)
+      setIsEditorOpen(false)
       await load()
       onNotice('บันทึกโปรโมชันแล้ว', 'success')
     } catch {
@@ -1171,57 +1174,96 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
     }
   }
 
+  const openNewPromotion = () => {
+    setForm(emptyPromotion)
+    setIsEditorOpen(true)
+  }
+
+  const editPromotion = (promotion: Promotion) => {
+    setForm(promotion)
+    setIsEditorOpen(true)
+  }
+
+  const filteredItems = useMemo(() => {
+    const term = query.trim().toLowerCase()
+    if (!term) {
+      return items
+    }
+
+    return items.filter((item) =>
+      [item.title, item.description, item.detail]
+        .join(' ')
+        .toLowerCase()
+        .includes(term),
+    )
+  }, [items, query])
+
+  const promotionEditor = (
+    <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
+      <UploadedImageField
+        help="ตัวอย่างรูปภาพโปรโมชัน"
+        imageUrl={form.imageUrl}
+        isUploading={isUploadingImage}
+        label="รูปโปรโมชัน"
+        onFileSelect={uploadPromotionImage}
+      />
+      <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
+      <TextAreaInput
+        label="รายละเอียดโปรโมชัน"
+        onChange={(value) => setForm((current) => ({ ...current, detail: value }))}
+        placeholder="เงื่อนไข ส่วนลด ระยะเวลา วิธีใช้สิทธิ์ หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
+        value={form.detail}
+      />
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6">
+        <div className="min-w-0">
+          <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
+        </div>
+        <div className="min-w-0">
+          <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
+        </div>
+      </div>
+      <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
+        <span className="min-w-0">
+          <span className="block text-sm font-black text-white">เปิดใช้งานโปรโมชัน</span>
+          <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าโปรโมชัน</span>
+        </span>
+        <input
+          checked={form.isActive ?? true}
+          className="size-5 shrink-0 accent-[#ff332f]"
+          onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
+          type="checkbox"
+        />
+      </label>
+      <AdminPromotionPreview promotion={form} />
+      <div className="flex justify-end">
+        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+          <Plus size={17} />
+          บันทึกโปรโมชัน
+        </button>
+      </div>
+    </form>
+  )
+
   return (
     <>
       <PageShell title="จัดการโปรโมชัน" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card โปรโมชันและหน้าอ่านรายละเอียด">
-        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
-        <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
-          <UploadedImageField
-            help="ตัวอย่างรูปภาพโปรโมชัน"
-            imageUrl={form.imageUrl}
-            isUploading={isUploadingImage}
-            label="รูปโปรโมชัน"
-            onFileSelect={uploadPromotionImage}
-          />
-          <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
-          <TextAreaInput
-            label="รายละเอียดโปรโมชัน"
-            onChange={(value) => setForm((current) => ({ ...current, detail: value }))}
-            placeholder="เงื่อนไข ส่วนลด ระยะเวลา วิธีใช้สิทธิ์ หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
-            value={form.detail}
-          />
-          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6">
-            <div className="min-w-0">
-              <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
-            </div>
-            <div className="min-w-0">
-              <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
+        <ManagementToolbar
+          addLabel="เพิ่มโปรโมชัน"
+          onAdd={openNewPromotion}
+          onSearch={setQuery}
+          placeholder="ค้นหาโปรโมชัน"
+          query={query}
+        />
+        <section className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+          <div className="hidden min-w-0 xl:block">
+            <div className="sticky top-24 space-y-4">
+              {promotionEditor}
             </div>
           </div>
-          <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
-            <span className="min-w-0">
-              <span className="block text-sm font-black text-white">เปิดใช้งานโปรโมชัน</span>
-              <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าโปรโมชัน</span>
-            </span>
-            <input
-              checked={form.isActive ?? true}
-              className="size-5 shrink-0 accent-[#ff332f]"
-              onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
-              type="checkbox"
-            />
-          </label>
-          <AdminPromotionPreview promotion={form} />
-          <div className="flex justify-end">
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-              <Plus size={17} />
-              บันทึกโปรโมชัน
-            </button>
-          </div>
-        </form>
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
                 <div className="promotion-square-media relative bg-[#080808]">
                   {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
@@ -1239,12 +1281,12 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                       <ChevronRight size={16} />
                     </span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
+                  <div className="mt-3 flex justify-end gap-2">
+                    <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editPromotion(item)} type="button">
                       แก้ไข
                     </button>
                     <button
-                      className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
+                      className="inline-flex items-center gap-1 rounded-xl border border-[#ff403b]/30 px-4 py-2 text-sm font-black text-[#ff6965]"
                       onClick={() => setPendingDeletePromotion(item)}
                       type="button"
                     >
@@ -1255,15 +1297,22 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                 </div>
               </article>
             ))}
-            {!isLoadingPromotions && items.length === 0 ? (
+            {!isLoadingPromotions && filteredItems.length === 0 ? (
               <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
-                ยังไม่มีโปรโมชัน
+                {items.length === 0 ? 'ยังไม่มีโปรโมชัน' : 'ไม่พบโปรโมชันที่ค้นหา'}
               </p>
             ) : null}
           </div>
         </div>
         </section>
       </PageShell>
+      <BottomEditorSheet
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        title={form.id ? 'แก้ไขโปรโมชัน' : 'เพิ่มโปรโมชัน'}
+      >
+        {promotionEditor}
+      </BottomEditorSheet>
       <ConfirmationDialog
         confirmLabel="ลบโปรโมชัน"
         description={`ระบบจะลบโปรโมชัน "${pendingDeletePromotion?.title ?? ''}" ออกจากหน้าโปรโมชันของลูกค้า`}
@@ -1290,6 +1339,8 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const [isUploadingGallery, setIsUploadingGallery] = useState(false)
   const [pendingDeleteFilm, setPendingDeleteFilm] = useState<Film | null>(null)
   const [pendingRemoveGalleryImage, setPendingRemoveGalleryImage] = useState('')
+  const [query, setQuery] = useState('')
+  const [isEditorOpen, setIsEditorOpen] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -1333,6 +1384,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         slug: form.slug?.trim() || undefined,
       })
       setForm(emptyFilm)
+      setIsEditorOpen(false)
       await load()
       onNotice('บันทึกข้อมูลฟิล์มแล้ว', 'success')
     } catch {
@@ -1390,66 +1442,114 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     }
   }
 
+  const openNewFilm = () => {
+    setForm(emptyFilm)
+    setIsEditorOpen(true)
+  }
+
+  const editFilm = (film: Film) => {
+    setForm(film)
+    setIsEditorOpen(true)
+  }
+
+  const filteredItems = useMemo(() => {
+    const term = query.trim().toLowerCase()
+    if (!term) {
+      return items
+    }
+
+    return items.filter((item) =>
+      [
+        item.name,
+        item.description,
+        item.irr,
+        item.uvProtection,
+        item.filmType,
+        item.highlightOne,
+        item.highlightTwo,
+        item.highlightThree,
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(term),
+    )
+  }, [items, query])
+
+  const filmEditor = (
+    <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
+      <UploadedImageField
+        help="ตัวอย่างรูปภาพโลโก้"
+        imageUrl={form.imageUrl}
+        isUploading={isUploadingImage}
+        label="รูปฟิล์ม"
+        onFileSelect={uploadFilmImage}
+      />
+      <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
+      <TextAreaInput
+        label="รายละเอียดฟิล์ม"
+        onChange={(value) => setForm((current) => ({ ...current, description: value }))}
+        placeholder="คุณสมบัติ จุดเด่น การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
+        value={form.description}
+      />
+      <div className="grid grid-cols-3 gap-2">
+        <TextInput label="IRR" onChange={(value) => setForm((current) => ({ ...current, irr: value }))} placeholder="90%+" value={form.irr} />
+        <TextInput label="UV" onChange={(value) => setForm((current) => ({ ...current, uvProtection: value }))} placeholder="99%" value={form.uvProtection} />
+        <TextInput label="TYPE" onChange={(value) => setForm((current) => ({ ...current, filmType: value }))} placeholder="AUTO" value={form.filmType} />
+      </div>
+      <div className="space-y-3 rounded-2xl border border-white/10 bg-[#101010] p-3">
+        <p className="text-sm font-black text-white">จุดเด่นที่แสดงให้ลูกค้าเห็น</p>
+        <TextInput label="จุดเด่น 1" onChange={(value) => setForm((current) => ({ ...current, highlightOne: value }))} placeholder="คัดรุ่นฟิล์มสำหรับรถยนต์" value={form.highlightOne} />
+        <TextInput label="จุดเด่น 2" onChange={(value) => setForm((current) => ({ ...current, highlightTwo: value }))} placeholder="ดูข้อมูลได้สะดวกผ่านมือถือ" value={form.highlightTwo} />
+        <TextInput label="จุดเด่น 3" onChange={(value) => setForm((current) => ({ ...current, highlightThree: value }))} placeholder="สอบถามรุ่นเพิ่มเติมได้ที่ร้าน" value={form.highlightThree} />
+      </div>
+      <FilmGalleryField
+        images={form.galleryImages ?? []}
+        isUploading={isUploadingGallery}
+        onFileSelect={uploadFilmGalleryImage}
+        onRemove={setPendingRemoveGalleryImage}
+      />
+      <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
+        <span className="min-w-0">
+          <span className="block text-sm font-black text-white">เปิดใช้งานฟิล์ม</span>
+          <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าข้อมูลฟิล์ม</span>
+        </span>
+        <input
+          checked={form.isActive ?? true}
+          className="size-5 shrink-0 accent-[#ff332f]"
+          onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
+          type="checkbox"
+        />
+      </label>
+      <AdminFilmPreview film={form} />
+      <div className="flex justify-end">
+        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+          <Plus size={17} />
+          บันทึกฟิล์ม
+        </button>
+      </div>
+    </form>
+  )
+
   return (
     <>
       <PageShell title="จัดการฟิล์ม" subtitle="ข้อมูลส่วนนี้จะถูกใช้ทั้ง card ฟิล์มและหน้าอ่านรายละเอียด">
-        <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
-        <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={save}>
-          <UploadedImageField
-            help="ตัวอย่างรูปภาพโลโก้"
-            imageUrl={form.imageUrl}
-            isUploading={isUploadingImage}
-            label="รูปฟิล์ม"
-            onFileSelect={uploadFilmImage}
-          />
-          <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
-          <TextAreaInput
-            label="รายละเอียดฟิล์ม"
-            onChange={(value) => setForm((current) => ({ ...current, description: value }))}
-            placeholder="คุณสมบัติ จุดเด่น การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
-            value={form.description}
-          />
-          <div className="grid grid-cols-3 gap-2">
-            <TextInput label="IRR" onChange={(value) => setForm((current) => ({ ...current, irr: value }))} placeholder="90%+" value={form.irr} />
-            <TextInput label="UV" onChange={(value) => setForm((current) => ({ ...current, uvProtection: value }))} placeholder="99%" value={form.uvProtection} />
-            <TextInput label="TYPE" onChange={(value) => setForm((current) => ({ ...current, filmType: value }))} placeholder="AUTO" value={form.filmType} />
+        <ManagementToolbar
+          addLabel="เพิ่มฟิล์ม"
+          onAdd={openNewFilm}
+          onSearch={setQuery}
+          placeholder="ค้นหาฟิล์ม"
+          query={query}
+        />
+        <section className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
+          <div className="hidden min-w-0 xl:block">
+            <div className="sticky top-24 space-y-4">
+              {filmEditor}
+            </div>
           </div>
-          <div className="space-y-3 rounded-2xl border border-white/10 bg-[#101010] p-3">
-            <p className="text-sm font-black text-white">จุดเด่นที่แสดงให้ลูกค้าเห็น</p>
-            <TextInput label="จุดเด่น 1" onChange={(value) => setForm((current) => ({ ...current, highlightOne: value }))} placeholder="คัดรุ่นฟิล์มสำหรับรถยนต์" value={form.highlightOne} />
-            <TextInput label="จุดเด่น 2" onChange={(value) => setForm((current) => ({ ...current, highlightTwo: value }))} placeholder="ดูข้อมูลได้สะดวกผ่านมือถือ" value={form.highlightTwo} />
-            <TextInput label="จุดเด่น 3" onChange={(value) => setForm((current) => ({ ...current, highlightThree: value }))} placeholder="สอบถามรุ่นเพิ่มเติมได้ที่ร้าน" value={form.highlightThree} />
-          </div>
-          <FilmGalleryField
-            images={form.galleryImages ?? []}
-            isUploading={isUploadingGallery}
-            onFileSelect={uploadFilmGalleryImage}
-            onRemove={setPendingRemoveGalleryImage}
-          />
-          <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
-            <span className="min-w-0">
-              <span className="block text-sm font-black text-white">เปิดใช้งานฟิล์ม</span>
-              <span className="block text-xs font-bold text-white/45">ปิดไว้หากยังไม่ต้องการให้แสดงในหน้าข้อมูลฟิล์ม</span>
-            </span>
-            <input
-              checked={form.isActive ?? true}
-              className="size-5 shrink-0 accent-[#ff332f]"
-              onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
-              type="checkbox"
-            />
-          </label>
-          <AdminFilmPreview film={form} />
-          <div className="flex justify-end">
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-              <Plus size={17} />
-              บันทึกฟิล์ม
-            </button>
-          </div>
-        </form>
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
                 <div className="promotion-square-media relative bg-[#080808]">
                   {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
@@ -1476,12 +1576,12 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                       ))}
                     </div>
                   ) : null}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-black text-white/70" onClick={() => setForm(item)} type="button">
+                  <div className="mt-3 flex justify-end gap-2">
+                    <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editFilm(item)} type="button">
                       แก้ไข
                     </button>
                     <button
-                      className="inline-flex items-center gap-1 rounded-lg border border-[#ff403b]/30 px-3 py-1.5 text-xs font-black text-[#ff6965]"
+                      className="inline-flex items-center gap-1 rounded-xl border border-[#ff403b]/30 px-4 py-2 text-sm font-black text-[#ff6965]"
                       onClick={() => setPendingDeleteFilm(item)}
                       type="button"
                     >
@@ -1492,15 +1592,22 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                 </div>
               </article>
             ))}
-            {!isLoadingFilms && items.length === 0 ? (
+            {!isLoadingFilms && filteredItems.length === 0 ? (
               <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2">
-                ยังไม่มีข้อมูลฟิล์ม
+                {items.length === 0 ? 'ยังไม่มีข้อมูลฟิล์ม' : 'ไม่พบฟิล์มที่ค้นหา'}
               </p>
             ) : null}
           </div>
         </div>
         </section>
       </PageShell>
+      <BottomEditorSheet
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        title={form.id ? 'แก้ไขฟิล์ม' : 'เพิ่มฟิล์ม'}
+      >
+        {filmEditor}
+      </BottomEditorSheet>
       <ConfirmationDialog
         confirmLabel="ลบฟิล์ม"
         description={`ระบบจะลบข้อมูลฟิล์ม "${pendingDeleteFilm?.name ?? ''}" ออกจากหน้าข้อมูลฟิล์มของลูกค้า`}
@@ -1769,7 +1876,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   return (
     <PageShell title="จัดการ Serial Number" subtitle="เจนและจัดการ Serial สำหรับลงทะเบียนรับประกัน">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,23rem)_1fr]">
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4 xl:sticky xl:top-24 xl:self-start">
           <div className="grid grid-cols-2 gap-3">
             <SerialStatCard label="พร้อมใช้งาน" value={availableCount} tone="available" />
             <SerialStatCard label="ถูกใช้แล้ว" value={usedCount} tone="used" />
@@ -1860,6 +1967,109 @@ function PageShell({
       <p className="sr-only">{subtitle}</p>
       {children}
     </section>
+  )
+}
+
+function ManagementToolbar({
+  addLabel,
+  onAdd,
+  onSearch,
+  placeholder,
+  query,
+}: {
+  addLabel: string
+  onAdd: () => void
+  onSearch: (value: string) => void
+  placeholder: string
+  query: string
+}) {
+  return (
+    <div className="sticky top-[4.65rem] z-10 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur">
+      <div className="flex min-w-0 items-center gap-2">
+        <label className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
+          <input
+            className="h-12 w-full rounded-xl border border-white/12 bg-[#080808] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+            onChange={(event) => onSearch(event.target.value)}
+            placeholder={placeholder}
+            value={query}
+          />
+        </label>
+        <button
+          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black text-white shadow-[0_16px_34px_rgba(255,51,47,0.22)]"
+          onClick={onAdd}
+          type="button"
+        >
+          <Plus size={18} />
+          <span className="hidden sm:inline">{addLabel}</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function BottomEditorSheet({
+  children,
+  isOpen,
+  onClose,
+  title,
+}: {
+  children: ReactNode
+  isOpen: boolean
+  onClose: () => void
+  title: string
+}) {
+  useEffect(() => {
+    if (!isOpen) {
+      return
+    }
+
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [isOpen])
+
+  return (
+    <div
+      aria-hidden={!isOpen}
+      className={[
+        'fixed inset-0 z-50 xl:hidden',
+        isOpen ? 'pointer-events-auto' : 'pointer-events-none',
+      ].join(' ')}
+    >
+      <button
+        aria-label="ปิดฟอร์ม"
+        className={[
+          'absolute inset-0 bg-black/72 backdrop-blur-sm transition-opacity duration-300',
+          isOpen ? 'opacity-100' : 'opacity-0',
+        ].join(' ')}
+        onClick={onClose}
+        type="button"
+      />
+      <aside
+        aria-label={title}
+        className={[
+          'absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#080808] p-4 shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          isOpen ? 'translate-y-0' : 'translate-y-full',
+        ].join(' ')}
+      >
+        <div className="sticky -top-4 z-10 -mx-4 mb-3 flex items-center justify-between border-b border-white/10 bg-[#080808]/96 px-4 py-3 backdrop-blur">
+          <h2 className="text-lg font-black text-white">{title}</h2>
+          <button
+            aria-label="ปิดฟอร์ม"
+            className="grid size-10 place-items-center rounded-xl border border-white/10 bg-[#101010] text-white/72"
+            onClick={onClose}
+            type="button"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        {children}
+      </aside>
+    </div>
   )
 }
 
