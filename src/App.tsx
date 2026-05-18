@@ -1254,7 +1254,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           placeholder="ค้นหาโปรโมชัน"
           query={query}
         />
-        <section className="mt-4 min-w-0">
+        <section className="mt-24 min-w-0">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
@@ -1535,9 +1535,9 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           placeholder="ค้นหาฟิล์ม"
           query={query}
         />
-        <section className="mt-4 min-w-0">
+        <section className="mt-24 min-w-0">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
@@ -1554,18 +1554,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                       {item.isActive ? 'ใช้งานได้' : 'ปิดอยู่'}
                     </span>
                   </div>
-                  <p className="mt-2 line-clamp-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-5 text-white/48">
-                    {item.description || 'ยังไม่มีรายละเอียดฟิล์ม'}
-                  </p>
-                  {item.galleryImages?.length ? (
-                    <div className="mt-3 grid grid-cols-2 items-start gap-2">
-                      {item.galleryImages.slice(0, 4).map((imageUrl) => (
-                        <div className="overflow-hidden rounded-lg bg-black/30" key={imageUrl}>
-                          <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
                   <div className="mt-3 flex justify-end gap-2">
                     <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editFilm(item)} type="button">
                       แก้ไข
@@ -1974,7 +1962,7 @@ function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="sticky top-[5rem] z-10 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:top-[5.35rem]">
+    <div className="fixed left-4 right-4 top-[4.6rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[5.1rem] lg:left-[20rem] lg:right-8">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
@@ -2026,7 +2014,7 @@ function BottomEditorSheet({
     <div
       aria-hidden={!isOpen}
       className={[
-        'fixed inset-0 z-50',
+        'fixed inset-y-0 left-0 right-0 z-50 md:left-[19rem] lg:left-[20rem]',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none',
       ].join(' ')}
     >
