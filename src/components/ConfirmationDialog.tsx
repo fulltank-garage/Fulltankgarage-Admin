@@ -19,13 +19,13 @@ type ConfirmationDialogProps = {
 const variantMeta = {
   primary: {
     icon: CheckCircle2,
-    iconClassName: 'border-[#ff3b36]/35 bg-[#2a0808] text-[#ff5a55]',
+    iconClassName: 'text-[#ff3b36]',
     buttonClassName:
       'bg-gradient-to-r from-[#ff3b36] to-[#d91409] text-white shadow-[0_18px_36px_rgba(255,51,47,0.24)] hover:brightness-110',
   },
   danger: {
     icon: AlertTriangle,
-    iconClassName: 'border-[#ff3b36]/45 bg-[#2d0505] text-[#ff4a45]',
+    iconClassName: 'text-[#ff3b36]',
     buttonClassName:
       'bg-gradient-to-r from-[#ff332f] to-[#d91409] text-white shadow-[0_18px_36px_rgba(255,51,47,0.28)] hover:brightness-110',
   },
@@ -86,10 +86,8 @@ export function ConfirmationDialog({
     >
       <div className="relative flex aspect-square w-full max-w-[420px] flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)]">
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-6 text-center">
-          <div
-            className={`grid size-16 shrink-0 place-items-center rounded-3xl border ${meta.iconClassName}`}
-          >
-            <Icon size={30} />
+          <div className={`grid shrink-0 place-items-center ${meta.iconClassName}`}>
+            <Icon size={46} strokeWidth={2.4} />
           </div>
 
           <div className="mt-5 min-w-0">
