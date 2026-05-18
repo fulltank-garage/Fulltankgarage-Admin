@@ -119,6 +119,23 @@
     }
   }
 
+  .app-update-pulse {
+    animation: app-update-pulse 1.15s ease-in-out infinite;
+  }
+
+  @keyframes app-update-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.72;
+      transform: scale(1.28);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

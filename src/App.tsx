@@ -561,6 +561,8 @@ function App() {
           onClose={() => setIsSidebarOpen(false)}
           onLogout={logout}
           onSelect={selectPage}
+          hasPendingAppUpdate={hasPendingAppUpdate}
+          onUpdateApp={applyAppUpdate}
           realtimeStatus={realtimeStatus}
           session={session}
         />
@@ -570,11 +572,17 @@ function App() {
         <header className="sticky top-0 z-20 -mx-4 mb-6 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/94 px-4 py-3 backdrop-blur md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
           <button
             aria-label="เปิดเมนู"
-            className="grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
+            className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
             onClick={() => setIsSidebarOpen(true)}
             type="button"
           >
             <Menu size={20} />
+            {hasPendingAppUpdate ? (
+              <span
+                aria-hidden="true"
+                className="app-update-pulse absolute -right-1 -top-1 size-3.5 rounded-full bg-[#ff403b] shadow-[0_0_0_4px_rgba(255,64,59,0.18)]"
+              />
+            ) : null}
           </button>
           <div className="ml-auto min-w-0 text-right">
             <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#ff403b]">
@@ -586,7 +594,6 @@ function App() {
           </div>
         </header>
         {notice ? <Notice message={notice} tone={noticeTone} /> : null}
-        {hasPendingAppUpdate ? <AppUpdateDialog onUpdate={applyAppUpdate} /> : null}
         {activePage === 'dashboard' ? <DashboardPage onNotice={showNotice} /> : null}
         {activePage === 'promotions' ? <PromotionsPage onNotice={showNotice} /> : null}
         {activePage === 'films' ? <FilmsPage onNotice={showNotice} /> : null}
@@ -599,18 +606,22 @@ function App() {
 
 function Sidebar({
   activePage,
+  hasPendingAppUpdate,
   latestRealtimeAt,
   onClose,
   onLogout,
   onSelect,
+  onUpdateApp,
   realtimeStatus,
   session,
 }: {
   activePage: Page
+  hasPendingAppUpdate: boolean
   latestRealtimeAt: Date | null
   onClose: () => void
   onLogout: () => void
   onSelect: (page: Page) => void
+  onUpdateApp: () => void
   realtimeStatus: RealtimeStatus
   session: AuthSession
 }) {
@@ -688,6 +699,40 @@ function Sidebar({
           <p className="mt-1 text-xs font-semibold text-white/42">
             ข้อมูลล่าสุด {formatLatestRealtimeAt(latestRealtimeAt)}
           </p>
+        </div>
+        <div
+          className={[
+            'mt-3 rounded-xl border px-3 py-3',
+            hasPendingAppUpdate
+              ? 'border-[#ff403b]/36 bg-[#ff403b]/12'
+              : 'border-white/10 bg-[#0c0c0c]',
+          ].join(' ')}
+        >
+          <div className="flex items-start gap-2">
+            <span
+              className={[
+                'mt-1 size-2.5 shrink-0 rounded-full',
+                hasPendingAppUpdate ? 'app-update-pulse bg-[#ff403b]' : 'bg-white/22',
+              ].join(' ')}
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-black text-white/76">อัปเดตแอป</p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-white/42">
+                {hasPendingAppUpdate
+                  ? 'มีเวอร์ชันใหม่พร้อมใช้งาน'
+                  : 'กำลังใช้เวอร์ชันล่าสุด'}
+              </p>
+            </div>
+          </div>
+          {hasPendingAppUpdate ? (
+            <button
+              className="mt-3 h-10 w-full rounded-xl bg-[#ff332f] text-xs font-black text-white shadow-[0_12px_24px_rgba(255,51,47,0.18)]"
+              onClick={onUpdateApp}
+              type="button"
+            >
+              อัปเดตตอนนี้
+            </button>
+          ) : null}
         </div>
         <button
           className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-black text-white/72"
@@ -2166,24 +2211,6 @@ function Notice({ message, tone }: { message: string; tone: NoticeTone }) {
       ].join(' ')}
     >
       {message}
-    </div>
-  )
-}
-
-function AppUpdateDialog({ onUpdate }: { onUpdate: () => void }) {
-  return (
-    <div className="fixed inset-x-4 top-[5.25rem] z-[60] mx-auto w-[min(calc(100vw-2rem),25rem)] rounded-2xl border border-[#ff403b]/32 bg-[#151515] p-4 text-white shadow-[0_22px_58px_rgba(0,0,0,0.48)]">
-      <p className="text-sm font-black text-[#ff6965]">มีการอัปเดตแอป</p>
-      <p className="mt-1 text-sm font-bold leading-6 text-white/68">
-        โหลดเวอร์ชันล่าสุดเพื่อป้องกันหน้าค้างหรือจอดำหลัง deploy
-      </p>
-      <button
-        className="mt-3 h-11 w-full rounded-xl bg-[#ff332f] text-sm font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.18)]"
-        onClick={onUpdate}
-        type="button"
-      >
-        อัปเดตตอนนี้
-      </button>
     </div>
   )
 }
