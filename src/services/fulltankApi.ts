@@ -42,6 +42,12 @@ export type Film = {
   description: string
   imageUrl: string
   galleryImages: string[]
+  irr: string
+  uvProtection: string
+  filmType: string
+  highlightOne: string
+  highlightTwo: string
+  highlightThree: string
   isActive: boolean
   createdAt: string
 }

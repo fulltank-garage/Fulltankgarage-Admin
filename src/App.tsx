@@ -355,6 +355,12 @@ const emptyFilm: Partial<Film> = {
   description: '',
   imageUrl: '',
   galleryImages: [],
+  irr: '90%+',
+  uvProtection: '99%',
+  filmType: 'AUTO',
+  highlightOne: 'คัดรุ่นฟิล์มสำหรับรถยนต์',
+  highlightTwo: 'ดูข้อมูลได้สะดวกผ่านมือถือ',
+  highlightThree: 'สอบถามรุ่นเพิ่มเติมได้ที่ร้าน',
   isActive: true,
 }
 
@@ -1362,6 +1368,17 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             placeholder="คุณสมบัติ จุดเด่น การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
             value={form.description}
           />
+          <div className="grid grid-cols-3 gap-2">
+            <TextInput label="IRR" onChange={(value) => setForm((current) => ({ ...current, irr: value }))} placeholder="90%+" value={form.irr} />
+            <TextInput label="UV" onChange={(value) => setForm((current) => ({ ...current, uvProtection: value }))} placeholder="99%" value={form.uvProtection} />
+            <TextInput label="TYPE" onChange={(value) => setForm((current) => ({ ...current, filmType: value }))} placeholder="AUTO" value={form.filmType} />
+          </div>
+          <div className="space-y-3 rounded-2xl border border-white/10 bg-[#101010] p-3">
+            <p className="text-sm font-black text-white">จุดเด่นที่แสดงให้ลูกค้าเห็น</p>
+            <TextInput label="จุดเด่น 1" onChange={(value) => setForm((current) => ({ ...current, highlightOne: value }))} placeholder="คัดรุ่นฟิล์มสำหรับรถยนต์" value={form.highlightOne} />
+            <TextInput label="จุดเด่น 2" onChange={(value) => setForm((current) => ({ ...current, highlightTwo: value }))} placeholder="ดูข้อมูลได้สะดวกผ่านมือถือ" value={form.highlightTwo} />
+            <TextInput label="จุดเด่น 3" onChange={(value) => setForm((current) => ({ ...current, highlightThree: value }))} placeholder="สอบถามรุ่นเพิ่มเติมได้ที่ร้าน" value={form.highlightThree} />
+          </div>
           <FilmGalleryField
             images={form.galleryImages ?? []}
             isUploading={isUploadingGallery}
@@ -1877,6 +1894,16 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const name = film.name?.trim() || 'ชื่อฟิล์ม'
   const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
+  const specs = [
+    { label: 'IRR', value: film.irr?.trim() || '90%+' },
+    { label: 'UV', value: film.uvProtection?.trim() || '99%' },
+    { label: 'TYPE', value: film.filmType?.trim() || 'AUTO' },
+  ]
+  const highlights = [
+    film.highlightOne?.trim() || 'คัดรุ่นฟิล์มสำหรับรถยนต์',
+    film.highlightTwo?.trim() || 'ดูข้อมูลได้สะดวกผ่านมือถือ',
+    film.highlightThree?.trim() || 'สอบถามรุ่นเพิ่มเติมได้ที่ร้าน',
+  ]
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
@@ -1897,6 +1924,21 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {description}
         </p>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {specs.map((spec) => (
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-2 py-2 text-center" key={spec.label}>
+              <p className="text-[10px] font-black text-[#ff6965]">{spec.label}</p>
+              <p className="mt-1 text-sm font-black text-white">{spec.value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 space-y-2">
+          {highlights.map((item) => (
+            <p className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-semibold leading-5 text-white/58" key={item}>
+              {item}
+            </p>
+          ))}
+        </div>
         {film.galleryImages?.length ? (
           <div className="mt-3 grid gap-2">
             {film.galleryImages.slice(0, 3).map((imageUrl) => (
