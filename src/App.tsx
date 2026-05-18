@@ -306,6 +306,14 @@ const buildWarrantySerialUrl = (serialNumber: string) => {
 }
 
 const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
+const createCardSummary = (value: string | undefined, maxLength = 140) => {
+  const normalized = value?.trim().replace(/\s+/g, ' ') ?? ''
+  if (normalized.length <= maxLength) {
+    return normalized
+  }
+
+  return `${normalized.slice(0, maxLength).trim()}...`
+}
 
 const emptyFilm: Partial<Film> = {
   slug: '',
@@ -983,16 +991,15 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
       onNotice('กรุณาอัปโหลดรูปโปรโมชัน', 'error')
       return
     }
-    if (!form.description?.trim()) {
-      onNotice('กรุณากรอกคำอธิบายสั้นสำหรับ card', 'error')
-      return
-    }
     if (form.startsAt && form.endsAt && form.startsAt > form.endsAt) {
       onNotice('วันที่เริ่มโปรโมชันต้องไม่เกินวันที่สิ้นสุด', 'error')
       return
     }
     try {
-      await promotionApi.save(form)
+      await promotionApi.save({
+        ...form,
+        description: createCardSummary(form.detail) || form.title?.trim() || '',
+      })
       setForm(emptyPromotion)
       await load()
       onNotice('บันทึกโปรโมชันแล้ว', 'success')
@@ -1027,12 +1034,6 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             onFileSelect={uploadPromotionImage}
           />
           <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
-          <TextAreaInput
-            label="คำอธิบายสั้นสำหรับ card"
-            onChange={(value) => setForm((current) => ({ ...current, description: value }))}
-            placeholder="ข้อความสั้นที่แสดงบน card โปรโมชัน"
-            value={form.description}
-          />
           <TextAreaInput
             label="รายละเอียดโปรโมชัน"
             onChange={(value) => setForm((current) => ({ ...current, detail: value }))}
@@ -1155,10 +1156,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       onNotice('กรุณาอัปโหลดรูปฟิล์ม', 'error')
       return
     }
-    if (!form.summary?.trim()) {
-      onNotice('กรุณากรอกคำอธิบายสั้นสำหรับ card', 'error')
-      return
-    }
     if (!form.description?.trim()) {
       onNotice('กรุณากรอกรายละเอียดฟิล์ม', 'error')
       return
@@ -1168,6 +1165,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       await filmApi.save({
         ...form,
         logo: form.logo?.trim() || createFilmLogo(form.name),
+        summary: createCardSummary(form.description, 120),
         slug: form.slug?.trim() || undefined,
       })
       setForm(emptyFilm)
@@ -1228,12 +1226,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             onFileSelect={uploadFilmImage}
           />
           <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
-          <TextAreaInput
-            label="คำอธิบายสั้นสำหรับ card"
-            onChange={(value) => setForm((current) => ({ ...current, summary: value }))}
-            placeholder="ข้อความสั้นที่แสดงบน card ฟิล์ม"
-            value={form.summary}
-          />
           <TextAreaInput
             label="รายละเอียดฟิล์ม"
             onChange={(value) => setForm((current) => ({ ...current, description: value }))}
@@ -1715,7 +1707,7 @@ function SerialRow({ serial }: { serial: SerialNumber }) {
 function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> }) {
   const title = promotion.title?.trim() || 'ชื่อโปรโมชัน'
   const description =
-    promotion.description?.trim() || 'คำอธิบายสั้นนี้จะแสดงใน card'
+    createCardSummary(promotion.detail) || promotion.description?.trim() || 'รายละเอียดจะแสดงใน card'
   const detail = promotion.detail?.trim() || 'รายละเอียดโปรโมชันจะแสดงในหน้าอ่านรายละเอียด'
 
   return (
@@ -1755,7 +1747,7 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
 function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const name = film.name?.trim() || 'ชื่อฟิล์ม'
-  const summary = film.summary?.trim() || 'คำอธิบายสั้นนี้จะแสดงใน card'
+  const summary = createCardSummary(film.description, 120) || film.summary?.trim() || 'รายละเอียดจะแสดงใน card'
   const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
 
   return (
