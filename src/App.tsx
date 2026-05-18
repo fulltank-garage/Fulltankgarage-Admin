@@ -1289,10 +1289,10 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                     {item.description || 'ยังไม่มีรายละเอียดฟิล์ม'}
                   </p>
                   {item.galleryImages?.length ? (
-                    <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="mt-3 grid grid-cols-2 items-start gap-2">
                       {item.galleryImages.slice(0, 4).map((imageUrl) => (
-                        <div className="aspect-[16/9] overflow-hidden rounded-lg bg-black/30" key={imageUrl}>
-                          <img alt="" className="size-full object-cover" src={imageUrl} />
+                        <div className="overflow-hidden rounded-lg bg-black/30" key={imageUrl}>
+                          <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
                         </div>
                       ))}
                     </div>
@@ -1781,8 +1781,8 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         {film.galleryImages?.length ? (
           <div className="mt-3 grid gap-2">
             {film.galleryImages.slice(0, 3).map((imageUrl) => (
-              <div className="aspect-[16/9] overflow-hidden rounded-xl bg-black/30" key={imageUrl}>
-                <img alt="" className="size-full object-cover" src={imageUrl} />
+              <div className="overflow-hidden rounded-xl bg-black/30" key={imageUrl}>
+                <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
               </div>
             ))}
           </div>
@@ -1877,13 +1877,13 @@ function FilmGalleryField({
       </div>
       <div className="mt-2 grid gap-2">
         {images.length === 0 ? (
-          <div className="grid aspect-[16/9] place-items-center rounded-2xl border border-white/10 bg-[#101010] px-5 text-center text-xs font-black leading-5 text-white/42">
-            เพิ่มรูปสี่เหลี่ยมผืนผ้าสำหรับหน้าอ่านรายละเอียดฟิล์ม
+          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-[#101010] px-5 text-center text-xs font-black leading-5 text-white/42">
+            เพิ่มรูปสี่เหลี่ยมผืนผ้า จัตุรัส หรือสัดส่วนอื่นสำหรับหน้าอ่านรายละเอียดฟิล์ม
           </div>
         ) : null}
         {images.map((imageUrl) => (
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={imageUrl}>
-            <img alt="" className="aspect-[16/9] w-full object-cover" src={imageUrl} />
+            <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
             <button
               aria-label="ลบรูปภาพ"
               className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/70 text-white"
