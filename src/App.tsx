@@ -2215,10 +2215,18 @@ function UploadedImageField({
   return (
     <label className="block text-sm font-bold text-white/68">
       {label}
-      <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-        <div className="grid aspect-[16/10] max-h-64 place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
+      <div className="mt-2 cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-[#101010] transition hover:border-[#ff403b]/45">
+        <div className="relative grid aspect-[16/10] max-h-64 place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
           {imageUrl ? (
-            <img alt="" className="size-full object-contain" src={imageUrl} />
+            <>
+              <img alt="" className="size-full object-contain" src={imageUrl} />
+              <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/34 opacity-100">
+                <span className="inline-flex items-center gap-2 rounded-2xl border border-white/16 bg-black/70 px-4 py-2 text-xs font-black text-white shadow-[0_14px_34px_rgba(0,0,0,0.45)]">
+                  <ImagePlus size={16} />
+                  คลิกเพื่อเปลี่ยนรูป
+                </span>
+              </div>
+            </>
           ) : (
             <div className="grid size-full place-items-center px-4 text-center text-white/42">
               <div>
