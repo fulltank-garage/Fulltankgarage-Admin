@@ -337,6 +337,8 @@ const createFilmLogo = (name?: string) =>
 
 function App() {
   const [isBooting, setIsBooting] = useState(true)
+  const [isBootReady, setIsBootReady] = useState(false)
+  const [isInitialUpdateCheckDone, setIsInitialUpdateCheckDone] = useState(false)
   const [bootProgress, setBootProgress] = useState(12)
   const [hasAppUpdate, setHasAppUpdate] = useState(false)
   const [hasPendingAppUpdate, setHasPendingAppUpdate] = useState(false)
@@ -352,6 +354,7 @@ function App() {
   const noticeTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null)
   const appUpdateRegistrationRef = useRef<ServiceWorkerRegistration | null>(null)
   const isApplyingAppUpdateRef = useRef(false)
+  const isBootingRef = useRef(true)
   const watchedServiceWorkerRegistrationsRef = useRef<WeakSet<ServiceWorkerRegistration>>(new WeakSet())
 
   const showNotice = useCallback((message: string, tone: NoticeTone = 'info') => {
@@ -367,15 +370,41 @@ function App() {
     }, 3200)
   }, [])
 
+  useEffect(() => {
+    isBootingRef.current = isBooting
+  }, [isBooting])
+
+  const applyAppUpdate = useCallback((registration?: ServiceWorkerRegistration | null) => {
+    if (registration) {
+      appUpdateRegistrationRef.current = registration
+    }
+
+    const waitingWorker = appUpdateRegistrationRef.current?.waiting
+    isApplyingAppUpdateRef.current = true
+    setHasPendingAppUpdate(false)
+
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' })
+      return
+    }
+
+    window.location.reload()
+  }, [])
+
   const showAppUpdatePrompt = useCallback((registration?: ServiceWorkerRegistration | null) => {
     if (registration) {
       appUpdateRegistrationRef.current = registration
     }
 
     setHasAppUpdate(true)
+
+    if (isBootingRef.current) {
+      applyAppUpdate(registration)
+      return
+    }
+
     setHasPendingAppUpdate(true)
-    showNotice('มีการอัปเดตแอป กดอัปเดตเพื่อโหลดเวอร์ชันล่าสุด', 'info')
-  }, [showNotice])
+  }, [applyAppUpdate])
 
   const watchServiceWorkerUpdate = useCallback((registration: ServiceWorkerRegistration) => {
     appUpdateRegistrationRef.current = registration
@@ -403,19 +432,6 @@ function App() {
     })
   }, [showAppUpdatePrompt])
 
-  const applyAppUpdate = useCallback(() => {
-    const waitingWorker = appUpdateRegistrationRef.current?.waiting
-    isApplyingAppUpdateRef.current = true
-    setHasPendingAppUpdate(false)
-
-    if (waitingWorker) {
-      waitingWorker.postMessage({ type: 'SKIP_WAITING' })
-      return
-    }
-
-    window.location.reload()
-  }, [])
-
   useEffect(() => {
     const updateCheckTimer = window.setTimeout(() => {
       setHasAppUpdate(detectInstalledAppUpdate())
@@ -430,19 +446,29 @@ function App() {
         return Math.min(96, current + 14)
       })
     }, 120)
-    const doneTimer = window.setTimeout(() => {
-      setBootProgress(100)
-      window.setTimeout(() => setIsBooting(false), 220)
+    const bootReadyTimer = window.setTimeout(() => {
+      setIsBootReady(true)
     }, 780)
+    const initialUpdateTimeout = window.setTimeout(() => {
+      setIsInitialUpdateCheckDone(true)
+    }, 3500)
+
+    const finishInitialUpdateCheck = () => {
+      window.clearTimeout(initialUpdateTimeout)
+      window.setTimeout(() => setIsInitialUpdateCheckDone(true), 180)
+    }
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/admin-sw.js', { scope: '/' })
         .then((registration) => {
           watchServiceWorkerUpdate(registration)
-          return registration.update()
+          return registration.update().then(() => {
+            watchServiceWorkerUpdate(registration)
+            finishInitialUpdateCheck()
+          })
         })
-        .catch(() => undefined)
+        .catch(() => finishInitialUpdateCheck())
 
       const checkForAppUpdate = () => {
         navigator.serviceWorker
@@ -463,7 +489,7 @@ function App() {
       const handleControllerChange = () => {
         setHasAppUpdate(true)
 
-        if (isApplyingAppUpdateRef.current) {
+        if (isApplyingAppUpdateRef.current || isBootingRef.current) {
           window.location.reload()
           return
         }
@@ -484,7 +510,8 @@ function App() {
       return () => {
         window.clearTimeout(updateCheckTimer)
         window.clearInterval(progressTimer)
-        window.clearTimeout(doneTimer)
+        window.clearTimeout(bootReadyTimer)
+        window.clearTimeout(initialUpdateTimeout)
         window.clearInterval(updateInterval)
         navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -492,12 +519,26 @@ function App() {
       }
     }
 
+    setIsInitialUpdateCheckDone(true)
+
     return () => {
       window.clearTimeout(updateCheckTimer)
       window.clearInterval(progressTimer)
-      window.clearTimeout(doneTimer)
+      window.clearTimeout(bootReadyTimer)
+      window.clearTimeout(initialUpdateTimeout)
     }
   }, [watchServiceWorkerUpdate])
+
+  useEffect(() => {
+    if (!isBooting || !isBootReady || !isInitialUpdateCheckDone) {
+      return undefined
+    }
+
+    setBootProgress(100)
+    const doneTimer = window.setTimeout(() => setIsBooting(false), 220)
+
+    return () => window.clearTimeout(doneTimer)
+  }, [isBootReady, isBooting, isInitialUpdateCheckDone])
 
   useEffect(() => {
     if (!session) {
