@@ -45,11 +45,26 @@ type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
 type NoticeTone = 'success' | 'error' | 'info'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
-const appUpdateCheckIntervalMs = 5 * 60 * 1000
+const appUpdateCheckIntervalMs = 60 * 1000
 const maxImageBytes = 5 * 1024 * 1024
 const warrantyAppUrl =
   (import.meta.env.VITE_WARRANTY_APP_URL as string | undefined) ||
   'https://fulltankgarage.vercel.app'
+
+const getAssetVersionFromElements = (
+  elements: Array<HTMLLinkElement | HTMLScriptElement>,
+) =>
+  elements
+    .map((element) => {
+      if (element instanceof HTMLScriptElement) {
+        return new URL(element.src, window.location.origin).pathname
+      }
+
+      return new URL(element.href, window.location.origin).pathname
+    })
+    .filter(Boolean)
+    .sort()
+    .join('|')
 
 const getLoadedAppVersion = () => {
   const assets = Array.from(
@@ -57,17 +72,31 @@ const getLoadedAppVersion = () => {
       'script[src^="/assets/"], link[href^="/assets/"]',
     ),
   )
-    .map((element) => {
-      if (element instanceof HTMLScriptElement) {
-        return element.src
-      }
 
-      return element.href
-    })
-    .filter(Boolean)
-    .sort()
+  return getAssetVersionFromElements(assets)
+}
 
-  return assets.join('|')
+const getRemoteAppVersion = async () => {
+  const response = await fetch(`${window.location.origin}/?t=${Date.now()}`, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
+  })
+
+  if (!response.ok) {
+    return ''
+  }
+
+  const html = await response.text()
+  const documentSnapshot = new DOMParser().parseFromString(html, 'text/html')
+  const assets = Array.from(
+    documentSnapshot.querySelectorAll<HTMLLinkElement | HTMLScriptElement>(
+      'script[src^="/assets/"], link[href^="/assets/"]',
+    ),
+  )
+
+  return getAssetVersionFromElements(assets)
 }
 
 const detectInstalledAppUpdate = () => {
@@ -355,6 +384,7 @@ function App() {
   const appUpdateRegistrationRef = useRef<ServiceWorkerRegistration | null>(null)
   const isApplyingAppUpdateRef = useRef(false)
   const isBootingRef = useRef(true)
+  const loadedAppVersionRef = useRef('')
   const watchedServiceWorkerRegistrationsRef = useRef<WeakSet<ServiceWorkerRegistration>>(new WeakSet())
 
   const showNotice = useCallback((message: string, tone: NoticeTone = 'info') => {
@@ -434,6 +464,7 @@ function App() {
 
   useEffect(() => {
     const updateCheckTimer = window.setTimeout(() => {
+      loadedAppVersionRef.current = getLoadedAppVersion()
       setHasAppUpdate(detectInstalledAppUpdate())
     }, 0)
 
@@ -458,6 +489,27 @@ function App() {
       window.setTimeout(() => setIsInitialUpdateCheckDone(true), 180)
     }
 
+    const checkRemoteAppUpdate = async () => {
+      const loadedVersion = loadedAppVersionRef.current || getLoadedAppVersion()
+      loadedAppVersionRef.current = loadedVersion
+
+      if (!loadedVersion) {
+        return false
+      }
+
+      try {
+        const remoteVersion = await getRemoteAppVersion()
+        if (remoteVersion && remoteVersion !== loadedVersion) {
+          showAppUpdatePrompt()
+          return true
+        }
+      } catch {
+        return false
+      }
+
+      return false
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/admin-sw.js', { scope: '/' })
@@ -465,12 +517,16 @@ function App() {
           watchServiceWorkerUpdate(registration)
           return registration.update().then(() => {
             watchServiceWorkerUpdate(registration)
-            finishInitialUpdateCheck()
+            void checkRemoteAppUpdate().finally(finishInitialUpdateCheck)
           })
         })
-        .catch(() => finishInitialUpdateCheck())
+        .catch(() => {
+          void checkRemoteAppUpdate().finally(finishInitialUpdateCheck)
+        })
 
       const checkForAppUpdate = () => {
+        void checkRemoteAppUpdate()
+
         navigator.serviceWorker
           .getRegistration('/admin-sw.js')
           .then((registration) => {
@@ -519,7 +575,7 @@ function App() {
       }
     }
 
-    setIsInitialUpdateCheckDone(true)
+    void checkRemoteAppUpdate().finally(() => setIsInitialUpdateCheckDone(true))
 
     return () => {
       window.clearTimeout(updateCheckTimer)
