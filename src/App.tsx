@@ -828,13 +828,15 @@ function Sidebar({
           {session.user.email}
         </p>
         <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-3">
-          <div className="flex items-center gap-2">
-            <span className={`size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
-            <p className="text-xs font-black text-white/76">{statusLabel}</p>
+          <div className="flex items-start gap-2">
+            <span className={`mt-1 size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
+            <div className="min-w-0">
+              <p className="text-xs font-black text-white/76">{statusLabel}</p>
+              <p className="mt-1 text-xs font-semibold leading-5 text-white/42">
+                ข้อมูลล่าสุด {formatLatestRealtimeAt(latestRealtimeAt)}
+              </p>
+            </div>
           </div>
-          <p className="mt-1 text-xs font-semibold text-white/42">
-            ข้อมูลล่าสุด {formatLatestRealtimeAt(latestRealtimeAt)}
-          </p>
         </div>
         <div
           className={[
