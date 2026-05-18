@@ -1406,7 +1406,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                       {item.isActive ? 'ใช้งานได้' : 'ปิดอยู่'}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-white/52">{item.summary}</p>
                   <p className="mt-2 line-clamp-3 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-5 text-white/48">
                     {item.description || 'ยังไม่มีรายละเอียดฟิล์ม'}
                   </p>
@@ -1877,7 +1876,6 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
 function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const name = film.name?.trim() || 'ชื่อฟิล์ม'
-  const summary = createCardSummary(film.description, 120) || film.summary?.trim() || 'รายละเอียดจะแสดงใน card'
   const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
 
   return (
@@ -1896,7 +1894,6 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
       <div className="p-3">
         <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าฟิล์ม</p>
         <h3 className="mt-2 break-words text-base font-black text-white">{name}</h3>
-        <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{summary}</p>
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {description}
         </p>
