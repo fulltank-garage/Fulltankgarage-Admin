@@ -226,7 +226,7 @@ export function MemberManagementPage({
         <div className="mb-9 flex items-center gap-3">
           <FullTankGarageLogo className="size-11 shrink-0" />
           <div>
-            <p className="text-lg font-semibold">FullTank Garage</p>
+            <p className="text-lg font-semibold">FULLTANK Garage</p>
           </div>
         </div>
 

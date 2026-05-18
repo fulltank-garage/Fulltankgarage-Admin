@@ -25,7 +25,7 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('push', (event) => {
   let payload = {
-    title: 'FullTank Garage',
+    title: 'FULLTANK Garage',
     body: 'มีข้อมูลใหม่ในระบบ',
     url: '/',
   }

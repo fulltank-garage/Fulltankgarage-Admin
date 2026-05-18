@@ -586,7 +586,7 @@ function App() {
           </button>
           <div className="ml-auto min-w-0 text-right">
             <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#ff403b]">
-              FullTank Admin
+              FULLTANK Admin
             </p>
             <p className="truncate text-[21px] font-bold leading-[1.12] md:text-[32px]">
               {pages.find((page) => page.id === activePage)?.label}
@@ -645,7 +645,7 @@ function Sidebar({
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <img
-            alt="FullTank Garage"
+            alt="FULLTANK Garage"
             className="size-14 shrink-0 rounded-lg object-cover"
             src={fulltankGarageLogo}
           />
@@ -774,7 +774,7 @@ function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void }) {
       >
         <div className="flex flex-col items-center text-center">
           <img
-            alt="FullTank Garage"
+            alt="FULLTANK Garage"
             className="h-auto w-44 rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.36)] sm:w-52"
             src={fulltankGarageLogo}
           />

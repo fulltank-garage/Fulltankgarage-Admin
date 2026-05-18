@@ -137,7 +137,7 @@ export function AdminMobileMenu({
             <div className="flex items-center gap-3">
               <FullTankGarageLogo className="size-11 shrink-0" />
               <div>
-                <p className="text-lg font-semibold text-white">FullTank Garage</p>
+                <p className="text-lg font-semibold text-white">FULLTANK Garage</p>
               </div>
             </div>
             <button

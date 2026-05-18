@@ -49,7 +49,7 @@ export function LoginPage({ initialNotice = '', onLogin }: LoginPageProps) {
           <div className="mb-8 flex flex-col items-center text-center">
             <FullTankGarageLogo className="size-16 shrink-0 sm:size-20" />
             <h1 className="mt-4 text-2xl font-semibold text-slate-950">
-              FullTank Garage
+              FULLTANK Garage
             </h1>
           </div>
 

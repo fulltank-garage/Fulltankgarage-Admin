@@ -1,7 +1,7 @@
 {
-  "name": "FullTank Garage Admin",
-  "short_name": "FullTank Admin",
-  "description": "FullTank Garage Admin Home",
+  "name": "FULLTANK Garage Admin",
+  "short_name": "FULLTANK Admin",
+  "description": "FULLTANK Garage Admin Home",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

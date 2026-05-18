@@ -7,7 +7,7 @@ type FullTankGarageLogoProps = {
 
 export function FullTankGarageLogo({
   className = 'size-10',
-  title = 'FullTank Garage logo',
+  title = 'FULLTANK Garage logo',
 }: FullTankGarageLogoProps) {
   return (
     <img

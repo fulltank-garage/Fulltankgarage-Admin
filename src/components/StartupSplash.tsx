@@ -13,7 +13,7 @@ export function StartupSplash({ isUpdated, progress }: StartupSplashProps) {
       <section className="flex w-full max-w-sm flex-col items-center text-center">
         <FullTankGarageLogo className="size-24 rounded-2xl shadow-lg shadow-[#ff403b]/20" />
         <h1 className="mt-6 whitespace-nowrap text-2xl font-black text-white">
-          FullTank Garage
+          FULLTANK Garage
         </h1>
         <p className="mt-2 text-sm font-bold text-white/58">
           {isUpdated ? 'มีการอัพเดตแอป' : 'กำลังเปิดระบบ Admin'}
