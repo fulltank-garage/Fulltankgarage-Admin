@@ -1956,7 +1956,7 @@ function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-72 md:right-6 md:top-[5.5rem] lg:right-8">
+    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[5.5rem] lg:left-[20rem] lg:right-8">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
