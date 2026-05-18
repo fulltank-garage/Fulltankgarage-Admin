@@ -45,7 +45,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(payload.title, {
       body: payload.body,
       badge: '/fulltank-favicon-32.png',
-      icon: '/pwa-icons/fulltank-icon-192.png',
+      icon: '/pwa-icons/fulltank-icon-192-v2.png',
       data: {
         url: payload.url || '/',
       },
