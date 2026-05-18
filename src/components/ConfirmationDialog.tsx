@@ -21,13 +21,13 @@ const variantMeta = {
     icon: CheckCircle2,
     iconClassName: 'text-[#ff3b36]',
     buttonClassName:
-      'bg-gradient-to-r from-[#ff3b36] to-[#d91409] text-white shadow-[0_18px_36px_rgba(255,51,47,0.24)] hover:brightness-110',
+      'border border-[#ff3b36] bg-transparent text-[#ff6b66] hover:bg-[#ff3b36]/10 hover:text-white',
   },
   danger: {
     icon: AlertTriangle,
     iconClassName: 'text-[#ff3b36]',
     buttonClassName:
-      'bg-gradient-to-r from-[#ff332f] to-[#d91409] text-white shadow-[0_18px_36px_rgba(255,51,47,0.28)] hover:brightness-110',
+      'border border-[#ff3b36] bg-transparent text-[#ff6b66] hover:bg-[#ff3b36]/10 hover:text-white',
   },
 } satisfies Record<
   ConfirmationDialogVariant,
@@ -112,7 +112,7 @@ export function ConfirmationDialog({
 
         <div className="flex flex-col-reverse gap-2 border-t border-[#2b2b2b] bg-[#080808] p-4 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#333] bg-[#141414] px-4 text-sm font-black text-[#d8d8d8] transition hover:border-[#ff3b36]/45 hover:bg-[#1c1c1c] hover:text-white"
+            className="inline-flex h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-[#ff3b36] to-[#d91409] px-4 text-sm font-black text-white shadow-[0_18px_36px_rgba(255,51,47,0.24)] transition hover:brightness-110"
             onClick={onCancel}
             type="button"
           >

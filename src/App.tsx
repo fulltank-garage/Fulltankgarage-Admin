@@ -792,7 +792,7 @@ function Sidebar({
             className="size-14 shrink-0 rounded-lg object-cover"
             src={fulltankGarageLogo}
           />
-          <h1 className="min-w-0 text-lg font-black leading-tight">Admin Home</h1>
+          <h1 className="min-w-0 text-lg font-black leading-tight">หน้าแอดมิน</h1>
         </div>
         <button
           aria-label="ปิดเมนู"
