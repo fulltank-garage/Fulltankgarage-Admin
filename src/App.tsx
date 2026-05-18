@@ -712,7 +712,7 @@ function App() {
       </aside>
 
       <main className="min-w-0 px-4 pb-6 pt-[5.75rem] md:pl-[19rem] md:pr-6 md:pt-[6.25rem] lg:px-8 lg:pl-[20rem]">
-        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur md:left-[19rem] md:px-6 lg:left-[20rem] lg:px-8">
+        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur md:left-72 md:px-6 lg:px-8">
           <button
             aria-label="เปิดเมนู"
             className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
@@ -1547,12 +1547,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                 <div className="p-3">
                   <div className="flex items-start justify-between gap-2">
                     <p className="break-words text-base font-black">{item.name}</p>
-                    <span className={[
-                      'shrink-0 rounded-full px-2 py-1 text-[10px] font-black text-white',
-                      item.isActive ? 'bg-[#00d084]' : 'bg-white/14',
-                    ].join(' ')}>
-                      {item.isActive ? 'ใช้งานได้' : 'ปิดอยู่'}
-                    </span>
                   </div>
                   <div className="mt-3 flex justify-end gap-2">
                     <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editFilm(item)} type="button">
@@ -1962,7 +1956,7 @@ function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[6rem] lg:left-[20rem] lg:right-8">
+    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-72 md:right-6 md:top-[5.5rem] lg:right-8">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
