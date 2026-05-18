@@ -1254,12 +1254,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           placeholder="ค้นหาโปรโมชัน"
           query={query}
         />
-        <section className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
-          <div className="hidden min-w-0 xl:block">
-            <div className="sticky top-24 space-y-4">
-              {promotionEditor}
-            </div>
-          </div>
+        <section className="mt-4 min-w-0">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
@@ -1540,12 +1535,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           placeholder="ค้นหาฟิล์ม"
           query={query}
         />
-        <section className="mt-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,24rem)_1fr]">
-          <div className="hidden min-w-0 xl:block">
-            <div className="sticky top-24 space-y-4">
-              {filmEditor}
-            </div>
-          </div>
+        <section className="mt-4 min-w-0">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
@@ -1984,7 +1974,7 @@ function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="sticky top-[4.65rem] z-10 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur">
+    <div className="sticky top-[5rem] z-10 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:top-[5.35rem]">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
@@ -1996,12 +1986,12 @@ function ManagementToolbar({
           />
         </label>
         <button
-          className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black text-white shadow-[0_16px_34px_rgba(255,51,47,0.22)]"
+          className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white shadow-[0_16px_34px_rgba(255,51,47,0.22)] sm:gap-2 sm:px-4 sm:text-sm"
           onClick={onAdd}
           type="button"
         >
           <Plus size={18} />
-          <span className="hidden sm:inline">{addLabel}</span>
+          <span className="whitespace-nowrap">{addLabel}</span>
         </button>
       </div>
     </div>
@@ -2036,7 +2026,7 @@ function BottomEditorSheet({
     <div
       aria-hidden={!isOpen}
       className={[
-        'fixed inset-0 z-50 xl:hidden',
+        'fixed inset-0 z-50',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none',
       ].join(' ')}
     >
@@ -2052,11 +2042,11 @@ function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#080808] p-4 shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          'absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-3xl transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
           isOpen ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >
-        <div className="sticky -top-4 z-10 -mx-4 mb-3 flex items-center justify-between border-b border-white/10 bg-[#080808]/96 px-4 py-3 backdrop-blur">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080808]/96 px-4 py-3 backdrop-blur">
           <h2 className="text-lg font-black text-white">{title}</h2>
           <button
             aria-label="ปิดฟอร์ม"
@@ -2067,7 +2057,9 @@ function BottomEditorSheet({
             <X size={18} />
           </button>
         </div>
-        {children}
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          {children}
+        </div>
       </aside>
     </div>
   )
