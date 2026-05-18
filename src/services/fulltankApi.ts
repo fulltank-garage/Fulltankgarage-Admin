@@ -77,8 +77,15 @@ const toDateInputValue = (value?: string | null) => {
 
 const normalizePromotion = (promotion: Promotion): Promotion => ({
   ...promotion,
+  imageUrl: resolveImageUrl(promotion.imageUrl),
   startsAt: toDateInputValue(promotion.startsAt),
   endsAt: toDateInputValue(promotion.endsAt),
+})
+
+const normalizeFilm = (film: Film): Film => ({
+  ...film,
+  imageUrl: resolveImageUrl(film.imageUrl),
+  galleryImages: (film.galleryImages ?? []).map(resolveImageUrl),
 })
 
 export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'off'
@@ -103,6 +110,24 @@ export type FulltankRealtimeEvent =
 const apiBaseUrl =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
   (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api')
+
+const resolveImageUrl = (value?: string | null) => {
+  const imageUrl = value?.trim()
+  if (!imageUrl) {
+    return ''
+  }
+
+  if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+    return imageUrl
+  }
+
+  const apiUrl = new URL(apiBaseUrl, window.location.origin)
+  apiUrl.pathname = apiUrl.pathname.replace(/\/api\/?$/, '/')
+  apiUrl.search = ''
+  apiUrl.hash = ''
+
+  return new URL(imageUrl, apiUrl).toString()
+}
 
 export const api = axios.create({
   baseURL: apiBaseUrl,
@@ -249,8 +274,8 @@ export const dashboardApi = {
     return {
       registrations: registrations.data,
       serials: serials.data,
-      promotions: promotions.data,
-      films: films.data,
+      promotions: promotions.data.map(normalizePromotion),
+      films: films.data.map(normalizeFilm),
     }
   },
 }
@@ -273,15 +298,15 @@ export const warrantyApi = {
 export const filmApi = {
   async list() {
     const { data } = await api.get<Film[]>('/films')
-    return data
+    return data.map(normalizeFilm)
   },
   async save(payload: Partial<Film>) {
     if (payload.id) {
       const { data } = await api.patch<Film>(`/films/${payload.id}`, payload)
-      return data
+      return normalizeFilm(data)
     }
     const { data } = await api.post<Film>('/films', payload)
-    return data
+    return normalizeFilm(data)
   },
   async remove(id: number) {
     await api.delete(`/films/${id}`)
@@ -312,7 +337,7 @@ export const uploadApi = {
     formData.append('image', file)
 
     const { data } = await api.post<{ imageUrl: string }>('/uploads/images', formData)
-    return data.imageUrl
+    return resolveImageUrl(data.imageUrl)
   },
 }
 
