@@ -188,6 +188,9 @@ const formatLatestRealtimeAt = (value: Date | null) => {
   }).format(value)
 }
 
+const formatAdminDisplayName = (value: string) =>
+  value.replace(/FullTank/gi, 'FULLTANK')
+
 const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard },
   { id: 'promotions', label: 'จัดการโปรโมชัน', icon: BadgePercent },
@@ -760,7 +763,7 @@ function Sidebar({
 }) {
   const statusLabel =
     realtimeStatus === 'connected'
-      ? 'เชื่อมต่อข้อมูลสด'
+      ? 'เชื่อมต่อข้อมูลล่าสุด'
       : realtimeStatus === 'off'
         ? 'ปิดข้อมูลสด'
         : realtimeStatus === 'connecting'
@@ -820,11 +823,11 @@ function Sidebar({
       </nav>
 
       <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-        <p className="text-sm font-black">{session.user.name}</p>
+        <p className="text-sm font-black">{formatAdminDisplayName(session.user.name)}</p>
         <p className="mt-1 break-all text-xs font-semibold text-white/48">
           {session.user.email}
         </p>
-        <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-2">
+        <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-3">
           <div className="flex items-center gap-2">
             <span className={`size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
             <p className="text-xs font-black text-white/76">{statusLabel}</p>
