@@ -1254,7 +1254,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           placeholder="ค้นหาโปรโมชัน"
           query={query}
         />
-        <section className="mt-28 min-w-0">
+        <section className="mt-20 min-w-0">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
@@ -1535,7 +1535,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           placeholder="ค้นหาฟิล์ม"
           query={query}
         />
-        <section className="mt-28 min-w-0">
+        <section className="mt-20 min-w-0">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
