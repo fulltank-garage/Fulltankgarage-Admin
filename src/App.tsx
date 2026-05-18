@@ -711,8 +711,8 @@ function App() {
         />
       </aside>
 
-      <main className="min-w-0 px-4 pb-6 md:pl-[19rem] md:pr-6 lg:px-8 lg:pl-[20rem]">
-        <header className="sticky top-0 z-20 -mx-4 mb-6 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/94 px-4 py-3 backdrop-blur md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
+      <main className="min-w-0 px-4 pb-6 pt-[5.75rem] md:pl-[19rem] md:pr-6 md:pt-[6.25rem] lg:px-8 lg:pl-[20rem]">
+        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur md:left-[19rem] md:px-6 lg:left-[20rem] lg:px-8">
           <button
             aria-label="เปิดเมนู"
             className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
@@ -1254,7 +1254,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           placeholder="ค้นหาโปรโมชัน"
           query={query}
         />
-        <section className="mt-24 min-w-0">
+        <section className="mt-28 min-w-0">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
@@ -1535,7 +1535,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           placeholder="ค้นหาฟิล์ม"
           query={query}
         />
-        <section className="mt-24 min-w-0">
+        <section className="mt-28 min-w-0">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
@@ -1962,7 +1962,7 @@ function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="fixed left-4 right-4 top-[4.6rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[5.1rem] lg:left-[20rem] lg:right-8">
+    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[6rem] lg:left-[20rem] lg:right-8">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
@@ -2159,7 +2159,7 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-      <div className="promotion-square-media relative bg-[#080808]">
+      <div className="relative aspect-[16/9] max-h-64 overflow-hidden bg-[#080808]">
         {film.imageUrl ? (
           <img alt="" className="absolute inset-0 size-full object-contain" src={film.imageUrl} />
         ) : (
@@ -2222,7 +2222,7 @@ function UploadedImageField({
     <label className="block text-sm font-bold text-white/68">
       {label}
       <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-        <div className="grid aspect-[16/10] place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
+        <div className="grid aspect-[16/10] max-h-64 place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
           {imageUrl ? (
             <img alt="" className="size-full object-contain" src={imageUrl} />
           ) : (
