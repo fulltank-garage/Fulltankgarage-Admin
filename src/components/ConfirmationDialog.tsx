@@ -84,20 +84,19 @@ export function ConfirmationDialog({
       className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-black/78 px-4 py-6 backdrop-blur-md"
       role="dialog"
     >
-      <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)]">
-        <div className="h-1 w-full bg-gradient-to-r from-[#ff3b36] via-[#ff5a55] to-[#d91409]" />
-        <div className="flex items-start gap-3 p-5">
+      <div className="relative flex aspect-square w-full max-w-[420px] flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)]">
+        <div className="flex flex-1 flex-col items-center justify-center px-6 py-6 text-center">
           <div
-            className={`grid size-11 shrink-0 place-items-center rounded-2xl border ${meta.iconClassName}`}
+            className={`grid size-16 shrink-0 place-items-center rounded-3xl border ${meta.iconClassName}`}
           >
-            <Icon size={22} />
+            <Icon size={30} />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-black leading-7 text-white">
+          <div className="mt-5 min-w-0">
+            <h2 className="text-xl font-black leading-8 text-white">
               {title}
             </h2>
-            <p className="mt-2 text-sm font-semibold leading-6 text-[#a7a7a7]">
+            <p className="mt-3 text-sm font-semibold leading-6 text-[#a7a7a7]">
               {description}
             </p>
             {children ? <div className="mt-4">{children}</div> : null}
@@ -105,7 +104,7 @@ export function ConfirmationDialog({
 
           <button
             aria-label="ปิดหน้าต่างยืนยัน"
-            className="grid size-9 shrink-0 place-items-center rounded-2xl border border-[#2c2c2c] bg-[#080808] text-[#a7a7a7] transition hover:border-[#ff3b36]/50 hover:text-white"
+            className="absolute right-4 top-4 grid size-9 shrink-0 place-items-center rounded-2xl border border-[#2c2c2c] bg-[#080808] text-[#a7a7a7] transition hover:border-[#ff3b36]/50 hover:text-white"
             onClick={onCancel}
             type="button"
           >
