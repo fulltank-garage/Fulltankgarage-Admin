@@ -2104,6 +2104,10 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
+      <div className="border-b border-white/10 bg-[#080808] px-3 py-3">
+        <p className="text-sm font-black text-white">ตัวอย่างก่อนบันทึก</p>
+        <p className="mt-1 text-xs font-bold text-white/45">ข้อมูลด้านล่างคือ preview ที่ลูกค้าจะเห็นหลังเพิ่มข้อมูล</p>
+      </div>
       <div className="promotion-square-media relative bg-[#080808]">
         {promotion.imageUrl ? (
           <img alt="" className="absolute inset-0 size-full object-contain" src={promotion.imageUrl} />
@@ -2116,7 +2120,7 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
         )}
       </div>
       <div className="p-3">
-        <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าโปรโมชัน</p>
+        <p className="text-xs font-black text-[#ff6965]">PREVIEW PROMOTION</p>
         <h3 className="mt-2 break-words text-base font-black text-white">{title}</h3>
         <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{description}</p>
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
@@ -2153,6 +2157,10 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
+      <div className="border-b border-white/10 bg-[#080808] px-3 py-3">
+        <p className="text-sm font-black text-white">ตัวอย่างก่อนบันทึก</p>
+        <p className="mt-1 text-xs font-bold text-white/45">ข้อมูลด้านล่างคือ preview ที่ลูกค้าจะเห็นหลังเพิ่มข้อมูล</p>
+      </div>
       <div className="relative aspect-[16/9] max-h-64 overflow-hidden bg-[#080808]">
         {film.imageUrl ? (
           <img alt="" className="absolute inset-0 size-full object-contain" src={film.imageUrl} />
@@ -2165,7 +2173,7 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         )}
       </div>
       <div className="p-3">
-        <p className="text-xs font-black text-[#ff6965]">ตัวอย่างหน้าฟิล์ม</p>
+        <p className="text-xs font-black text-[#ff6965]">PREVIEW FILM</p>
         <h3 className="mt-2 break-words text-base font-black text-white">{name}</h3>
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {description}
