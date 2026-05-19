@@ -2038,8 +2038,8 @@ function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8 md:bottom-6 md:top-[5.5rem] lg:bottom-8',
-          isOpen ? 'translate-y-0' : 'translate-y-full',
+          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8 md:bottom-6 md:top-[5.5rem] lg:bottom-8',
+          isOpen ? 'translate-y-0 opacity-100' : 'translate-y-[calc(100%+6rem)] opacity-0',
         ].join(' ')}
       >
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080808]/96 px-4 py-3 backdrop-blur">
