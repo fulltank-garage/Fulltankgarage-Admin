@@ -38,6 +38,8 @@ const variantMeta = {
   }
 >
 
+const closeAnimationMs = 280
+
 export function ConfirmationDialog({
   cancelLabel = 'ยกเลิก',
   children,
@@ -80,7 +82,7 @@ export function ConfirmationDialog({
 
     const timeoutId = window.setTimeout(() => {
       setShouldRender(false)
-    }, 500)
+    }, closeAnimationMs)
 
     return () => {
       window.clearTimeout(timeoutId)
@@ -116,14 +118,14 @@ export function ConfirmationDialog({
     <div
       aria-modal="true"
       className={[
-        'fixed inset-0 z-[60] grid place-items-center overflow-hidden px-4 py-6 backdrop-blur-md transition-colors duration-300',
+        'fixed inset-0 z-[60] grid place-items-center overflow-hidden px-4 py-6 backdrop-blur-md transition-colors duration-200',
         isVisible ? 'bg-black/78' : 'bg-black/0',
       ].join(' ')}
       role="dialog"
     >
       <div
         className={[
-          'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
+          'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)] transition-transform duration-[280ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
           isVisible ? 'translate-y-0' : 'translate-y-[calc(100dvh+6rem)]',
         ].join(' ')}
       >
