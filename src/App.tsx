@@ -2036,7 +2036,7 @@ function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-0 bottom-0 mx-auto flex max-h-[88dvh] w-full max-w-3xl transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
+          'absolute inset-x-3 bottom-0 mx-auto flex max-h-[88dvh] w-auto max-w-6xl transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8',
           isOpen ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >
@@ -2167,9 +2167,9 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         <p className="text-sm font-black text-white">ตัวอย่างก่อนบันทึก</p>
         <p className="mt-1 text-xs font-bold text-white/45">ข้อมูลด้านล่างคือ preview ที่ลูกค้าจะเห็นหลังเพิ่มข้อมูล</p>
       </div>
-      <div className="relative aspect-[16/9] max-h-64 overflow-hidden bg-[#080808]">
+      <div className="relative aspect-[16/9] max-h-80 overflow-hidden bg-[#080808]">
         {film.imageUrl ? (
-          <img alt="" className="absolute inset-0 size-full object-contain" src={film.imageUrl} />
+          <img alt="" className="absolute inset-0 size-full object-cover" src={film.imageUrl} />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#ff403b] via-[#161616] to-[#050505]">
             <span className="px-5 text-center text-sm font-black leading-5 text-white/72">
