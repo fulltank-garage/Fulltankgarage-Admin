@@ -116,7 +116,7 @@ export function ConfirmationDialog({
     <div
       aria-modal="true"
       className={[
-        'fixed inset-0 z-[60] grid place-items-center overflow-y-auto px-4 py-6 backdrop-blur-md transition-colors duration-300',
+        'fixed inset-0 z-[60] grid place-items-center overflow-hidden px-4 py-6 backdrop-blur-md transition-colors duration-300',
         isVisible ? 'bg-black/78' : 'bg-black/0',
       ].join(' ')}
       role="dialog"
