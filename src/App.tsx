@@ -2255,6 +2255,7 @@ function UploadedImageField({
   onFileSelect: (file: File) => void
 }) {
   const isDocumentFrame = frame === 'document'
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
   const displayImageUrl = imageUrl || localPreviewUrl
 
@@ -2264,15 +2265,26 @@ function UploadedImageField({
     }
   }, [localPreviewUrl])
 
+  const openFilePicker = () => {
+    if (!isUploading) {
+      inputRef.current?.click()
+    }
+  }
+
   return (
-    <label className="block text-sm font-bold text-white/68">
-      {label}
-      <div className="mt-2 cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 transition hover:border-[#ff403b]/45">
+    <div className="block text-sm font-bold text-white/68">
+      <span>{label}</span>
+      <button
+        className="mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#ff403b]/45"
+        disabled={isUploading}
+        onClick={openFilePicker}
+        type="button"
+      >
         <div
           className={[
             'relative mx-auto grid w-full place-items-center overflow-hidden rounded-xl',
             isDocumentFrame
-              ? 'aspect-[16/10] max-h-80 bg-[#f4f4f4]'
+              ? 'aspect-[16/10] max-h-80 bg-[#f4f4f4] text-[#222]'
               : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
           ].join(' ')}
         >
@@ -2287,7 +2299,7 @@ function UploadedImageField({
               </div>
             </>
           ) : (
-            <div className="grid size-full place-items-center px-4 text-center text-white/42">
+            <div className={['grid size-full place-items-center px-4 text-center', isDocumentFrame ? 'text-[#444]' : 'text-white/42'].join(' ')}>
               <div>
                 <ImagePlus className="mx-auto" size={34} />
                 <p className="mt-2 text-xs font-black">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
@@ -2298,7 +2310,7 @@ function UploadedImageField({
             </div>
           )}
         </div>
-      </div>
+      </button>
       <input
         accept="image/*"
         className="sr-only"
@@ -2317,9 +2329,10 @@ function UploadedImageField({
           }
           event.currentTarget.value = ''
         }}
+        ref={inputRef}
         type="file"
       />
-    </label>
+    </div>
   )
 }
 
