@@ -4,21 +4,16 @@ import {
   Car,
   Download,
   Film as FilmIcon,
-  KeyRound,
-  LayoutDashboard,
-  LogOut,
   Menu,
   Plus,
   Shuffle,
   Search,
   Trash2,
   UsersRound,
-  X,
 } from 'lucide-react'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  authApi,
   clearSession,
   dashboardApi,
   filmApi,
@@ -36,16 +31,18 @@ import {
   type SerialNumber,
   type WarrantyRegistration,
 } from './services/fulltankApi'
-import fulltankGarageLogo from './assets/fulltank-garage-logo.jpg'
 import { CustomerTable } from './components/admin/CustomerTable'
 import { FilmGalleryField, TextAreaInput, TextInput, UploadedImageField } from './components/admin/FormFields'
 import { BottomEditorSheet, ManagementToolbar, PageShell } from './components/admin/Layout'
+import { LoginPage } from './components/admin/LoginPage'
 import { Notice } from './components/admin/Notice'
 import { AdminFilmPreview, AdminPromotionPreview, FormPreviewDivider } from './components/admin/Previews'
 import { SerialRow, SerialStatCard } from './components/admin/Serials'
+import { Sidebar } from './components/admin/Sidebar'
 import { AdminGridSkeleton, SerialListSkeleton, SkeletonBlock } from './components/admin/Skeletons'
 import { ConfirmationDialog } from './components/ConfirmationDialog'
 import { StartupSplash } from './components/StartupSplash'
+import { pages } from './config/adminPages'
 import type { NoticeTone, Page } from './types/admin'
 import {
   createCardSummary,
@@ -175,29 +172,6 @@ const shouldShowRealtimeNotice = (event: FulltankRealtimeEvent) =>
   event.type === 'warranty_registration.created' ||
   event.type === 'warranty_registration.linked' ||
   (event.type === 'rich_menu.sync' && !event.data.success)
-
-const formatLatestRealtimeAt = (value: Date | null) => {
-  if (!value) {
-    return 'ยังไม่มีข้อมูลอัปเดต'
-  }
-
-  return new Intl.DateTimeFormat('th-TH', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(value)
-}
-
-const formatAdminDisplayName = (value: string) =>
-  value.replace(/FullTank/gi, 'FULLTANK')
-
-const pages: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
-  { id: 'dashboard', label: 'แดชบอร์ด', icon: LayoutDashboard },
-  { id: 'promotions', label: 'จัดการโปรโมชัน', icon: BadgePercent },
-  { id: 'films', label: 'จัดการฟิล์ม', icon: FilmIcon },
-  { id: 'customers', label: 'จัดการข้อมูลลูกค้า', icon: UsersRound },
-  { id: 'serials', label: 'จัดการ Serial Number', icon: KeyRound },
-]
 
 const emptyPromotion: Partial<Promotion> = {
   title: '',
@@ -679,228 +653,6 @@ function App() {
         {activePage === 'serials' ? <SerialNumbersPage onNotice={showNotice} /> : null}
       </main>
     </div>
-  )
-}
-
-function Sidebar({
-  activePage,
-  hasPendingAppUpdate,
-  latestRealtimeAt,
-  onClose,
-  onLogout,
-  onSelect,
-  onUpdateApp,
-  realtimeStatus,
-  session,
-}: {
-  activePage: Page
-  hasPendingAppUpdate: boolean
-  latestRealtimeAt: Date | null
-  onClose: () => void
-  onLogout: () => void
-  onSelect: (page: Page) => void
-  onUpdateApp: () => void
-  realtimeStatus: RealtimeStatus
-  session: AuthSession
-}) {
-  const statusLabel =
-    realtimeStatus === 'connected'
-      ? 'เชื่อมต่อข้อมูลล่าสุด'
-      : realtimeStatus === 'off'
-        ? 'ปิดข้อมูลสด'
-        : realtimeStatus === 'connecting'
-          ? 'กำลังเชื่อมต่อ'
-          : 'กำลังเชื่อมต่อใหม่'
-  const statusDotClass =
-    realtimeStatus === 'connected'
-      ? 'bg-emerald-400'
-      : realtimeStatus === 'off'
-        ? 'bg-white/28'
-        : 'bg-[#ff403b]'
-
-  return (
-    <>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <img
-            alt="FULLTANK Garage"
-            className="size-14 shrink-0 rounded-lg object-cover"
-            src={fulltankGarageLogo}
-          />
-          <h1 className="min-w-0 text-lg font-black leading-tight">หน้าแอดมิน</h1>
-        </div>
-        <button
-          aria-label="ปิดเมนู"
-          className="grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 lg:hidden"
-          onClick={onClose}
-          type="button"
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      <nav className="mt-7 space-y-2">
-        {pages.map((page) => {
-          const Icon = page.icon
-          const isActive = activePage === page.id
-
-          return (
-            <button
-              aria-current={isActive ? 'page' : undefined}
-              className={[
-                'flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition',
-                isActive
-                  ? 'bg-[#ff332f] text-white shadow-[0_12px_28px_rgba(255,51,47,0.22)]'
-                  : 'bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white',
-              ].join(' ')}
-              key={page.id}
-              onClick={() => onSelect(page.id)}
-              type="button"
-            >
-              <Icon size={18} />
-              <span className="min-w-0 truncate">{page.label}</span>
-            </button>
-          )
-        })}
-      </nav>
-
-      <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-        <p className="text-sm font-black">{formatAdminDisplayName(session.user.name)}</p>
-        <p className="mt-1 break-all text-xs font-semibold text-white/48">
-          {session.user.email}
-        </p>
-        <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-3">
-          <div className="flex items-start gap-2">
-            <span className={`mt-1 size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
-            <div className="min-w-0">
-              <p className="text-xs font-black text-white/76">{statusLabel}</p>
-              <p className="mt-1 text-xs font-semibold leading-5 text-white/42">
-                ข้อมูลล่าสุด {formatLatestRealtimeAt(latestRealtimeAt)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          className={[
-            'mt-3 rounded-xl border px-3 py-3',
-            hasPendingAppUpdate
-              ? 'border-[#ff403b]/36 bg-[#ff403b]/12'
-              : 'border-white/10 bg-[#0c0c0c]',
-          ].join(' ')}
-        >
-          <div className="flex items-start gap-2">
-            <span
-              className={[
-                'mt-1 size-2.5 shrink-0 rounded-full',
-                hasPendingAppUpdate ? 'app-update-pulse bg-[#ff403b]' : 'bg-white/22',
-              ].join(' ')}
-            />
-            <div className="min-w-0">
-              <p className="text-xs font-black text-white/76">อัปเดตแอป</p>
-              <p className="mt-1 text-xs font-semibold leading-5 text-white/42">
-                {hasPendingAppUpdate
-                  ? 'มีเวอร์ชันใหม่พร้อมใช้งาน'
-                  : 'กำลังใช้เวอร์ชันล่าสุด'}
-              </p>
-            </div>
-          </div>
-          {hasPendingAppUpdate ? (
-            <button
-              className="mt-3 h-10 w-full rounded-xl bg-[#ff332f] text-xs font-black text-white shadow-[0_12px_24px_rgba(255,51,47,0.18)]"
-              onClick={onUpdateApp}
-              type="button"
-            >
-              อัปเดตตอนนี้
-            </button>
-          ) : null}
-        </div>
-        <button
-          className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-black text-white/72"
-          onClick={onLogout}
-          type="button"
-        >
-          <LogOut size={17} />
-          ออกจากระบบ
-        </button>
-      </div>
-    </>
-  )
-}
-
-function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void }) {
-  const [email, setEmail] = useState('admin@fulltankgarage.local')
-  const [password, setPassword] = useState('admin1234')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setError('')
-    setIsLoading(true)
-    try {
-      onLogin(await authApi.login({ email, password }))
-    } catch {
-      setError('เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  return (
-    <main className="grid min-h-dvh place-items-center bg-[#070707] px-4 py-8 text-white">
-      <form
-        className="w-full max-w-md rounded-[1.5rem] border border-white/12 bg-[#151515] p-5 shadow-[0_0_42px_rgba(255,35,30,0.18)] sm:p-6"
-        onSubmit={submit}
-      >
-        <div className="flex flex-col items-center text-center">
-          <img
-            alt="FULLTANK Garage"
-            className="h-auto w-44 rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.36)] sm:w-52"
-            src={fulltankGarageLogo}
-          />
-          <p className="mt-5 text-xs font-black uppercase tracking-normal text-[#ff403b]">
-            Admin Login
-          </p>
-          <h1 className="mt-1 text-3xl font-black leading-tight">เข้าสู่ระบบ</h1>
-        </div>
-
-        <div className="mt-7 space-y-4">
-          <label className="block text-sm font-bold text-white/72">
-            อีเมล
-            <input
-              autoComplete="email"
-              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
-              onChange={(event) => setEmail(event.target.value)}
-              type="email"
-              value={email}
-            />
-          </label>
-          <label className="block text-sm font-bold text-white/72">
-            รหัสผ่าน
-            <input
-              autoComplete="current-password"
-              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
-              onChange={(event) => setPassword(event.target.value)}
-              type="password"
-              value={password}
-            />
-          </label>
-        </div>
-
-        {error ? (
-          <p className="mt-4 rounded-xl border border-[#ff403b]/30 bg-[#ff403b]/12 px-3 py-2 text-sm font-bold text-[#ffd7d5]">
-            {error}
-          </p>
-        ) : null}
-        <button
-          className="mt-5 h-12 w-full rounded-xl bg-[#ff332f] text-base font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.22)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isLoading}
-          type="submit"
-        >
-          {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-        </button>
-      </form>
-    </main>
   )
 }
 

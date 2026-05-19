@@ -30,14 +30,19 @@ export class AppErrorBoundary extends Component<
     }
 
     return (
-      <main className="grid min-h-screen place-items-center bg-[#fbf6f0] px-6 text-[#3f2e23]">
-        <section className="w-full max-w-sm rounded-3xl border border-[#ead8c7] bg-white p-6 text-center shadow-xl">
-          <h1 className="text-xl font-semibold">เปิดหน้า Admin ไม่สำเร็จ</h1>
-          <p className="mt-2 text-sm leading-6 text-[#6f5238]">
-            กรุณาปิดแอปแล้วเปิดใหม่อีกครั้ง
+      <main className="grid min-h-dvh place-items-center bg-[#070707] px-5 text-white">
+        <section className="w-full max-w-sm rounded-[1.35rem] border border-white/12 bg-[#151515] p-5 text-center shadow-[0_0_38px_rgba(255,35,30,0.16)]">
+          <p className="text-xs font-black uppercase tracking-normal text-[#ff403b]">
+            FULLTANK ADMIN
+          </p>
+          <h1 className="mt-2 text-2xl font-black leading-tight">
+            เปิดหน้า Admin ไม่สำเร็จ
+          </h1>
+          <p className="mt-2 text-sm font-semibold leading-6 text-white/56">
+            กรุณาโหลดหน้าใหม่อีกครั้ง หากยังไม่หายให้ปิดแอปแล้วเข้าใหม่
           </p>
           <button
-            className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-[#9a7655] px-5 text-sm font-semibold text-white"
+            className="mt-5 h-11 w-full rounded-xl bg-[#ff332f] text-sm font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.22)]"
             onClick={() => window.location.reload()}
             type="button"
           >
