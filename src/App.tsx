@@ -2223,8 +2223,8 @@ function UploadedImageField({
   return (
     <label className="block text-sm font-bold text-white/68">
       {label}
-      <div className="mt-2 cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-[#101010] transition hover:border-[#ff403b]/45">
-        <div className="relative grid aspect-[16/10] max-h-64 place-items-center bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
+      <div className="mt-2 cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 transition hover:border-[#ff403b]/45">
+        <div className="relative mx-auto grid aspect-square w-full max-w-[28rem] place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-[#1f1f1f] to-[#090909]">
           {imageUrl ? (
             <>
               <img alt="" className="size-full object-contain" src={imageUrl} />
