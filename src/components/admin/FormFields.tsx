@@ -1,0 +1,236 @@
+import { ImagePlus, X } from 'lucide-react'
+import type { ChangeEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+export function UploadedImageField({
+  frame = 'square',
+  help = 'เลือกไฟล์รูปภาพจากเครื่อง',
+  imageUrl,
+  isUploading,
+  label,
+  onFileSelect,
+}: {
+  frame?: 'square' | 'document'
+  help?: string
+  imageUrl?: string
+  isUploading: boolean
+  label: string
+  onFileSelect: (file: File) => void
+}) {
+  const isDocumentFrame = frame === 'document'
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [localPreviewUrl, setLocalPreviewUrl] = useState('')
+  const displayImageUrl = imageUrl || localPreviewUrl
+
+  useEffect(() => () => {
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl)
+    }
+  }, [localPreviewUrl])
+
+  const openFilePicker = () => {
+    if (!isUploading) {
+      inputRef.current?.click()
+    }
+  }
+
+  return (
+    <div className="block text-sm font-bold text-white/68">
+      <span>{label}</span>
+      <button
+        className="mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#ff403b]/45"
+        disabled={isUploading}
+        onClick={openFilePicker}
+        type="button"
+      >
+        <div
+          className={[
+            'relative mx-auto grid w-full place-items-center overflow-hidden rounded-xl',
+            isDocumentFrame
+              ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
+              : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
+          ].join(' ')}
+        >
+          {displayImageUrl ? (
+            <>
+              <img alt="" className="size-full object-contain" src={displayImageUrl} />
+              <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/24 opacity-100">
+                <span className="inline-flex items-center gap-2 rounded-2xl border border-white/16 bg-black/70 px-4 py-2 text-xs font-black text-white shadow-[0_14px_34px_rgba(0,0,0,0.45)]">
+                  <ImagePlus size={16} />
+                  {isUploading ? 'กำลังอัปโหลดรูป...' : 'คลิกเพื่อเปลี่ยนรูป'}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="grid size-full place-items-center px-4 text-center text-white/58">
+              <div>
+                <ImagePlus className="mx-auto text-[#ff6965]" size={34} />
+                <p className="mt-2 text-xs font-black text-white/72">
+                  {isUploading ? 'กำลังอัปโหลดรูป...' : help}
+                </p>
+                <span className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#ff332f] px-4 text-xs font-black text-white">
+                  เลือกรูป
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </button>
+      <input
+        accept="image/*"
+        className="sr-only"
+        disabled={isUploading}
+        onChange={(event) => {
+          const file = event.currentTarget.files?.[0]
+          if (file) {
+            setLocalPreviewUrl((current) => {
+              if (current) {
+                URL.revokeObjectURL(current)
+              }
+
+              return URL.createObjectURL(file)
+            })
+            onFileSelect(file)
+          }
+          event.currentTarget.value = ''
+        }}
+        ref={inputRef}
+        type="file"
+      />
+    </div>
+  )
+}
+
+export function FilmGalleryField({
+  images,
+  isUploading,
+  onFileSelect,
+  onRemove,
+}: {
+  images: string[]
+  isUploading: boolean
+  onFileSelect: (file: File) => void
+  onRemove: (imageUrl: string) => void
+}) {
+  return (
+    <div className="text-sm font-bold text-white/68">
+      <div className="flex items-center justify-between gap-3">
+        <span>รูปภาพเพิ่มเติม</span>
+        <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 px-3 text-xs font-black text-white">
+          <ImagePlus size={15} />
+          {isUploading ? 'กำลังอัปโหลด' : 'เพิ่มรูป'}
+          <input
+            accept="image/*"
+            className="sr-only"
+            disabled={isUploading}
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0]
+              if (file) {
+                onFileSelect(file)
+              }
+              event.currentTarget.value = ''
+            }}
+            type="file"
+          />
+        </label>
+      </div>
+      <div className="mt-2 grid gap-2">
+        {images.length === 0 ? (
+          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-[#101010] px-5 text-center text-xs font-black leading-5 text-white/42">
+            เพิ่มรูปสี่เหลี่ยมผืนผ้า จัตุรัส หรือสัดส่วนอื่นสำหรับหน้าอ่านรายละเอียดฟิล์ม
+          </div>
+        ) : null}
+        {images.map((imageUrl) => (
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={imageUrl}>
+            <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
+            <button
+              aria-label="ลบรูปภาพ"
+              className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/70 text-white"
+              onClick={() => onRemove(imageUrl)}
+              type="button"
+            >
+              <X size={17} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function TextAreaInput({
+  label,
+  onChange,
+  placeholder,
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  placeholder?: string
+  value?: string
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+
+  useEffect(() => {
+    const textarea = textareaRef.current
+    if (!textarea) {
+      return
+    }
+
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
+  }, [value])
+
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = event.currentTarget
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
+    onChange(textarea.value)
+  }
+
+  return (
+    <label className="block text-sm font-bold text-white/68">
+      {label}
+      <textarea
+        className="mt-2 min-h-28 w-full resize-y overflow-hidden rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
+        onChange={handleChange}
+        placeholder={placeholder}
+        ref={textareaRef}
+        rows={4}
+        value={value ?? ''}
+      />
+    </label>
+  )
+}
+
+export function TextInput({
+  label,
+  onChange,
+  placeholder,
+  type = 'text',
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  placeholder?: string
+  type?: string
+  value?: string
+}) {
+  const isDateInput = type === 'date'
+
+  return (
+    <label className="block min-w-0 text-sm font-bold text-white/68">
+      {label}
+      <input
+        className={[
+          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#ff403b]',
+          isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
+        ].join(' ')}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        type={type}
+        value={value ?? ''}
+      />
+    </label>
+  )
+}
