@@ -41,6 +41,7 @@ export type Film = {
   summary: string
   description: string
   imageUrl: string
+  priceTableImageUrl: string
   galleryImages: string[]
   irr: string
   uvProtection: string
@@ -91,6 +92,7 @@ const normalizePromotion = (promotion: Promotion): Promotion => ({
 const normalizeFilm = (film: Film): Film => ({
   ...film,
   imageUrl: resolveImageUrl(film.imageUrl),
+  priceTableImageUrl: resolveImageUrl(film.priceTableImageUrl),
   galleryImages: (film.galleryImages ?? []).map(resolveImageUrl),
 })
 

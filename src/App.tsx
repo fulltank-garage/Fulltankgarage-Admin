@@ -355,6 +355,7 @@ const emptyFilm: Partial<Film> = {
   summary: '',
   description: '',
   imageUrl: '',
+  priceTableImageUrl: '',
   galleryImages: [],
   irr: '90%+',
   uvProtection: '99%',
@@ -1331,6 +1332,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const [form, setForm] = useState<Partial<Film>>(emptyFilm)
   const [isLoadingFilms, setIsLoadingFilms] = useState(true)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [isUploadingPriceTable, setIsUploadingPriceTable] = useState(false)
   const [isUploadingGallery, setIsUploadingGallery] = useState(false)
   const [pendingDeleteFilm, setPendingDeleteFilm] = useState<Film | null>(null)
   const [pendingRemoveGalleryImage, setPendingRemoveGalleryImage] = useState('')
@@ -1418,6 +1420,20 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     }
   }
 
+  const uploadFilmPriceTableImage = async (file: File) => {
+    try {
+      setIsUploadingPriceTable(true)
+      const optimizedFile = await compressImageFile(file)
+      const imageUrl = await uploadApi.image(optimizedFile)
+      setForm((current) => ({ ...current, priceTableImageUrl: imageUrl }))
+      onNotice('อัปโหลดรูปตารางราคาฟิล์มแล้ว', 'success')
+    } catch {
+      onNotice('อัปโหลดรูปตารางราคาไม่สำเร็จ', 'error')
+    } finally {
+      setIsUploadingPriceTable(false)
+    }
+  }
+
   const removeFilmGalleryImage = (imageUrl: string) => {
     setForm((current) => ({
       ...current,
@@ -1502,6 +1518,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         isUploading={isUploadingGallery}
         onFileSelect={uploadFilmGalleryImage}
         onRemove={setPendingRemoveGalleryImage}
+      />
+      <UploadedImageField
+        help="เพิ่มรูปตารางราคาของฟิล์ม"
+        imageUrl={form.priceTableImageUrl}
+        isUploading={isUploadingPriceTable}
+        label="รูปตารางราคาฟิล์ม"
+        onFileSelect={uploadFilmPriceTableImage}
       />
       <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
         <span className="min-w-0">
@@ -2200,6 +2223,14 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
                 <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
               </div>
             ))}
+          </div>
+        ) : null}
+        {film.priceTableImageUrl ? (
+          <div className="mt-3 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+            <div className="border-b border-white/10 px-3 py-2 text-xs font-black text-[#ff6965]">
+              ตัวอย่างตารางราคา
+            </div>
+            <img alt="" className="h-auto w-full object-contain" src={film.priceTableImageUrl} />
           </div>
         ) : null}
       </div>
