@@ -2020,7 +2020,7 @@ function BottomEditorSheet({
     <div
       aria-hidden={!isOpen}
       className={[
-        'fixed inset-y-0 left-0 right-0 z-50 md:left-[19rem] lg:left-[20rem]',
+        'fixed inset-y-0 left-0 right-0 z-50 md:left-72',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none',
       ].join(' ')}
     >
