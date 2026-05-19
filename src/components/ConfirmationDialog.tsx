@@ -62,12 +62,14 @@ export function ConfirmationDialog({
     }
 
     setShouldRender(true)
-    const animationFrame = window.requestAnimationFrame(() => {
+    setIsVisible(false)
+
+    const timeoutId = window.setTimeout(() => {
       setIsVisible(true)
-    })
+    }, 24)
 
     return () => {
-      window.cancelAnimationFrame(animationFrame)
+      window.clearTimeout(timeoutId)
     }
   }, [isOpen])
 
