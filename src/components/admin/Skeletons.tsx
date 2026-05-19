@@ -7,7 +7,7 @@ export function AdminGridSkeleton({
 }: {
   variant?: 'list' | 'promotion' | 'film'
 }) {
-  const itemCount = variant === 'film' ? 8 : 6
+  const itemCount = variant === 'film' || variant === 'promotion' ? 8 : 6
 
   return (
     <>
@@ -24,7 +24,7 @@ export function AdminGridSkeleton({
             <>
               <SkeletonBlock className="promotion-square-media w-full rounded-none" />
               <div className="p-3">
-                {variant === 'film' ? (
+                {variant === 'film' || variant === 'promotion' ? (
                   <>
                     <div className="flex items-start justify-between gap-2">
                       <SkeletonBlock className="h-5 w-4/5 rounded-xl" />

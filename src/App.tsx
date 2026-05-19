@@ -1,8 +1,6 @@
 import {
   BadgePercent,
-  CalendarDays,
   Car,
-  ChevronRight,
   Download,
   Film as FilmIcon,
   KeyRound,
@@ -52,7 +50,6 @@ import {
   createCardSummary,
   formatCustomerInstallDate,
   formatDateInput,
-  formatPromotionDateRange,
 } from './utils/adminFormatters'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
@@ -1193,7 +1190,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         />
         <section className="mt-20 min-w-0">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
@@ -1201,17 +1198,8 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                   {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
                 </div>
                 <div className="p-3">
-                  <p className="break-words text-base font-black">{item.title}</p>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-white/52">{item.description}</p>
-                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
-                    <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/55">
-                      <CalendarDays size={15} />
-                      {formatPromotionDateRange(item.startsAt, item.endsAt)}
-                    </span>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-xs font-black text-[#ff6965]">
-                      อ่านรายละเอียด
-                      <ChevronRight size={16} />
-                    </span>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="break-words text-base font-black">{item.title}</p>
                   </div>
                   <div className="mt-3 flex justify-end gap-2">
                     <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editPromotion(item)} type="button">
