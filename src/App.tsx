@@ -17,7 +17,7 @@ import {
   UsersRound,
   X,
 } from 'lucide-react'
-import type { FormEvent, ReactNode } from 'react'
+import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   authApi,
@@ -2333,13 +2333,34 @@ function TextAreaInput({
   placeholder?: string
   value?: string
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+
+  useEffect(() => {
+    const textarea = textareaRef.current
+    if (!textarea) {
+      return
+    }
+
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
+  }, [value])
+
+  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = event.currentTarget
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
+    onChange(textarea.value)
+  }
+
   return (
     <label className="block text-sm font-bold text-white/68">
       {label}
       <textarea
-        className="mt-2 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
-        onChange={(event) => onChange(event.target.value)}
+        className="mt-2 min-h-28 w-full resize-y overflow-hidden rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
+        onChange={handleChange}
         placeholder={placeholder}
+        ref={textareaRef}
+        rows={4}
         value={value ?? ''}
       />
     </label>
