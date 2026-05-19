@@ -1886,7 +1886,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               font-size: 16px;
               font-weight: 900;
               letter-spacing: .08em;
-              margin-top: .2mm;
+              margin-top: 1.2mm;
             }
             @media print {
               .no-print { display: none; }
