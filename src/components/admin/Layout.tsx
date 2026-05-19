@@ -33,7 +33,7 @@ export function ManagementToolbar({
   query: string
 }) {
   return (
-    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur md:left-[19rem] md:right-6 md:top-[5.5rem] lg:left-[20rem] lg:right-8">
+    <div className="fixed left-4 right-4 top-[5.25rem] z-20 rounded-2xl border border-white/10 bg-[#101010]/96 p-3 shadow-[0_18px_48px_rgba(0,0,0,0.35)] backdrop-blur lg:left-[20rem] lg:right-8 lg:top-[5.5rem]">
       <div className="flex min-w-0 items-center gap-2">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
@@ -85,7 +85,7 @@ export function BottomEditorSheet({
     <div
       aria-hidden={!isOpen}
       className={[
-        'fixed inset-y-0 left-0 right-0 z-50 md:left-72',
+        'fixed inset-y-0 left-0 right-0 z-50 lg:left-72',
         isOpen ? 'pointer-events-auto' : 'pointer-events-none',
       ].join(' ')}
     >
@@ -101,7 +101,7 @@ export function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8 md:bottom-6 md:top-[5.5rem] lg:bottom-8',
+          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:inset-x-8 lg:bottom-8 lg:top-[5.5rem]',
           isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+6rem)]',
         ].join(' ')}
       >

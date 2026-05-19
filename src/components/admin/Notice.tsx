@@ -2,7 +2,7 @@ import type { NoticeTone } from '../../types/admin'
 
 export function Notice({ message, tone }: { message: string; tone: NoticeTone }) {
   return (
-    <div className="pointer-events-none fixed left-0 right-0 top-[4.75rem] z-[120] flex justify-center px-4 md:left-72 md:px-6 lg:px-8">
+    <div className="pointer-events-none fixed left-0 right-0 top-[4.75rem] z-[120] flex justify-center px-4 lg:left-72 lg:px-8">
       <div
         className={[
           'snackbar-notice w-[min(100%,28rem)] rounded-2xl border px-4 py-3 text-center text-sm font-black text-white shadow-[0_18px_42px_rgba(0,0,0,0.35)]',

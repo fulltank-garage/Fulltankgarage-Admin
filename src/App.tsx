@@ -621,7 +621,7 @@ function App() {
         aria-label="ปิดเมนู"
         aria-hidden={!isSidebarOpen}
         className={[
-          'fixed inset-0 z-30 bg-black/68 backdrop-blur-[2px] transition-[opacity,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden',
+          'fixed inset-0 z-30 bg-black/68 backdrop-blur-[2px] transition-[opacity,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden',
           isSidebarOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0 backdrop-blur-0',
         ].join(' ')}
         onClick={() => setIsSidebarOpen(false)}
@@ -630,7 +630,7 @@ function App() {
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] transform-gpu flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:translate-x-0 md:transition-none',
+          'fixed inset-y-0 left-0 z-40 flex w-72 max-w-[82vw] transform-gpu flex-col border-r border-white/10 bg-[#101010] px-5 py-6 shadow-[18px_0_60px_rgba(0,0,0,0.42)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:translate-x-0 lg:transition-none',
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >
@@ -647,11 +647,11 @@ function App() {
         />
       </aside>
 
-      <main className="min-w-0 px-4 pb-6 pt-[5.75rem] md:pl-[19rem] md:pr-6 md:pt-[6.25rem] lg:px-8 lg:pl-[20rem]">
-        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur md:left-72 md:px-6 lg:px-8">
+      <main className="min-w-0 px-4 pb-6 pt-[5.75rem] lg:px-8 lg:pl-[20rem] lg:pt-[6.25rem]">
+        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur lg:left-72 lg:px-8">
           <button
             aria-label="เปิดเมนู"
-            className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white md:hidden"
+            className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white lg:hidden"
             onClick={() => setIsSidebarOpen(true)}
             type="button"
           >
@@ -667,7 +667,7 @@ function App() {
             <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#ff403b]">
               FULLTANK Admin
             </p>
-            <p className="truncate text-[21px] font-bold leading-[1.12] md:text-[32px]">
+            <p className="truncate text-[21px] font-bold leading-[1.12] lg:text-[32px]">
               {pages.find((page) => page.id === activePage)?.label}
             </p>
           </div>
@@ -732,7 +732,7 @@ function Sidebar({
         </div>
         <button
           aria-label="ปิดเมนู"
-          className="grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 md:hidden"
+          className="grid size-10 place-items-center rounded-xl border border-white/10 text-white/70 lg:hidden"
           onClick={onClose}
           type="button"
         >
