@@ -2255,6 +2255,14 @@ function UploadedImageField({
   onFileSelect: (file: File) => void
 }) {
   const isDocumentFrame = frame === 'document'
+  const [localPreviewUrl, setLocalPreviewUrl] = useState('')
+  const displayImageUrl = imageUrl || localPreviewUrl
+
+  useEffect(() => () => {
+    if (localPreviewUrl) {
+      URL.revokeObjectURL(localPreviewUrl)
+    }
+  }, [localPreviewUrl])
 
   return (
     <label className="block text-sm font-bold text-white/68">
@@ -2268,13 +2276,13 @@ function UploadedImageField({
               : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
           ].join(' ')}
         >
-          {imageUrl ? (
+          {displayImageUrl ? (
             <>
-              <img alt="" className="size-full object-contain" src={imageUrl} />
+              <img alt="" className="size-full object-contain" src={displayImageUrl} />
               <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/24 opacity-100">
                 <span className="inline-flex items-center gap-2 rounded-2xl border border-white/16 bg-black/70 px-4 py-2 text-xs font-black text-white shadow-[0_14px_34px_rgba(0,0,0,0.45)]">
                   <ImagePlus size={16} />
-                  คลิกเพื่อเปลี่ยนรูป
+                  {isUploading ? 'กำลังอัปโหลดรูป...' : 'คลิกเพื่อเปลี่ยนรูป'}
                 </span>
               </div>
             </>
@@ -2298,6 +2306,13 @@ function UploadedImageField({
         onChange={(event) => {
           const file = event.currentTarget.files?.[0]
           if (file) {
+            setLocalPreviewUrl((current) => {
+              if (current) {
+                URL.revokeObjectURL(current)
+              }
+
+              return URL.createObjectURL(file)
+            })
             onFileSelect(file)
           }
           event.currentTarget.value = ''
