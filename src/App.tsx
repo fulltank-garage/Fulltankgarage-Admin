@@ -2259,7 +2259,7 @@ function UploadedImageField({
           className={[
             'relative mx-auto grid w-full place-items-center overflow-hidden rounded-xl',
             isDocumentFrame
-              ? 'aspect-[16/10] max-h-80 bg-[#f4f4f4] text-[#222]'
+              ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
               : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
           ].join(' ')}
         >
@@ -2274,10 +2274,10 @@ function UploadedImageField({
               </div>
             </>
           ) : (
-            <div className={['grid size-full place-items-center px-4 text-center', isDocumentFrame ? 'text-[#444]' : 'text-white/42'].join(' ')}>
+            <div className="grid size-full place-items-center px-4 text-center text-white/58">
               <div>
-                <ImagePlus className="mx-auto" size={34} />
-                <p className="mt-2 text-xs font-black">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
+                <ImagePlus className="mx-auto text-[#ff6965]" size={34} />
+                <p className="mt-2 text-xs font-black text-white/72">{isUploading ? 'กำลังอัปโหลดรูป...' : help}</p>
                 <span className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#ff332f] px-4 text-xs font-black text-white">
                   เลือกรูป
                 </span>
