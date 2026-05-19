@@ -2036,7 +2036,7 @@ function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-3 bottom-0 mx-auto flex max-h-[88dvh] w-auto max-w-6xl transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8',
+          'absolute inset-x-3 bottom-0 mx-auto flex max-h-[88dvh] w-auto transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8',
           isOpen ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >
