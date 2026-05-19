@@ -1,5 +1,6 @@
 import {
   BadgePercent,
+  CalendarDays,
   Car,
   Download,
   Film as FilmIcon,
@@ -50,6 +51,7 @@ import {
   createCardSummary,
   formatCustomerInstallDate,
   formatDateInput,
+  formatPromotionDateRange,
 } from './utils/adminFormatters'
 
 const appVersionStorageKey = 'fulltank_admin_app_version'
@@ -1200,6 +1202,12 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                 <div className="p-3">
                   <div className="flex items-start justify-between gap-2">
                     <p className="break-words text-base font-black">{item.title}</p>
+                  </div>
+                  <div className="mt-3 flex min-w-0 items-center gap-1.5 border-t border-white/10 pt-3 text-[11px] font-bold leading-4 text-white/55">
+                    <CalendarDays className="shrink-0 text-white/45" size={14} />
+                    <span className="min-w-0 break-words">
+                      {formatPromotionDateRange(item.startsAt, item.endsAt)}
+                    </span>
                   </div>
                   <div className="mt-3 flex justify-end gap-2">
                     <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => editPromotion(item)} type="button">
