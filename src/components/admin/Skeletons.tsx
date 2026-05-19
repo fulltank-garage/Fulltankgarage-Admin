@@ -7,9 +7,11 @@ export function AdminGridSkeleton({
 }: {
   variant?: 'list' | 'promotion' | 'film'
 }) {
+  const itemCount = variant === 'film' ? 8 : 6
+
   return (
     <>
-      {Array.from({ length: 6 }, (_, index) => (
+      {Array.from({ length: itemCount }, (_, index) => (
         <article
           aria-hidden="true"
           className={[
