@@ -2114,7 +2114,7 @@ function FormPreviewDivider() {
   return (
     <div className="flex items-center gap-3 py-2">
       <span className="h-px flex-1 bg-white/10" />
-      <span className="rounded-full border border-[#ff403b]/25 bg-[#ff403b]/10 px-3 py-1 text-[11px] font-black text-[#ff6965]">
+      <span className="rounded-full bg-[#ff332f] px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,51,47,0.24)]">
         ตัวอย่างข้อมูลก่อนบันทึก
       </span>
       <span className="h-px flex-1 bg-white/10" />
