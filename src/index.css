@@ -76,25 +76,25 @@
   }
 
   .snackbar-notice {
-    transform: translate(-50%, -0.75rem);
+    transform: translateY(-0.75rem);
     animation: snackbar-slide 3.2s ease both;
   }
 
   @keyframes snackbar-slide {
     0% {
       opacity: 0;
-      transform: translate(-50%, -0.9rem);
+      transform: translateY(-0.9rem);
     }
 
     12%,
     86% {
       opacity: 1;
-      transform: translate(-50%, 0);
+      transform: translateY(0);
     }
 
     100% {
       opacity: 0;
-      transform: translate(-50%, -0.9rem);
+      transform: translateY(-0.9rem);
     }
   }
 
