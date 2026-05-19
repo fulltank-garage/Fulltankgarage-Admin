@@ -2132,7 +2132,6 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
       <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
-        <p className="mx-auto mt-1 max-w-sm text-xs font-bold text-white/45">ข้อมูลตัวอย่างที่จะแสดงให้ลูกค้าเห็นหลังบันทึก</p>
       </div>
       <div className="promotion-square-media relative bg-[#080808]">
         {promotion.imageUrl ? (
@@ -2146,8 +2145,7 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
         )}
       </div>
       <div className="p-3">
-        <p className="text-xs font-black text-[#ff6965]">PREVIEW PROMOTION</p>
-        <h3 className="mt-2 break-words text-base font-black text-white">{title}</h3>
+        <h3 className="break-words text-base font-black text-white">{title}</h3>
         <p className="mt-1 text-sm font-semibold leading-6 text-white/55">{description}</p>
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {detail}
@@ -2179,7 +2177,6 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
       <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
-        <p className="mx-auto mt-1 max-w-sm text-xs font-bold text-white/45">ข้อมูลตัวอย่างที่จะแสดงให้ลูกค้าเห็นหลังบันทึก</p>
       </div>
       <div className="relative aspect-[16/9] max-h-80 overflow-hidden bg-[#080808]">
         {film.imageUrl ? (
@@ -2193,8 +2190,7 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         )}
       </div>
       <div className="p-3">
-        <p className="text-xs font-black text-[#ff6965]">PREVIEW FILM</p>
-        <h3 className="mt-2 break-words text-base font-black text-white">{name}</h3>
+        <h3 className="break-words text-base font-black text-white">{name}</h3>
         <p className="mt-2 rounded-xl border border-[#ff403b]/20 bg-[#ff403b]/8 px-3 py-2 text-xs font-semibold leading-5 text-white/58">
           {description}
         </p>
