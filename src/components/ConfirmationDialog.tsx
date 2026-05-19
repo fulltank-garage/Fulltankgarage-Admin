@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, X } from 'lucide-react'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 type ConfirmationDialogVariant = 'primary' | 'danger'
 
@@ -52,9 +52,41 @@ export function ConfirmationDialog({
 }: ConfirmationDialogProps) {
   const meta = variantMeta[variant]
   const Icon = meta.icon
+  const [shouldRender, setShouldRender] = useState(isOpen)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
+      setIsVisible(false)
+      return
+    }
+
+    setShouldRender(true)
+    const animationFrame = window.requestAnimationFrame(() => {
+      setIsVisible(true)
+    })
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (isOpen) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShouldRender(false)
+    }, 500)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!shouldRender) {
       return
     }
 
@@ -72,19 +104,27 @@ export function ConfirmationDialog({
       document.body.style.overflow = originalOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, onCancel])
+  }, [shouldRender, onCancel])
 
-  if (!isOpen) {
+  if (!shouldRender) {
     return null
   }
 
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto bg-black/78 px-4 py-6 backdrop-blur-md"
+      className={[
+        'fixed inset-0 z-[60] grid place-items-center overflow-y-auto px-4 py-6 backdrop-blur-md transition-colors duration-300',
+        isVisible ? 'bg-black/78' : 'bg-black/0',
+      ].join(' ')}
       role="dialog"
     >
-      <div className="relative flex aspect-square w-full max-w-[420px] flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)]">
+      <div
+        className={[
+          'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
+          isVisible ? 'translate-y-0' : 'translate-y-[calc(100dvh+6rem)]',
+        ].join(' ')}
+      >
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-6 text-center">
           <div className={`grid shrink-0 place-items-center ${meta.iconClassName}`}>
             <Icon size={46} strokeWidth={2.4} />
