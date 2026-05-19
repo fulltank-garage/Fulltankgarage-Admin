@@ -24,21 +24,31 @@ export function AdminGridSkeleton({
             <>
               <SkeletonBlock className="promotion-square-media w-full rounded-none" />
               <div className="p-3">
-                <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
-                <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
-                <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
-                {variant === 'promotion' ? (
-                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
-                    <SkeletonBlock className="h-5 w-28 rounded-xl" />
-                    <SkeletonBlock className="h-5 w-24 rounded-xl" />
-                  </div>
+                {variant === 'film' ? (
+                  <>
+                    <div className="flex items-start justify-between gap-2">
+                      <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
+                    </div>
+                    <div className="mt-3 flex justify-end gap-2">
+                      <SkeletonBlock className="h-9 w-16 rounded-xl" />
+                      <SkeletonBlock className="h-9 w-16 rounded-xl" />
+                    </div>
+                  </>
                 ) : (
-                  <SkeletonBlock className="mt-3 h-16 w-full rounded-xl" />
+                  <>
+                    <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
+                    <SkeletonBlock className="mt-2 h-4 w-full rounded-xl" />
+                    <SkeletonBlock className="mt-2 h-4 w-2/3 rounded-xl" />
+                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
+                      <SkeletonBlock className="h-5 w-28 rounded-xl" />
+                      <SkeletonBlock className="h-5 w-24 rounded-xl" />
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                      <SkeletonBlock className="h-8 w-16 rounded-lg" />
+                    </div>
+                  </>
                 )}
-                <div className="mt-3 flex gap-2">
-                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
-                  <SkeletonBlock className="h-8 w-16 rounded-lg" />
-                </div>
               </div>
             </>
           ) : (
