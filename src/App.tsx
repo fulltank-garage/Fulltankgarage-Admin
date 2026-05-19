@@ -118,25 +118,18 @@ const detectInstalledAppUpdate = () => {
 
 const generateSerialNumber = (existingSerials: SerialNumber[]) => {
   const existing = new Set(existingSerials.map((item) => item.serialNumber.toUpperCase()))
-  const now = new Date()
-  const datePart = [
-    String(now.getFullYear()).slice(-2),
-    String(now.getMonth() + 1).padStart(2, '0'),
-    String(now.getDate()).padStart(2, '0'),
-  ].join('')
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const alphabet = '0123456789abcdefghijklmnopqrstuvwxyz'
 
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const randomPart = Array.from({ length: 6 }, () =>
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const serialNumber = Array.from({ length: 8 }, () =>
       alphabet[Math.floor(Math.random() * alphabet.length)],
     ).join('')
-    const serialNumber = `FTG${datePart}${randomPart}`
-    if (!existing.has(serialNumber)) {
+    if (!existing.has(serialNumber.toUpperCase())) {
       return serialNumber
     }
   }
 
-  return `FTG${datePart}${Date.now().toString(36).toUpperCase().slice(-6)}`
+  return Date.now().toString(36).slice(-8).padStart(8, '0')
 }
 
 const upsertWarrantyRegistration = (
@@ -337,6 +330,19 @@ const buildWarrantySerialUrl = (serialNumber: string) => {
   url.searchParams.set('serial', serialNumber)
   return url.toString()
 }
+
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    }
+
+    return entities[character]
+  })
 
 const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
 const createCardSummary = (value: string | undefined, maxLength = 140) => {
@@ -1757,7 +1763,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   const [serials, setSerials] = useState<SerialNumber[]>([])
   const [isLoadingSerials, setIsLoadingSerials] = useState(true)
   const [query, setQuery] = useState('')
-  const [serialInput, setSerialInput] = useState('')
   const [batchCount, setBatchCount] = useState('10')
 
   const load = useCallback(async () => {
@@ -1789,31 +1794,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
       }
     },
   }), [])
-
-  const createSerial = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const nextSerial = serialInput.trim().toUpperCase()
-    if (!nextSerial) {
-      return
-    }
-    if (serials.some((serial) => serial.serialNumber.toUpperCase() === nextSerial)) {
-      onNotice('Serial Number นี้มีอยู่แล้ว', 'error')
-      return
-    }
-
-    try {
-      const createdSerial = await warrantyApi.createSerial(nextSerial)
-      setSerials((current) => upsertSerialNumber(current, createdSerial))
-      setSerialInput('')
-      onNotice('เพิ่ม Serial Number แล้ว', 'success')
-    } catch {
-      onNotice('เพิ่ม Serial Number ไม่สำเร็จ', 'error')
-    }
-  }
-
-  const fillGeneratedSerial = () => {
-    setSerialInput(generateSerialNumber(serials))
-  }
 
   const createBatchSerials = async () => {
     const count = Math.min(100, Math.max(1, Number(batchCount) || 1))
@@ -1847,16 +1827,129 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   const usedCount = serials.filter((serial) => serial.status === 'used').length
 
   const exportSerials = () => {
-    downloadCsv(
-      `fulltank-serials-${formatDateInput(new Date())}.csv`,
-      ['Serial Number', 'สถานะ', 'วันที่สร้าง', 'URL ลงทะเบียน'],
-      filteredSerials.map((serial) => [
-        serial.serialNumber,
-        serial.status,
-        serial.createdAt ? new Date(serial.createdAt).toLocaleDateString('th-TH') : '',
-        buildWarrantySerialUrl(serial.serialNumber),
-      ]),
-    )
+    const availableSerials = filteredSerials.filter((serial) => serial.status === 'available')
+    if (availableSerials.length === 0) {
+      onNotice('ไม่มี Serial Number ที่พร้อมใช้งานสำหรับ Export', 'error')
+      return
+    }
+
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) {
+      onNotice('กรุณาอนุญาต Pop-up เพื่อเปิดไฟล์ PDF สำหรับพิมพ์', 'error')
+      return
+    }
+
+    const printedAt = new Date().toLocaleDateString('th-TH')
+    const labelItems = availableSerials
+      .map((serial) => {
+        const serialNumber = escapeHtml(serial.serialNumber)
+        const registerUrl = escapeHtml(buildWarrantySerialUrl(serial.serialNumber))
+
+        return `
+          <article class="serial-card">
+            <div class="brand">FULLTANK GARAGE</div>
+            <div class="title">Serial Number</div>
+            <div class="serial">${serialNumber}</div>
+            <div class="url">${registerUrl}</div>
+          </article>
+        `
+      })
+      .join('')
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html lang="th">
+        <head>
+          <meta charset="utf-8" />
+          <title>FULLTANK Serial Numbers ${formatDateInput(new Date())}</title>
+          <style>
+            @page { size: A4; margin: 10mm; }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              color: #111;
+              font-family: Arial, "Helvetica Neue", sans-serif;
+            }
+            .sheet-header {
+              align-items: flex-end;
+              border-bottom: 1px solid #222;
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8mm;
+              padding-bottom: 4mm;
+            }
+            h1 {
+              font-size: 18px;
+              margin: 0;
+              text-transform: uppercase;
+            }
+            .meta {
+              color: #555;
+              font-size: 10px;
+              font-weight: 700;
+            }
+            .grid {
+              display: grid;
+              gap: 4mm;
+              grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .serial-card {
+              border: 1px dashed #111;
+              border-radius: 4mm;
+              min-height: 34mm;
+              padding: 4mm;
+              page-break-inside: avoid;
+            }
+            .brand {
+              color: #d71919;
+              font-size: 9px;
+              font-weight: 900;
+              letter-spacing: .08em;
+            }
+            .title {
+              color: #555;
+              font-size: 8px;
+              font-weight: 800;
+              margin-top: 3mm;
+              text-transform: uppercase;
+            }
+            .serial {
+              font-size: 20px;
+              font-weight: 900;
+              letter-spacing: .08em;
+              margin-top: 1mm;
+            }
+            .url {
+              color: #555;
+              font-size: 6px;
+              font-weight: 700;
+              line-height: 1.35;
+              margin-top: 3mm;
+              overflow-wrap: anywhere;
+            }
+            @media print {
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <header class="sheet-header">
+            <div>
+              <h1>FULLTANK GARAGE SERIAL NUMBER</h1>
+              <div class="meta">พร้อมใช้งาน ${availableSerials.length} รายการ</div>
+            </div>
+            <div class="meta">วันที่พิมพ์ ${printedAt}</div>
+          </header>
+          <main class="grid">${labelItems}</main>
+          <script>
+            window.addEventListener('load', () => {
+              window.print()
+            })
+          </script>
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
   }
 
   return (
@@ -1868,26 +1961,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
             <SerialStatCard label="ถูกใช้แล้ว" value={usedCount} tone="used" />
           </div>
 
-          <form className="mt-4 grid gap-3" onSubmit={createSerial}>
-            <TextInput
-              label="Serial Number"
-              onChange={(value) => setSerialInput(value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())}
-              placeholder="FTG260514A1B2C3"
-              value={serialInput}
-            />
-            <button
-              className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[#ff403b]/45 bg-[#ff403b]/12 px-3 text-sm font-black text-[#ff6965]"
-              onClick={fillGeneratedSerial}
-              type="button"
-            >
-              <Shuffle size={16} />
-              เจน Serial Number
-            </button>
-            <button className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
-              <Plus size={17} />
-              เพิ่ม Serial Number
-            </button>
-          </form>
           <div className="mt-4 rounded-2xl border border-white/10 bg-[#101010] p-3">
             <TextInput
               label="จำนวนที่ต้องการเจน"
@@ -1901,16 +1974,16 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               type="button"
             >
               <Shuffle size={16} />
-              เจนเป็นชุด
+              เพิ่ม Serial Number เป็นชุด
             </button>
           </div>
         </div>
 
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
           <div className="mb-3">
-            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] text-xs font-black text-white/70" onClick={exportSerials} type="button">
+            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={exportSerials} type="button">
               <Download size={15} />
-              Export CSV
+              Export PDF
             </button>
           </div>
           <label className="relative mb-4 block">
@@ -2098,13 +2171,11 @@ function SerialRow({ serial }: { serial: SerialNumber }) {
       </div>
       <span
         className={[
-          'shrink-0 rounded-full px-3 py-1 text-xs font-black',
-          isAvailable
-            ? 'bg-emerald-400/12 text-emerald-300'
-            : 'bg-[#ff403b]/12 text-[#ff6965]',
+          'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black text-white',
+          isAvailable ? 'bg-[#00d084]' : 'bg-[#4a1717]',
         ].join(' ')}
       >
-        {isAvailable ? 'available' : 'used'}
+        {isAvailable ? 'พร้อมใช้งาน' : 'ถูกใช้งานแล้ว'}
       </span>
     </div>
   )
