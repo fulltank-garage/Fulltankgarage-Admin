@@ -1866,8 +1866,8 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
             .serial-card {
               border: 1px dashed #111;
               border-radius: 3mm;
-              min-height: 24mm;
-              padding: 3mm;
+              min-height: 20mm;
+              padding: 2.5mm 3mm;
               page-break-inside: avoid;
             }
             .brand {
@@ -1880,14 +1880,14 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               color: #555;
               font-size: 6px;
               font-weight: 800;
-              margin-top: 2mm;
+              margin-top: 1.5mm;
               text-transform: uppercase;
             }
             .serial {
               font-size: 16px;
               font-weight: 900;
               letter-spacing: .08em;
-              margin-top: 1mm;
+              margin-top: .5mm;
             }
             @media print {
               .no-print { display: none; }
