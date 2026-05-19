@@ -1232,6 +1232,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           type="checkbox"
         />
       </label>
+      <FormPreviewDivider />
       <AdminPromotionPreview promotion={form} />
       <div className="flex justify-end">
         <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
@@ -1527,6 +1528,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           type="checkbox"
         />
       </label>
+      <FormPreviewDivider />
       <AdminFilmPreview film={form} />
       <div className="flex justify-end">
         <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
@@ -2036,7 +2038,7 @@ function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-3 bottom-0 mx-auto flex max-h-[88dvh] w-auto transform-gpu flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8',
+          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform md:inset-x-8 md:bottom-6 md:top-[5.5rem] lg:bottom-8',
           isOpen ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >
@@ -2108,6 +2110,18 @@ function SerialRow({ serial }: { serial: SerialNumber }) {
   )
 }
 
+function FormPreviewDivider() {
+  return (
+    <div className="flex items-center gap-3 py-2">
+      <span className="h-px flex-1 bg-white/10" />
+      <span className="rounded-full border border-[#ff403b]/25 bg-[#ff403b]/10 px-3 py-1 text-[11px] font-black text-[#ff6965]">
+        ตัวอย่างข้อมูลก่อนบันทึก
+      </span>
+      <span className="h-px flex-1 bg-white/10" />
+    </div>
+  )
+}
+
 function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> }) {
   const title = promotion.title?.trim() || 'ชื่อโปรโมชัน'
   const description =
@@ -2116,9 +2130,9 @@ function AdminPromotionPreview({ promotion }: { promotion: Partial<Promotion> })
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-      <div className="border-b border-white/10 bg-[#080808] px-3 py-3">
-        <p className="text-sm font-black text-white">ตัวอย่างก่อนบันทึก</p>
-        <p className="mt-1 text-xs font-bold text-white/45">ข้อมูลด้านล่างคือ preview ที่ลูกค้าจะเห็นหลังเพิ่มข้อมูล</p>
+      <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
+        <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
+        <p className="mx-auto mt-1 max-w-sm text-xs font-bold text-white/45">ข้อมูลตัวอย่างที่จะแสดงให้ลูกค้าเห็นหลังบันทึก</p>
       </div>
       <div className="promotion-square-media relative bg-[#080808]">
         {promotion.imageUrl ? (
@@ -2163,9 +2177,9 @@ function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   ]
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]">
-      <div className="border-b border-white/10 bg-[#080808] px-3 py-3">
-        <p className="text-sm font-black text-white">ตัวอย่างก่อนบันทึก</p>
-        <p className="mt-1 text-xs font-bold text-white/45">ข้อมูลด้านล่างคือ preview ที่ลูกค้าจะเห็นหลังเพิ่มข้อมูล</p>
+      <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
+        <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
+        <p className="mx-auto mt-1 max-w-sm text-xs font-bold text-white/45">ข้อมูลตัวอย่างที่จะแสดงให้ลูกค้าเห็นหลังบันทึก</p>
       </div>
       <div className="relative aspect-[16/9] max-h-80 overflow-hidden bg-[#080808]">
         {film.imageUrl ? (
