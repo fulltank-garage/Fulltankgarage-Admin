@@ -126,7 +126,7 @@ export function ConfirmationDialog({
       <div
         className={[
           'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
-          isVisible ? 'translate-y-0' : 'translate-y-[calc(100dvh+6rem)]',
+          isVisible ? 'translate-y-0' : 'translate-y-[calc(50dvh+50%+6rem)]',
         ].join(' ')}
       >
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-6 text-center">
