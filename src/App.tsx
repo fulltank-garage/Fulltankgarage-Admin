@@ -48,9 +48,6 @@ type NoticeTone = 'success' | 'error' | 'info'
 const appVersionStorageKey = 'fulltank_admin_app_version'
 const appUpdateCheckIntervalMs = 60 * 1000
 const maxImageBytes = 5 * 1024 * 1024
-const warrantyAppUrl =
-  (import.meta.env.VITE_WARRANTY_APP_URL as string | undefined) ||
-  'https://fulltankgarage.vercel.app'
 
 const getAssetVersionFromElements = (
   elements: Array<HTMLLinkElement | HTMLScriptElement>,
@@ -323,12 +320,6 @@ const compressImageFile = async (file: File) => {
     type: 'image/jpeg',
     lastModified: Date.now(),
   })
-}
-
-const buildWarrantySerialUrl = (serialNumber: string) => {
-  const url = new URL(warrantyAppUrl)
-  url.searchParams.set('serial', serialNumber)
-  return url.toString()
 }
 
 const escapeHtml = (value: string) =>
@@ -1839,18 +1830,15 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
       return
     }
 
-    const printedAt = new Date().toLocaleDateString('th-TH')
     const labelItems = availableSerials
       .map((serial) => {
         const serialNumber = escapeHtml(serial.serialNumber)
-        const registerUrl = escapeHtml(buildWarrantySerialUrl(serial.serialNumber))
 
         return `
           <article class="serial-card">
             <div class="brand">FULLTANK GARAGE</div>
             <div class="title">Serial Number</div>
             <div class="serial">${serialNumber}</div>
-            <div class="url">${registerUrl}</div>
           </article>
         `
       })
@@ -1863,69 +1851,43 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
           <meta charset="utf-8" />
           <title>FULLTANK Serial Numbers ${formatDateInput(new Date())}</title>
           <style>
-            @page { size: A4; margin: 10mm; }
+            @page { size: A4; margin: 6mm; }
             * { box-sizing: border-box; }
             body {
               margin: 0;
               color: #111;
               font-family: Arial, "Helvetica Neue", sans-serif;
             }
-            .sheet-header {
-              align-items: flex-end;
-              border-bottom: 1px solid #222;
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8mm;
-              padding-bottom: 4mm;
-            }
-            h1 {
-              font-size: 18px;
-              margin: 0;
-              text-transform: uppercase;
-            }
-            .meta {
-              color: #555;
-              font-size: 10px;
-              font-weight: 700;
-            }
             .grid {
               display: grid;
-              gap: 4mm;
-              grid-template-columns: repeat(3, minmax(0, 1fr));
+              gap: 3mm;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
             }
             .serial-card {
               border: 1px dashed #111;
-              border-radius: 4mm;
-              min-height: 34mm;
-              padding: 4mm;
+              border-radius: 3mm;
+              min-height: 24mm;
+              padding: 3mm;
               page-break-inside: avoid;
             }
             .brand {
               color: #d71919;
-              font-size: 9px;
+              font-size: 7px;
               font-weight: 900;
               letter-spacing: .08em;
             }
             .title {
               color: #555;
-              font-size: 8px;
+              font-size: 6px;
               font-weight: 800;
-              margin-top: 3mm;
+              margin-top: 2mm;
               text-transform: uppercase;
             }
             .serial {
-              font-size: 20px;
+              font-size: 16px;
               font-weight: 900;
               letter-spacing: .08em;
               margin-top: 1mm;
-            }
-            .url {
-              color: #555;
-              font-size: 6px;
-              font-weight: 700;
-              line-height: 1.35;
-              margin-top: 3mm;
-              overflow-wrap: anywhere;
             }
             @media print {
               .no-print { display: none; }
@@ -1933,13 +1895,6 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
           </style>
         </head>
         <body>
-          <header class="sheet-header">
-            <div>
-              <h1>FULLTANK GARAGE SERIAL NUMBER</h1>
-              <div class="meta">พร้อมใช้งาน ${availableSerials.length} รายการ</div>
-            </div>
-            <div class="meta">วันที่พิมพ์ ${printedAt}</div>
-          </header>
           <main class="grid">${labelItems}</main>
           <script>
             window.addEventListener('load', () => {
@@ -1980,21 +1935,22 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
         </div>
 
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
-          <div className="mb-3">
-            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={exportSerials} type="button">
+          <div className="mb-4 flex min-w-0 items-center gap-2">
+            <label className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
+              <input
+                className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="ค้นหา Serial หรือสถานะ"
+                value={query}
+              />
+            </label>
+            <button className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={exportSerials} type="button">
               <Download size={15} />
-              Export PDF
+              <span className="hidden sm:inline">ดาวน์โหลดเป็น PDF</span>
+              <span className="sm:hidden">PDF</span>
             </button>
           </div>
-          <label className="relative mb-4 block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
-            <input
-              className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="ค้นหา Serial หรือสถานะ"
-              value={query}
-            />
-          </label>
           <div className="max-h-[calc(100dvh-15rem)] space-y-2 overflow-auto pr-1">
             {isLoadingSerials ? <SerialListSkeleton /> : null}
             {filteredSerials.map((serial) => (
