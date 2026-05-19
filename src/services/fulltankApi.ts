@@ -46,9 +46,6 @@ export type Film = {
   irr: string
   uvProtection: string
   filmType: string
-  highlightOne: string
-  highlightTwo: string
-  highlightThree: string
   isActive: boolean
   createdAt: string
 }
