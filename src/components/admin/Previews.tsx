@@ -24,9 +24,9 @@ export function AdminPromotionPreview({ promotion }: { promotion: Partial<Promot
       <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
       </div>
-      <div className="promotion-square-media relative bg-[#080808]">
+      <div className="relative grid aspect-[16/9] max-h-80 place-items-center overflow-hidden bg-gradient-to-br from-[#2a1111] via-[#151515] to-[#070707]">
         {promotion.imageUrl ? (
-          <img alt="" className="absolute inset-0 size-full object-contain" src={promotion.imageUrl} />
+          <img alt="" className="max-h-full max-w-full object-contain" src={promotion.imageUrl} />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#2a1111] via-[#151515] to-[#070707] px-5">
             <span className="text-center text-sm font-black leading-5 text-white/72">
