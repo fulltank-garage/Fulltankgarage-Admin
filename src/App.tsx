@@ -1860,30 +1860,30 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
             }
             .grid {
               display: grid;
-              gap: 3mm;
-              grid-template-columns: repeat(4, minmax(0, 1fr));
+              gap: 2mm;
+              grid-template-columns: repeat(5, minmax(0, 1fr));
             }
             .serial-card {
               border: 1px dashed #111;
               border-radius: 2mm;
-              padding: 1.5mm 2mm;
+              padding: 1.5mm;
               page-break-inside: avoid;
             }
             .brand {
               color: #d71919;
-              font-size: 7px;
+              font-size: 6px;
               font-weight: 900;
               letter-spacing: .08em;
             }
             .title {
               color: #555;
-              font-size: 6px;
+              font-size: 5px;
               font-weight: 800;
               margin-top: .8mm;
               text-transform: uppercase;
             }
             .serial {
-              font-size: 16px;
+              font-size: 14px;
               font-weight: 900;
               letter-spacing: .08em;
               margin-top: 1.2mm;
