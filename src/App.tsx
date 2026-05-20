@@ -24,7 +24,6 @@ import {
   uploadApi,
   warrantyApi,
   type AuthSession,
-  type FulltankRealtimeEvent,
   type Film,
   type Promotion,
   type RealtimeStatus,
@@ -168,10 +167,23 @@ const upsertSerialNumber = (items: SerialNumber[], nextItem: SerialNumber) => {
   ]
 }
 
-const shouldShowRealtimeNotice = (event: FulltankRealtimeEvent) =>
-  event.type === 'warranty_registration.created' ||
-  event.type === 'warranty_registration.linked' ||
-  (event.type === 'rich_menu.sync' && !event.data.success)
+const normalizeEntityID = (id: number | string | undefined) => String(id ?? '')
+
+const upsertPromotion = (items: Promotion[], nextItem: Promotion) => [
+  nextItem,
+  ...items.filter((item) => normalizeEntityID(item.id) !== normalizeEntityID(nextItem.id)),
+]
+
+const removePromotion = (items: Promotion[], id: number | string) =>
+  items.filter((item) => normalizeEntityID(item.id) !== normalizeEntityID(id))
+
+const upsertFilm = (items: Film[], nextItem: Film) => [
+  nextItem,
+  ...items.filter((item) => normalizeEntityID(item.id) !== normalizeEntityID(nextItem.id)),
+]
+
+const removeFilm = (items: Film[], id: number | string) =>
+  items.filter((item) => normalizeEntityID(item.id) !== normalizeEntityID(id))
 
 const emptyPromotion: Partial<Promotion> = {
   title: '',
@@ -726,15 +738,46 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
           }
         }
 
+        if (event.type === 'promotion.created' || event.type === 'promotion.updated') {
+          return {
+            ...current,
+            promotions: upsertPromotion(current.promotions, event.data),
+          }
+        }
+
+        if (event.type === 'promotion.deleted') {
+          return {
+            ...current,
+            promotions: removePromotion(current.promotions, event.data.id),
+          }
+        }
+
+        if (event.type === 'film.created' || event.type === 'film.updated') {
+          return {
+            ...current,
+            films: upsertFilm(current.films, event.data),
+          }
+        }
+
+        if (event.type === 'film.deleted') {
+          return {
+            ...current,
+            films: removeFilm(current.films, event.data.id),
+          }
+        }
+
         return current
       })
 
-      if (shouldShowRealtimeNotice(event)) {
-        if (event.type === 'rich_menu.sync') {
+      if (event.type === 'rich_menu.sync' && !event.data.success) {
           onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
           return
-        }
+      }
 
+      if (
+        event.type === 'warranty_registration.created' ||
+        event.type === 'warranty_registration.linked'
+      ) {
         onNotice(
           event.type === 'warranty_registration.created'
             ? `มีการลงทะเบียนใหม่: ${event.data.serialNumber}`
@@ -821,6 +864,19 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
 
     return () => window.clearTimeout(timer)
   }, [load])
+
+  useEffect(() => subscribeFulltankEvents({
+    onEvent: (event) => {
+      if (event.type === 'promotion.created' || event.type === 'promotion.updated') {
+        setItems((current) => upsertPromotion(current, event.data))
+        return
+      }
+
+      if (event.type === 'promotion.deleted') {
+        setItems((current) => removePromotion(current, event.data.id))
+      }
+    },
+  }), [])
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -1061,6 +1117,19 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 
     return () => window.clearTimeout(timer)
   }, [load])
+
+  useEffect(() => subscribeFulltankEvents({
+    onEvent: (event) => {
+      if (event.type === 'film.created' || event.type === 'film.updated') {
+        setItems((current) => upsertFilm(current, event.data))
+        return
+      }
+
+      if (event.type === 'film.deleted') {
+        setItems((current) => removeFilm(current, event.data.id))
+      }
+    },
+  }), [])
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -1399,12 +1468,15 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         setRegistrations((current) => upsertWarrantyRegistration(current, event.data))
       }
 
-      if (shouldShowRealtimeNotice(event)) {
-        if (event.type === 'rich_menu.sync') {
+      if (event.type === 'rich_menu.sync' && !event.data.success) {
           onNotice('Rich menu sync ไม่สำเร็จ ตรวจสอบ LINE token/สิทธิ์อีกครั้ง', 'error')
           return
-        }
+      }
 
+      if (
+        event.type === 'warranty_registration.created' ||
+        event.type === 'warranty_registration.linked'
+      ) {
         onNotice(
           event.type === 'warranty_registration.created'
             ? `มีลูกค้าลงทะเบียนใหม่: ${event.data.serialNumber}`

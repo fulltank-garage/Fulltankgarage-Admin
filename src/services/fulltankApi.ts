@@ -117,6 +117,12 @@ export type FulltankRealtimeEvent =
   | { type: 'warranty_registration.linked'; data: WarrantyRegistration }
   | { type: 'serial_number.created'; data: SerialNumber }
   | { type: 'serial_number.updated'; data: SerialNumber }
+  | { type: 'promotion.created'; data: Promotion }
+  | { type: 'promotion.updated'; data: Promotion }
+  | { type: 'promotion.deleted'; data: { id: number | string } }
+  | { type: 'film.created'; data: Film }
+  | { type: 'film.updated'; data: Film }
+  | { type: 'film.deleted'; data: { id: number | string } }
   | { type: 'rich_menu.sync'; data: RichMenuSyncEvent }
 
 const apiBaseUrl =
@@ -368,6 +374,18 @@ const createFulltankEventsSocket = async () => {
   return new WebSocket(baseUrl.toString())
 }
 
+const normalizeRealtimeEvent = (event: FulltankRealtimeEvent): FulltankRealtimeEvent => {
+  if (event.type === 'promotion.created' || event.type === 'promotion.updated') {
+    return { ...event, data: normalizePromotion(event.data) }
+  }
+
+  if (event.type === 'film.created' || event.type === 'film.updated') {
+    return { ...event, data: normalizeFilm(event.data) }
+  }
+
+  return event
+}
+
 export const subscribeFulltankEvents = ({
   onEvent,
   onStatus,
@@ -428,7 +446,7 @@ export const subscribeFulltankEvents = ({
 
         socket.onmessage = (message) => {
           try {
-            onEvent(JSON.parse(message.data) as FulltankRealtimeEvent)
+            onEvent(normalizeRealtimeEvent(JSON.parse(message.data) as FulltankRealtimeEvent))
           } catch {
             // Ignore malformed realtime payloads so one bad message does not close the stream.
           }
