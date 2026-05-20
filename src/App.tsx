@@ -992,7 +992,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
               </article>
             ))}
             {!isLoadingPromotions && filteredItems.length === 0 ? (
-              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2 xl:col-span-3">
+              <p className="col-span-full rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
                 {items.length === 0 ? 'ยังไม่มีโปรโมชัน' : 'ไม่พบโปรโมชันที่ค้นหา'}
               </p>
             ) : null}
@@ -1310,7 +1310,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
               </article>
             ))}
             {!isLoadingFilms && filteredItems.length === 0 ? (
-              <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48 sm:col-span-2">
+              <p className="col-span-full rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
                 {items.length === 0 ? 'ยังไม่มีข้อมูลฟิล์ม' : 'ไม่พบฟิล์มที่ค้นหา'}
               </p>
             ) : null}
