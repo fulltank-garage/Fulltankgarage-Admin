@@ -1,3 +1,5 @@
+import { CalendarDays } from 'lucide-react'
+
 export function SkeletonBlock({ className }: { className: string }) {
   return <span aria-hidden="true" className={`block skeleton-shimmer ${className}`} />
 }
@@ -40,7 +42,7 @@ export function AdminGridSkeleton({
                       <SkeletonBlock className="h-5 w-4/5 rounded-xl" />
                     </div>
                     <div className="mt-3 flex min-w-0 items-center gap-1.5 border-t border-white/10 pt-3">
-                      <SkeletonBlock className="size-3.5 shrink-0 rounded" />
+                      <CalendarDays className="shrink-0 text-white/85" size={14} />
                       <SkeletonBlock className="h-4 min-w-0 flex-1 rounded-xl" />
                     </div>
                     <div className="mt-3 flex justify-end gap-2">
