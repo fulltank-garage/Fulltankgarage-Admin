@@ -69,9 +69,13 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
       <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
       </div>
-      <div className="relative flex aspect-[16/9] max-h-80 items-center justify-center overflow-hidden bg-gradient-to-br from-[#ff312b] via-[#7e1110] to-[#151515]">
+      <div className="relative aspect-[16/9] max-h-80 overflow-hidden bg-gradient-to-br from-[#ff312b] via-[#7e1110] to-[#151515]">
         {film.imageUrl ? (
-          <img alt="" className="mx-auto block max-h-full max-w-full object-contain" src={film.imageUrl} />
+          <img
+            alt=""
+            className="absolute inset-0 size-full object-contain object-center"
+            src={film.imageUrl}
+          />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#ff403b] via-[#161616] to-[#050505]">
             <span className="px-5 text-center text-sm font-black leading-5 text-white/72">
