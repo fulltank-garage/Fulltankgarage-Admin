@@ -4,8 +4,8 @@ import fulltankGarageLogo from '../../assets/fulltank-garage-logo.jpg'
 import { authApi, type AuthSession } from '../../services/fulltankApi'
 
 export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void }) {
-  const [email, setEmail] = useState('admin@fulltankgarage.local')
-  const [password, setPassword] = useState('admin1234')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
