@@ -1474,9 +1474,12 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
             <div className="min-w-0">
               <TextInput label="ถึงวันที่ติดตั้ง" onChange={setEndDate} type="date" value={endDate} />
             </div>
-            <button className="h-11 w-full rounded-xl border border-white/10 bg-[#101010] px-2 text-xs font-black text-white/70" onClick={() => { setStartDate(''); setEndDate('') }} type="button">
-              ล้างวันที่
-            </button>
+            <div className="min-w-0 text-sm font-bold text-white/68">
+              <span className="invisible block">ล้างวันที่</span>
+              <button className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-[#101010] px-2 text-xs font-black text-white/70" onClick={() => { setStartDate(''); setEndDate('') }} type="button">
+                ล้างวันที่
+              </button>
+            </div>
           </div>
           <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
             <Download size={15} />
