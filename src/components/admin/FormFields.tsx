@@ -21,6 +21,7 @@ export function UploadedImageField({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
   const displayImageUrl = imageUrl || localPreviewUrl
+  const shouldFitDocumentToImage = isDocumentFrame && Boolean(displayImageUrl)
 
   useEffect(() => () => {
     if (localPreviewUrl) {
@@ -46,14 +47,20 @@ export function UploadedImageField({
         <div
           className={[
             'relative mx-auto grid w-full place-items-center overflow-hidden rounded-xl',
-            isDocumentFrame
+            shouldFitDocumentToImage
+              ? 'border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
+              : isDocumentFrame
               ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
               : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
           ].join(' ')}
         >
           {displayImageUrl ? (
             <>
-              <img alt="" className="size-full object-contain" src={displayImageUrl} />
+              <img
+                alt=""
+                className={shouldFitDocumentToImage ? 'h-auto w-full object-contain' : 'size-full object-contain'}
+                src={displayImageUrl}
+              />
               <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/24 opacity-100">
                 <span className="inline-flex items-center gap-2 rounded-2xl border border-white/16 bg-black/70 px-4 py-2 text-xs font-black text-white shadow-[0_14px_34px_rgba(0,0,0,0.45)]">
                   <ImagePlus size={16} />
