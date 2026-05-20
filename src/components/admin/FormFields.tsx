@@ -224,6 +224,24 @@ export function TextInput({
   value?: string
 }) {
   const isDateInput = type === 'date'
+  const openDatePicker = (input: HTMLInputElement) => {
+    if (!isDateInput) {
+      return
+    }
+
+    const canUseDesktopPicker =
+      typeof window === 'undefined' || window.matchMedia('(pointer: fine)').matches
+
+    if (!canUseDesktopPicker) {
+      return
+    }
+
+    try {
+      input.showPicker?.()
+    } catch {
+      input.focus()
+    }
+  }
 
   return (
     <label className="block min-w-0 text-sm font-bold text-white/68">
@@ -233,6 +251,8 @@ export function TextInput({
           'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#ff403b]',
           isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
         ].join(' ')}
+        onClick={(event) => openDatePicker(event.currentTarget)}
+        onFocus={(event) => openDatePicker(event.currentTarget)}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         type={type}
