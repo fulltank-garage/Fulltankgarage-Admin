@@ -1466,24 +1466,22 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
   return (
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกัน">
       <section className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
-        <div className="mb-3 grid gap-3">
-          <div className="grid min-w-0 grid-cols-1 gap-3 min-[430px]:grid-cols-2">
-            <div className="min-w-0">
+        <div className="mb-3 grid gap-3 lg:flex lg:items-end">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-3 lg:flex lg:flex-1">
+            <div className="min-w-0 lg:min-w-[11rem] lg:flex-1">
               <TextInput label="ตั้งแต่วันที่ติดตั้ง" onChange={setStartDate} type="date" value={startDate} />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 lg:min-w-[11rem] lg:flex-1">
               <TextInput label="ถึงวันที่ติดตั้ง" onChange={setEndDate} type="date" value={endDate} />
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button className="h-11 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={() => { setStartDate(''); setEndDate('') }} type="button">
+            <button className="h-11 shrink-0 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={() => { setStartDate(''); setEndDate('') }} type="button">
               ล้างวันที่
             </button>
-            <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
-              <Download size={15} />
-              Export
-            </button>
           </div>
+          <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white lg:w-auto lg:shrink-0" onClick={exportCustomers} type="button">
+            <Download size={15} />
+            Export
+          </button>
         </div>
         <label className="relative mb-4 block">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
