@@ -945,6 +945,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
       </div>
     </form>
   )
+  const isPromotionListEmpty = !isLoadingPromotions && filteredItems.length === 0
 
   return (
     <>
@@ -957,8 +958,13 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
           query={query}
         />
         <section className="mt-20 min-w-0">
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+          <div
+            className={[
+              'min-w-0 rounded-2xl border border-white/10 bg-[#151515]',
+              isPromotionListEmpty ? 'p-0' : 'p-4',
+            ].join(' ')}
+          >
+            <div className={isPromotionListEmpty ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}>
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
@@ -992,12 +998,12 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
               </article>
             ))}
             {!isLoadingPromotions && filteredItems.length === 0 ? (
-              <p className="col-span-full rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
+              <p className="col-span-full rounded-2xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
                 {items.length === 0 ? 'ยังไม่มีโปรโมชัน' : 'ไม่พบโปรโมชันที่ค้นหา'}
               </p>
             ) : null}
+            </div>
           </div>
-        </div>
         </section>
       </PageShell>
       <BottomEditorSheet
@@ -1269,6 +1275,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       </div>
     </form>
   )
+  const isFilmListEmpty = !isLoadingFilms && filteredItems.length === 0
 
   return (
     <>
@@ -1281,8 +1288,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
           query={query}
         />
         <section className="mt-20 min-w-0">
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div
+          className={[
+            'min-w-0 rounded-2xl border border-white/10 bg-[#151515]',
+            isFilmListEmpty ? 'p-0' : 'p-4',
+          ].join(' ')}
+        >
+          <div className={isFilmListEmpty ? 'grid grid-cols-1' : 'grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'}>
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
@@ -1310,7 +1322,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
               </article>
             ))}
             {!isLoadingFilms && filteredItems.length === 0 ? (
-              <p className="col-span-full rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
+              <p className="col-span-full rounded-2xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
                 {items.length === 0 ? 'ยังไม่มีข้อมูลฟิล์ม' : 'ไม่พบฟิล์มที่ค้นหา'}
               </p>
             ) : null}
