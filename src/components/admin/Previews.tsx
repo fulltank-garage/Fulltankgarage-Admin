@@ -71,11 +71,14 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
       </div>
       <div className="relative aspect-[16/9] max-h-80 overflow-hidden bg-gradient-to-br from-[#ff312b] via-[#7e1110] to-[#151515]">
         {film.imageUrl ? (
-          <img
-            alt=""
-            className="absolute inset-0 size-full object-contain object-center"
-            src={film.imageUrl}
-          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <img
+              alt=""
+              className="block h-auto max-h-full max-w-full object-contain object-center"
+              src={film.imageUrl}
+              style={{ objectPosition: 'center center' }}
+            />
+          </div>
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-[#ff403b] via-[#161616] to-[#050505]">
             <span className="px-5 text-center text-sm font-black leading-5 text-white/72">
