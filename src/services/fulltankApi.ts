@@ -45,7 +45,13 @@ export type Film = {
   galleryImages: string[]
   irr: string
   uvProtection: string
+  vlt: string
+  tser: string
+  vlr: string
   filmType: string
+  vehicleType: string
+  installPosition: string
+  highlights: string[]
   isActive: boolean
   createdAt: string
 }
@@ -91,6 +97,7 @@ const normalizeFilm = (film: Film): Film => ({
   imageUrl: resolveImageUrl(film.imageUrl),
   priceTableImageUrl: resolveImageUrl(film.priceTableImageUrl),
   galleryImages: (film.galleryImages ?? []).map(resolveImageUrl),
+  highlights: film.highlights ?? [],
 })
 
 export type RealtimeStatus = 'connecting' | 'connected' | 'reconnecting' | 'off'

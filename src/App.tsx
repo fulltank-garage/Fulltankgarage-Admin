@@ -270,7 +270,13 @@ const emptyFilm: Partial<Film> = {
   galleryImages: [],
   irr: '90%+',
   uvProtection: '99%',
+  vlt: '40%',
+  tser: '60%+',
+  vlr: 'ต่ำ',
   filmType: 'AUTO',
+  vehicleType: 'รถยนต์',
+  installPosition: 'บานหน้า / รอบคัน',
+  highlights: ['ฟิล์มรถยนต์เซรามิก', 'มองชัดทั้งกลางวันและกลางคืน', 'ไม่รบกวน GPS และ Easy Pass'],
   isActive: true,
 }
 
@@ -282,6 +288,14 @@ const createFilmLogo = (name?: string) =>
     .join('')
     .slice(0, 2)
     .toUpperCase() || 'FT'
+
+const listToTextarea = (items?: string[]) => (items ?? []).join('\n')
+
+const textareaToList = (value: string) =>
+  value
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean)
 
 function App() {
   const [isBooting, setIsBooting] = useState(true)
@@ -1159,7 +1173,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         item.description,
         item.irr,
         item.uvProtection,
+        item.vlt,
+        item.tser,
+        item.vlr,
         item.filmType,
+        item.vehicleType,
+        item.installPosition,
+        ...(item.highlights ?? []),
       ]
         .join(' ')
         .toLowerCase()
@@ -1183,11 +1203,36 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         placeholder="คุณสมบัติ การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
         value={form.description}
       />
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <TextInput
+          label="ประเภทรถ"
+          onChange={(value) => setForm((current) => ({ ...current, vehicleType: value }))}
+          placeholder="รถยนต์"
+          value={form.vehicleType}
+        />
+        <TextInput
+          label="ตำแหน่งติดตั้ง"
+          onChange={(value) => setForm((current) => ({ ...current, installPosition: value }))}
+          placeholder="บานหน้า / รอบคัน"
+          value={form.installPosition}
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         <TextInput label="IRR" onChange={(value) => setForm((current) => ({ ...current, irr: value }))} placeholder="90%+" value={form.irr} />
         <TextInput label="UV" onChange={(value) => setForm((current) => ({ ...current, uvProtection: value }))} placeholder="99%" value={form.uvProtection} />
         <TextInput label="TYPE" onChange={(value) => setForm((current) => ({ ...current, filmType: value }))} placeholder="AUTO" value={form.filmType} />
       </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <TextInput label="VLT" onChange={(value) => setForm((current) => ({ ...current, vlt: value }))} placeholder="40%" value={form.vlt} />
+        <TextInput label="TSER" onChange={(value) => setForm((current) => ({ ...current, tser: value }))} placeholder="60%+" value={form.tser} />
+        <TextInput label="VLR" onChange={(value) => setForm((current) => ({ ...current, vlr: value }))} placeholder="ต่ำ" value={form.vlr} />
+      </div>
+      <TextAreaInput
+        label="จุดเด่นที่ลูกค้าควรรู้"
+        onChange={(value) => setForm((current) => ({ ...current, highlights: textareaToList(value) }))}
+        placeholder={`ใส่ทีละบรรทัด เช่น\nฟิล์มรถยนต์เซรามิก\nมองชัดทั้งกลางวันและกลางคืน\nไม่รบกวน GPS และ Easy Pass`}
+        value={listToTextarea(form.highlights)}
+      />
       <FilmGalleryField
         images={form.galleryImages ?? []}
         isUploading={isUploadingGallery}
