@@ -120,21 +120,26 @@ export function FilmGalleryField({
   onRemove: (imageUrl: string) => void
 }) {
   const [pendingPreviewUrls, setPendingPreviewUrls] = useState<string[]>([])
+  const previousImageCountRef = useRef(images.length)
 
   useEffect(() => () => {
     pendingPreviewUrls.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
   }, [pendingPreviewUrls])
 
   useEffect(() => {
-    if (isUploading) {
+    if (images.length <= previousImageCountRef.current) {
+      previousImageCountRef.current = images.length
       return
     }
 
-    setPendingPreviewUrls((current) => {
-      current.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
-      return []
-    })
-  }, [isUploading])
+    previousImageCountRef.current = images.length
+    if (pendingPreviewUrls.length > 0) {
+      setPendingPreviewUrls((current) => {
+        current.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
+        return []
+      })
+    }
+  }, [images.length, pendingPreviewUrls.length])
 
   const visibleImages = [...pendingPreviewUrls, ...images]
   const hasImages = visibleImages.length > 0
@@ -171,12 +176,12 @@ export function FilmGalleryField({
         ) : null}
         {visibleImages.map((imageUrl) => (
           <figure
-            className="relative grid min-h-40 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171717] via-[#101010] to-[#070707] p-2"
+            className="relative grid h-48 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171717] via-[#101010] to-[#070707] p-2 sm:h-56"
             key={imageUrl}
           >
             <img
               alt=""
-              className="max-h-[18rem] w-full rounded-xl object-contain"
+              className="h-full w-full rounded-xl object-contain"
               src={imageUrl}
             />
             {pendingPreviewUrls.includes(imageUrl) ? (
