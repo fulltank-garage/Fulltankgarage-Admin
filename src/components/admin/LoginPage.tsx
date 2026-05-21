@@ -23,9 +23,9 @@ export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void
   }
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-[#070707] px-4 py-8 text-white">
+    <main className="grid min-h-dvh place-items-center bg-[#080205] px-4 py-8 text-white">
       <form
-        className="w-full max-w-md rounded-[1.5rem] border border-white/12 bg-[#151515] p-5 shadow-[0_0_42px_rgba(255,35,30,0.18)] sm:p-6"
+        className="w-full max-w-md rounded-[1.5rem] border border-white/12 bg-[#151515] p-5 shadow-[0_0_42px_rgba(192,57,43,0.18)] sm:p-6"
         onSubmit={submit}
       >
         <div className="flex flex-col items-center text-center">
@@ -34,7 +34,7 @@ export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void
             className="h-auto w-44 rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.36)] sm:w-52"
             src={fulltankGarageLogo}
           />
-          <p className="mt-5 text-xs font-black uppercase tracking-normal text-[#ff403b]">
+          <p className="mt-5 text-xs font-black uppercase tracking-normal text-[#C0392B]">
             Admin Login
           </p>
           <h1 className="mt-1 text-3xl font-black leading-tight">เข้าสู่ระบบ</h1>
@@ -45,7 +45,7 @@ export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void
             อีเมล
             <input
               autoComplete="email"
-              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
+              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#C0392B] focus:ring-4 focus:ring-[#C0392B]/16"
               onChange={(event) => setEmail(event.target.value)}
               type="email"
               value={email}
@@ -55,7 +55,7 @@ export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void
             รหัสผ่าน
             <input
               autoComplete="current-password"
-              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#ff403b] focus:ring-4 focus:ring-[#ff403b]/16"
+              className="mt-2 h-12 w-full rounded-xl border border-white/12 bg-[#101010] px-4 text-white outline-none transition focus:border-[#C0392B] focus:ring-4 focus:ring-[#C0392B]/16"
               onChange={(event) => setPassword(event.target.value)}
               type="password"
               value={password}
@@ -64,12 +64,12 @@ export function LoginPage({ onLogin }: { onLogin: (session: AuthSession) => void
         </div>
 
         {error ? (
-          <p className="mt-4 rounded-xl border border-[#ff403b]/30 bg-[#ff403b]/12 px-3 py-2 text-sm font-bold text-[#ffd7d5]">
+          <p className="mt-4 rounded-xl border border-[#C0392B]/30 bg-[#C0392B]/12 px-3 py-2 text-sm font-bold text-[#C0392B]">
             {error}
           </p>
         ) : null}
         <button
-          className="mt-5 h-12 w-full rounded-xl bg-[#ff332f] text-base font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.22)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-5 h-12 w-full rounded-xl bg-[#C0392B] text-base font-black text-white shadow-[0_14px_28px_rgba(192,57,43,0.22)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isLoading}
           type="submit"
         >

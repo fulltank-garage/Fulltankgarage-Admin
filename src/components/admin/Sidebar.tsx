@@ -39,7 +39,7 @@ export function Sidebar({
       ? 'bg-emerald-400'
       : realtimeStatus === 'off'
         ? 'bg-white/28'
-        : 'bg-[#ff403b]'
+        : 'bg-[#C0392B]'
 
   return (
     <>
@@ -73,7 +73,7 @@ export function Sidebar({
               className={[
                 'flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-black transition',
                 isActive
-                  ? 'bg-[#ff332f] text-white shadow-[0_12px_28px_rgba(255,51,47,0.22)]'
+                  ? 'bg-[#C0392B] text-white shadow-[0_12px_28px_rgba(192,57,43,0.22)]'
                   : 'bg-white/[0.04] text-white/62 hover:bg-white/[0.08] hover:text-white',
               ].join(' ')}
               key={page.id}
@@ -92,7 +92,7 @@ export function Sidebar({
         <p className="mt-1 break-all text-xs font-semibold text-white/48">
           {session.user.email}
         </p>
-        <div className="mt-3 rounded-xl border border-white/10 bg-[#0c0c0c] px-3 py-3">
+        <div className="mt-3 rounded-xl border border-white/10 bg-[#080205] px-3 py-3">
           <div className="flex items-start gap-2">
             <span className={`mt-1 size-2.5 shrink-0 rounded-full ${statusDotClass}`} />
             <div className="min-w-0">
@@ -107,15 +107,15 @@ export function Sidebar({
           className={[
             'mt-3 rounded-xl border px-3 py-3',
             hasPendingAppUpdate
-              ? 'border-[#ff403b]/36 bg-[#ff403b]/12'
-              : 'border-white/10 bg-[#0c0c0c]',
+              ? 'border-[#C0392B]/36 bg-[#C0392B]/12'
+              : 'border-white/10 bg-[#080205]',
           ].join(' ')}
         >
           <div className="flex items-start gap-2">
             <span
               className={[
                 'mt-1 size-2.5 shrink-0 rounded-full',
-                hasPendingAppUpdate ? 'app-update-pulse bg-[#ff403b]' : 'bg-white/22',
+                hasPendingAppUpdate ? 'app-update-pulse bg-[#C0392B]' : 'bg-white/22',
               ].join(' ')}
             />
             <div className="min-w-0">
@@ -129,7 +129,7 @@ export function Sidebar({
           </div>
           {hasPendingAppUpdate ? (
             <button
-              className="mt-3 h-10 w-full rounded-xl bg-[#ff332f] text-xs font-black text-white shadow-[0_12px_24px_rgba(255,51,47,0.18)]"
+              className="mt-3 h-10 w-full rounded-xl bg-[#C0392B] text-xs font-black text-white shadow-[0_12px_24px_rgba(192,57,43,0.18)]"
               onClick={onUpdateApp}
               type="button"
             >

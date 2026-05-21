@@ -5,8 +5,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#070707",
-  "theme_color": "#070707",
+  "background_color": "#080205",
+  "theme_color": "#080205",
   "icons": [
     {
       "src": "/pwa-icons/fulltank-icon-192-v2.png",

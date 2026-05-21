@@ -30,7 +30,7 @@ export function CustomerTable({
                   {customer.phone || '-'}
                 </p>
               </div>
-              <span className="shrink-0 rounded-full bg-[#ff403b]/12 px-2.5 py-1 text-xs font-black text-[#ff6965]">
+              <span className="shrink-0 rounded-full bg-[#C0392B]/12 px-2.5 py-1 text-xs font-black text-[#C0392B]">
                 {customer.serialNumber}
               </span>
             </div>

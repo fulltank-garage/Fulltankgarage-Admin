@@ -15,7 +15,7 @@ export function SerialStatCard({
       <p
         className={[
           'mt-2 text-3xl font-black leading-none',
-          tone === 'available' ? 'text-emerald-300' : 'text-[#ff6965]',
+          tone === 'available' ? 'text-emerald-300' : 'text-[#C0392B]',
         ].join(' ')}
       >
         {value.toLocaleString('th-TH')}
@@ -40,7 +40,7 @@ export function SerialRow({ serial }: { serial: SerialNumber }) {
       <span
         className={[
           'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black text-white',
-          isAvailable ? 'bg-[#00d084]' : 'bg-[#4a1717]',
+          isAvailable ? 'bg-[#00d084]' : 'bg-[#080205]',
         ].join(' ')}
       >
         {isAvailable ? 'พร้อมใช้งาน' : 'ถูกใช้งานแล้ว'}

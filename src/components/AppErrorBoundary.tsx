@@ -30,9 +30,9 @@ export class AppErrorBoundary extends Component<
     }
 
     return (
-      <main className="grid min-h-dvh place-items-center bg-[#070707] px-5 text-white">
-        <section className="w-full max-w-sm rounded-[1.35rem] border border-white/12 bg-[#151515] p-5 text-center shadow-[0_0_38px_rgba(255,35,30,0.16)]">
-          <p className="text-xs font-black uppercase tracking-normal text-[#ff403b]">
+      <main className="grid min-h-dvh place-items-center bg-[#080205] px-5 text-white">
+        <section className="w-full max-w-sm rounded-[1.35rem] border border-white/12 bg-[#151515] p-5 text-center shadow-[0_0_38px_rgba(192,57,43,0.16)]">
+          <p className="text-xs font-black uppercase tracking-normal text-[#C0392B]">
             FULLTANK ADMIN
           </p>
           <h1 className="mt-2 text-2xl font-black leading-tight">
@@ -42,7 +42,7 @@ export class AppErrorBoundary extends Component<
             กรุณาโหลดหน้าใหม่อีกครั้ง หากยังไม่หายให้ปิดแอปแล้วเข้าใหม่
           </p>
           <button
-            className="mt-5 h-11 w-full rounded-xl bg-[#ff332f] text-sm font-black text-white shadow-[0_14px_28px_rgba(255,51,47,0.22)]"
+            className="mt-5 h-11 w-full rounded-xl bg-[#C0392B] text-sm font-black text-white shadow-[0_14px_28px_rgba(192,57,43,0.22)]"
             onClick={() => window.location.reload()}
             type="button"
           >

@@ -11,7 +11,7 @@ function PreviewMediaPanel({
   title: string
 }) {
   return (
-    <section className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#0d0d0d]">
+    <section className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#080205]">
       <div className="border-b border-white/10 px-4 py-3">
         <h4 className="text-base font-black text-white">{title}</h4>
       </div>
@@ -26,7 +26,7 @@ export function FormPreviewDivider() {
   return (
     <div className="flex items-center gap-3 py-2">
       <span className="h-px flex-1 bg-white/10" />
-      <span className="rounded-full bg-[#ff332f] px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(255,51,47,0.24)]">
+      <span className="rounded-full bg-[#C0392B] px-5 py-2 text-sm font-black text-white shadow-[0_14px_32px_rgba(192,57,43,0.24)]">
         ตัวอย่างข้อมูลก่อนบันทึก
       </span>
       <span className="h-px flex-1 bg-white/10" />
@@ -40,8 +40,8 @@ export function AdminPromotionPreview({ promotion }: { promotion: Partial<Promot
     createCardSummary(promotion.detail) || promotion.description?.trim() || 'รายละเอียดจะแสดงใน card'
 
   return (
-    <div className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#151515] shadow-[0_0_34px_rgba(255,30,26,0.14)]">
-      <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
+    <div className="overflow-hidden rounded-[1.35rem] border border-white/12 bg-[#151515] shadow-[0_0_34px_rgba(192,57,43,0.14)]">
+      <div className="border-b border-white/10 bg-[#080205] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
       </div>
       <div className="p-4 pb-0">
@@ -65,9 +65,9 @@ export function AdminPromotionPreview({ promotion }: { promotion: Partial<Promot
               {formatPromotionDateRange(promotion.startsAt, promotion.endsAt)}
             </span>
           </span>
-          <span className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-[12px] font-black leading-none text-[#ff6965]">
+          <span className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-[12px] font-black leading-none text-[#C0392B]">
             อ่านรายละเอียด
-            <ChevronRight className="text-[#ff403b]" size={17} />
+            <ChevronRight className="text-[#C0392B]" size={17} />
           </span>
         </div>
       </div>
@@ -81,8 +81,8 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const highlights = film.highlights ?? []
 
   return (
-    <div className="overflow-hidden rounded-[1.5rem] border border-white/12 bg-[#151515] shadow-[0_0_34px_rgba(255,30,26,0.18)]">
-      <div className="border-b border-white/10 bg-[#080808] px-3 py-3 text-center">
+    <div className="overflow-hidden rounded-[1.5rem] border border-white/12 bg-[#151515] shadow-[0_0_34px_rgba(192,57,43,0.18)]">
+      <div className="border-b border-white/10 bg-[#080205] px-3 py-3 text-center">
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
       </div>
       <div className="p-4 pb-0">
@@ -106,7 +106,7 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         <h3 className="break-words text-3xl font-black leading-tight text-white">{name}</h3>
       </div>
 
-      <div className="mx-4 rounded-2xl border border-[#ff403b]/22 bg-[#ff403b]/8 p-4">
+      <div className="mx-4 rounded-2xl border border-[#C0392B]/22 bg-[#C0392B]/8 p-4">
         <h4 className="text-sm font-black text-white">รายละเอียดฟิล์ม</h4>
         <p className="mt-2 whitespace-pre-line text-sm font-semibold leading-6 text-white/62">
           {description}
@@ -132,7 +132,7 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         ) : null}
         <div className="mt-3 grid gap-2">
           {highlights.map((highlight, index) => (
-            <div className="rounded-xl border border-[#ff403b]/18 bg-[#ff403b]/8 px-3 py-3 text-sm font-bold text-white/72" key={`${highlight}-${index}`}>
+            <div className="rounded-xl border border-[#C0392B]/18 bg-[#C0392B]/8 px-3 py-3 text-sm font-bold text-white/72" key={`${highlight}-${index}`}>
               {highlight}
             </div>
           ))}

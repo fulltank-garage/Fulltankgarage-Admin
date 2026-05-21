@@ -38,14 +38,14 @@ export function ManagementToolbar({
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
           <input
-            className="h-12 w-full rounded-xl border border-white/12 bg-[#080808] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+            className="h-12 w-full rounded-xl border border-white/12 bg-[#080205] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
             onChange={(event) => onSearch(event.target.value)}
             placeholder={placeholder}
             value={query}
           />
         </label>
         <button
-          className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white shadow-[0_16px_34px_rgba(255,51,47,0.22)] sm:gap-2 sm:px-4 sm:text-sm"
+          className="inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white shadow-[0_16px_34px_rgba(192,57,43,0.22)] sm:gap-2 sm:px-4 sm:text-sm"
           onClick={onAdd}
           type="button"
         >
@@ -101,11 +101,11 @@ export function BottomEditorSheet({
       <aside
         aria-label={title}
         className={[
-          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:inset-x-8 lg:bottom-8 lg:top-[5.5rem]',
+          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080205] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:inset-x-8 lg:bottom-8 lg:top-[5.5rem]',
           isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+6rem)]',
         ].join(' ')}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080808]/96 px-4 py-3 backdrop-blur">
+        <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080205]/96 px-4 py-3 backdrop-blur">
           <h2 className="text-lg font-black text-white">{title}</h2>
           <button
             aria-label="ปิดฟอร์ม"

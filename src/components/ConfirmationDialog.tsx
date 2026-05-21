@@ -21,13 +21,13 @@ const variantMeta = {
     icon: CheckCircle2,
     iconClassName: 'text-[#ff3b36]',
     buttonClassName:
-      'border border-[#ff3b36] bg-transparent text-[#ff6b66] hover:bg-[#ff3b36]/10 hover:text-white',
+      'border border-[#ff3b36] bg-transparent text-[#C0392B] hover:bg-[#ff3b36]/10 hover:text-white',
   },
   danger: {
     icon: AlertTriangle,
     iconClassName: 'text-[#ff3b36]',
     buttonClassName:
-      'border border-[#ff3b36] bg-transparent text-[#ff6b66] hover:bg-[#ff3b36]/10 hover:text-white',
+      'border border-[#ff3b36] bg-transparent text-[#C0392B] hover:bg-[#ff3b36]/10 hover:text-white',
   },
 } satisfies Record<
   ConfirmationDialogVariant,
@@ -127,7 +127,7 @@ export function ConfirmationDialog({
     >
       <div
         className={[
-          'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(255,51,47,0.12)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
+          'relative flex aspect-square w-full max-w-[420px] transform-gpu flex-col overflow-hidden rounded-[28px] border border-[#333] bg-[#111] shadow-[0_28px_90px_rgba(0,0,0,0.72),0_0_44px_rgba(192,57,43,0.12)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform',
           isVisible ? 'translate-y-0' : 'translate-y-[calc(50dvh+50%+6rem)]',
         ].join(' ')}
       >
@@ -148,7 +148,7 @@ export function ConfirmationDialog({
 
           <button
             aria-label="ปิดหน้าต่างยืนยัน"
-            className="absolute right-4 top-4 grid size-9 shrink-0 place-items-center rounded-2xl border border-[#2c2c2c] bg-[#080808] text-[#a7a7a7] transition hover:border-[#ff3b36]/50 hover:text-white"
+            className="absolute right-4 top-4 grid size-9 shrink-0 place-items-center rounded-2xl border border-[#2c2c2c] bg-[#080205] text-[#a7a7a7] transition hover:border-[#ff3b36]/50 hover:text-white"
             onClick={onCancel}
             type="button"
           >
@@ -156,9 +156,9 @@ export function ConfirmationDialog({
           </button>
         </div>
 
-        <div className="flex flex-col-reverse gap-2 border-t border-[#2b2b2b] bg-[#080808] p-4 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-2 border-t border-[#2b2b2b] bg-[#080205] p-4 sm:flex-row sm:justify-end">
           <button
-            className="inline-flex h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-[#ff3b36] to-[#d91409] px-4 text-sm font-black text-white shadow-[0_18px_36px_rgba(255,51,47,0.24)] transition hover:brightness-110"
+            className="inline-flex h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-[#ff3b36] to-[#C0392B] px-4 text-sm font-black text-white shadow-[0_18px_36px_rgba(192,57,43,0.24)] transition hover:brightness-110"
             onClick={onCancel}
             type="button"
           >

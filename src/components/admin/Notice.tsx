@@ -9,7 +9,7 @@ export function Notice({ message, tone }: { message: string; tone: NoticeTone })
           tone === 'success'
             ? 'border-[#00d084]/30 bg-[#00d084]'
             : tone === 'error'
-              ? 'border-[#ff5a76]/30 bg-[#ff5a76]'
+              ? 'border-[#C0392B]/30 bg-[#C0392B]'
               : 'border-[#00b5e8]/30 bg-[#00b5e8]',
         ].join(' ')}
       >

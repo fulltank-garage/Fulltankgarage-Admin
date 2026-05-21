@@ -31,10 +31,10 @@ export function UploadedImageField({
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
   const displayImageUrl = imageUrl || localPreviewUrl
   const frameClass = isDocumentFrame
-    ? 'min-h-56 border border-white/12 bg-[#0d0d0d] px-4 py-4 text-white sm:min-h-72'
+    ? 'min-h-56 border border-white/12 bg-[#080205] px-4 py-4 text-white sm:min-h-72'
     : 'h-64 border border-white/12 bg-transparent px-4 sm:h-80'
   const buttonClass = isDocumentFrame
-    ? 'mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#ff403b]/45'
+    ? 'mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#C0392B]/45'
     : 'mt-2 block w-full cursor-pointer rounded-2xl border-0 bg-transparent p-0 text-left transition hover:opacity-90'
 
   useEffect(() => () => {
@@ -90,11 +90,11 @@ export function UploadedImageField({
           ) : (
             <div className="grid size-full place-items-center px-4 text-center text-white/58">
               <div>
-                <ImagePlus className="mx-auto text-[#ff6965]" size={34} />
+                <ImagePlus className="mx-auto text-[#C0392B]" size={34} />
                 <p className="mt-2 text-xs font-black text-white/72">
                   {isUploading ? 'กำลังอัปโหลดรูป...' : help}
                 </p>
-                <span className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#ff332f] px-4 text-xs font-black text-white">
+                <span className="mt-3 inline-flex h-9 items-center rounded-xl bg-[#C0392B] px-4 text-xs font-black text-white">
                   เลือกรูป
                 </span>
               </div>
@@ -180,7 +180,7 @@ export function FilmGalleryField({
       <div className="flex items-center justify-between gap-3">
         <span>รูปภาพเพิ่มเติม</span>
         <button
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 px-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#C0392B]/28 bg-[#C0392B]/12 px-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isUploading}
           onClick={openFilePicker}
           type="button"
@@ -207,7 +207,7 @@ export function FilmGalleryField({
       </div>
       <div className="mt-2 grid gap-3">
         {!hasImages ? (
-          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#161616] via-[#101010] to-[#080808] px-5 text-center text-xs font-black leading-5 text-white/42">
+          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#161616] via-[#101010] to-[#080205] px-5 text-center text-xs font-black leading-5 text-white/42">
             เพิ่มรูปสี่เหลี่ยมผืนผ้า จัตุรัส หรือสัดส่วนอื่นสำหรับหน้าอ่านรายละเอียดฟิล์ม
           </div>
         ) : null}
@@ -274,7 +274,7 @@ export function TextAreaInput({
     <label className="block text-sm font-bold text-white/68">
       {label}
       <textarea
-        className="mt-2 max-h-72 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
+        className="mt-2 max-h-72 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#C0392B]"
         onChange={handleChange}
         placeholder={placeholder}
         ref={textareaRef}
@@ -323,7 +323,7 @@ export function TextInput({
       {label}
       <input
         className={[
-          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#ff403b]',
+          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#C0392B]',
           isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
         ].join(' ')}
         onClick={(event) => openDatePicker(event.currentTarget)}

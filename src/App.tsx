@@ -615,7 +615,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#070707] text-white">
+    <div className="min-h-dvh bg-[#080205] text-white">
       <button
         aria-label="ปิดเมนู"
         aria-hidden={!isSidebarOpen}
@@ -647,7 +647,7 @@ function App() {
       </aside>
 
       <main className="min-w-0 px-4 pb-6 pt-[5.75rem] lg:px-8 lg:pl-[20rem] lg:pt-[6.25rem]">
-        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#070707]/96 px-4 py-3 backdrop-blur lg:left-72 lg:px-8">
+        <header className="fixed left-0 right-0 top-0 z-30 flex items-center justify-between gap-3 border-b border-white/10 bg-[#080205]/96 px-4 py-3 backdrop-blur lg:left-72 lg:px-8">
           <button
             aria-label="เปิดเมนู"
             className="relative grid size-11 place-items-center rounded-xl border border-white/10 bg-[#151515] text-white lg:hidden"
@@ -658,12 +658,12 @@ function App() {
             {hasPendingAppUpdate ? (
               <span
                 aria-hidden="true"
-                className="app-update-pulse absolute -right-1 -top-1 size-3.5 rounded-full bg-[#ff403b] shadow-[0_0_0_4px_rgba(255,64,59,0.18)]"
+                className="app-update-pulse absolute -right-1 -top-1 size-3.5 rounded-full bg-[#C0392B] shadow-[0_0_0_4px_rgba(192,57,43,0.18)]"
               />
             ) : null}
           </button>
           <div className="ml-auto min-w-0 text-right">
-            <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#ff403b]">
+            <p className="text-[12px] font-bold uppercase leading-none tracking-normal text-[#C0392B]">
               FULLTANK Admin
             </p>
             <p className="truncate text-[21px] font-bold leading-[1.12] lg:text-[32px]">
@@ -821,7 +821,7 @@ function DashboardPage({ onNotice }: { onNotice: (message: string, tone?: Notice
             <article className="min-h-32 rounded-2xl border border-white/10 bg-[#151515] p-4" key={item.label}>
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-black leading-5 text-white/62">{item.label}</p>
-                <Icon className="shrink-0 text-[#ff403b]" size={22} />
+                <Icon className="shrink-0 text-[#C0392B]" size={22} />
               </div>
               {isLoadingDashboard ? (
                 <SkeletonBlock className="mt-5 h-10 w-20 rounded-xl" />
@@ -986,7 +986,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         </span>
         <input
           checked={form.isActive ?? true}
-          className="size-5 shrink-0 accent-[#ff332f]"
+          className="size-5 shrink-0 accent-[#C0392B]"
           onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
           type="checkbox"
         />
@@ -994,7 +994,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
       <FormPreviewDivider />
       <AdminPromotionPreview promotion={form} />
       <div className="flex justify-end">
-        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#C0392B] px-4 text-sm font-black" type="submit">
           <Plus size={17} />
           บันทึกโปรโมชัน
         </button>
@@ -1024,7 +1024,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
             {isLoadingPromotions ? <AdminGridSkeleton variant="promotion" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
-                <div className="promotion-square-media relative bg-[#080808]">
+                <div className="promotion-square-media relative bg-[#080205]">
                   {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
                 </div>
                 <div className="p-3">
@@ -1042,7 +1042,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
                       แก้ไข
                     </button>
                     <button
-                      className="inline-flex items-center gap-1 rounded-xl border border-[#ff403b]/30 px-4 py-2 text-sm font-black text-[#ff6965]"
+                      className="inline-flex items-center gap-1 rounded-xl border border-[#C0392B]/30 px-4 py-2 text-sm font-black text-[#C0392B]"
                       onClick={() => setPendingDeletePromotion(item)}
                       type="button"
                     >
@@ -1305,7 +1305,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         </span>
         <input
           checked={form.isActive ?? true}
-          className="size-5 shrink-0 accent-[#ff332f]"
+          className="size-5 shrink-0 accent-[#C0392B]"
           onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
           type="checkbox"
         />
@@ -1313,7 +1313,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       <FormPreviewDivider />
       <AdminFilmPreview film={form} />
       <div className="flex justify-end">
-        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#ff332f] px-4 text-sm font-black" type="submit">
+        <button className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#C0392B] px-4 text-sm font-black" type="submit">
           <Plus size={17} />
           บันทึกฟิล์ม
         </button>
@@ -1343,7 +1343,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
             {isLoadingFilms ? <AdminGridSkeleton variant="film" /> : null}
             {filteredItems.map((item) => (
               <article className="overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={item.id}>
-                <div className="promotion-square-media relative bg-[#080808]">
+                <div className="promotion-square-media relative bg-[#080205]">
                   {item.imageUrl ? <img alt="" className="absolute inset-0 size-full object-contain" src={item.imageUrl} /> : null}
                 </div>
                 <div className="p-3">
@@ -1355,7 +1355,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
                       แก้ไข
                     </button>
                     <button
-                      className="inline-flex items-center gap-1 rounded-xl border border-[#ff403b]/30 px-4 py-2 text-sm font-black text-[#ff6965]"
+                      className="inline-flex items-center gap-1 rounded-xl border border-[#C0392B]/30 px-4 py-2 text-sm font-black text-[#C0392B]"
                       onClick={() => setPendingDeleteFilm(item)}
                       type="button"
                     >
@@ -1529,7 +1529,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
               </button>
             </div>
           </div>
-          <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#ff332f] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
+          <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
             <Download size={15} />
             Export
           </button>
@@ -1537,7 +1537,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         <label className="relative mb-4 block">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
           <input
-            className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+            className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ค้นหาชื่อ เบอร์โทร Serial ทะเบียนรถ"
             value={query}
@@ -1669,7 +1669,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               page-break-inside: avoid;
             }
             .brand {
-              color: #d71919;
+              color: #C0392B;
               font-size: 6px;
               font-weight: 900;
               letter-spacing: .08em;
@@ -1737,7 +1737,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
             <label className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
               <input
-                className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#ff403b]"
+                className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="ค้นหา Serial หรือสถานะ"
                 value={query}

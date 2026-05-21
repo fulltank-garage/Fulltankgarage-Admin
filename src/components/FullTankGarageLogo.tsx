@@ -12,7 +12,7 @@ export function FullTankGarageLogo({
   return (
     <img
       alt={title}
-      className={`${className} rounded-xl border border-white/12 bg-[#0b0b0b] object-cover`}
+      className={`${className} rounded-xl border border-white/12 bg-[#080205] object-cover`}
       src={fulltankGarageLogo}
     />
   )
