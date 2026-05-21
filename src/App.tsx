@@ -1139,7 +1139,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       return
     }
     if (!form.imageUrl) {
-      onNotice('กรุณาอัปโหลดรูปฟิล์ม', 'error')
+      onNotice('กรุณาอัปโหลดรูปโลโก้ฟิล์ม', 'error')
       return
     }
     if (!form.description?.trim()) {
@@ -1171,9 +1171,9 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       const optimizedFile = await compressImageFile(file)
       const imageUrl = await uploadApi.image(optimizedFile)
       setForm((current) => ({ ...current, imageUrl }))
-      onNotice('อัปโหลดรูปฟิล์มแล้ว', 'success')
+      onNotice('อัปโหลดรูปโลโก้ฟิล์มแล้ว', 'success')
     } catch {
-      onNotice('อัปโหลดรูปฟิล์มไม่สำเร็จ', 'error')
+      onNotice('อัปโหลดรูปโลโก้ฟิล์มไม่สำเร็จ', 'error')
     } finally {
       setIsUploadingImage(false)
     }
@@ -1265,7 +1265,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         help="ตัวอย่างรูปภาพโลโก้"
         imageUrl={form.imageUrl}
         isUploading={isUploadingImage}
-        label="รูปฟิล์ม"
+        label="รูปโลโก้ฟิล์ม"
         onFileSelect={uploadFilmImage}
       />
       <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />

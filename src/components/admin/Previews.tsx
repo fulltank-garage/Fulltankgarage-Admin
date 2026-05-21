@@ -86,7 +86,7 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         <p className="text-sm font-black text-white">ตัวอย่างข้อมูลก่อนบันทึก</p>
       </div>
       <div className="p-4 pb-0">
-        <PreviewMediaPanel title="รูปฟิล์ม">
+        <PreviewMediaPanel title="รูปโลโก้ฟิล์ม">
           {film.imageUrl ? (
             <img
               alt=""
