@@ -113,7 +113,9 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
             <div className="border-b border-white/10 px-3 py-2 text-sm font-black text-white">
               ตารางราคาฟิล์ม
             </div>
-            <img alt="" className="h-auto w-full object-contain" src={film.priceTableImageUrl} />
+            <div className="grid max-h-80 place-items-center overflow-hidden p-2">
+              <img alt="" className="max-h-80 w-full object-contain" src={film.priceTableImageUrl} />
+            </div>
           </div>
         ) : null}
         <div className="mt-3 grid gap-2">

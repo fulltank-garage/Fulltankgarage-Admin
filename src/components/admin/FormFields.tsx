@@ -2,6 +2,15 @@ import { ImagePlus, X } from 'lucide-react'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+const maxTextareaHeight = 288
+
+function resizeTextarea(textarea: HTMLTextAreaElement) {
+  textarea.style.height = 'auto'
+  const nextHeight = Math.min(textarea.scrollHeight, maxTextareaHeight)
+  textarea.style.height = `${nextHeight}px`
+  textarea.style.overflowY = textarea.scrollHeight > maxTextareaHeight ? 'auto' : 'hidden'
+}
+
 export function UploadedImageField({
   frame = 'square',
   help = 'เลือกไฟล์รูปภาพจากเครื่อง',
@@ -21,7 +30,9 @@ export function UploadedImageField({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
   const displayImageUrl = imageUrl || localPreviewUrl
-  const shouldFitDocumentToImage = isDocumentFrame && Boolean(displayImageUrl)
+  const frameClass = isDocumentFrame
+    ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
+    : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]'
 
   useEffect(() => () => {
     if (localPreviewUrl) {
@@ -47,18 +58,14 @@ export function UploadedImageField({
         <div
           className={[
             'relative mx-auto grid w-full place-items-center overflow-hidden rounded-xl',
-            shouldFitDocumentToImage
-              ? 'border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
-              : isDocumentFrame
-              ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
-              : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]',
+            frameClass,
           ].join(' ')}
         >
           {displayImageUrl ? (
             <>
               <img
                 alt=""
-                className={shouldFitDocumentToImage ? 'h-auto w-full object-contain' : 'size-full object-contain'}
+                className="size-full object-contain"
                 src={displayImageUrl}
               />
               <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/24 opacity-100">
@@ -134,11 +141,17 @@ export function FilmGalleryField({
 
     previousImageCountRef.current = images.length
     if (pendingPreviewUrls.length > 0) {
-      setPendingPreviewUrls((current) => {
-        current.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
-        return []
-      })
+      const clearPendingTimer = window.setTimeout(() => {
+        setPendingPreviewUrls((current) => {
+          current.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
+          return []
+        })
+      }, 0)
+
+      return () => window.clearTimeout(clearPendingTimer)
     }
+
+    return undefined
   }, [images.length, pendingPreviewUrls.length])
 
   const visibleImages = [...pendingPreviewUrls, ...images]
@@ -224,14 +237,12 @@ export function TextAreaInput({
       return
     }
 
-    textarea.style.height = 'auto'
-    textarea.style.height = `${textarea.scrollHeight}px`
+    resizeTextarea(textarea)
   }, [value])
 
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = event.currentTarget
-    textarea.style.height = 'auto'
-    textarea.style.height = `${textarea.scrollHeight}px`
+    resizeTextarea(textarea)
     onChange(textarea.value)
   }
 
@@ -239,7 +250,7 @@ export function TextAreaInput({
     <label className="block text-sm font-bold text-white/68">
       {label}
       <textarea
-        className="mt-2 min-h-28 w-full resize-y overflow-hidden rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
+        className="mt-2 max-h-72 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#ff403b]"
         onChange={handleChange}
         placeholder={placeholder}
         ref={textareaRef}
