@@ -31,8 +31,8 @@ export function UploadedImageField({
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
   const displayImageUrl = imageUrl || localPreviewUrl
   const frameClass = isDocumentFrame
-    ? 'aspect-[16/10] max-h-80 border border-[#ff403b]/18 bg-gradient-to-br from-[#241010] via-[#151515] to-[#070707] text-white'
-    : 'aspect-square max-w-[28rem] bg-gradient-to-br from-[#1f1f1f] to-[#090909]'
+    ? 'min-h-56 border border-white/12 bg-[#0d0d0d] px-4 py-4 text-white sm:min-h-72'
+    : 'aspect-square max-w-[28rem] border border-white/12 bg-[#0d0d0d] px-4 py-4'
 
   useEffect(() => () => {
     if (localPreviewUrl) {
@@ -65,7 +65,7 @@ export function UploadedImageField({
             <>
               <img
                 alt=""
-                className="size-full object-contain"
+                className={isDocumentFrame ? 'max-h-[18rem] max-w-full object-contain' : 'max-h-full max-w-full object-contain'}
                 src={displayImageUrl}
               />
               <div className="pointer-events-none absolute inset-0 grid place-items-center bg-black/24 opacity-100">
@@ -201,12 +201,12 @@ export function FilmGalleryField({
         ) : null}
         {visibleImages.map((imageUrl) => (
           <figure
-            className="relative grid h-48 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171717] via-[#101010] to-[#070707] p-2 sm:h-56"
+            className="relative grid min-h-56 place-items-center overflow-hidden rounded-2xl border border-white/12 bg-[#0d0d0d] px-4 py-4 sm:min-h-72"
             key={imageUrl}
           >
             <img
               alt=""
-              className="h-full w-full rounded-xl object-contain"
+              className="max-h-[18rem] max-w-full object-contain"
               src={imageUrl}
             />
             {pendingPreviewUrls.includes(imageUrl) ? (
