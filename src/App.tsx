@@ -1743,7 +1743,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
                 value={query}
               />
             </label>
-            <button className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#101010] px-3 text-xs font-black text-white/70" onClick={exportSerials} type="button">
+            <button className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white" onClick={exportSerials} type="button">
               <Download size={15} />
               <span className="hidden sm:inline">ดาวน์โหลดเป็น PDF</span>
               <span className="sm:hidden">PDF</span>
