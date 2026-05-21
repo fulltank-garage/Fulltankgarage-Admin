@@ -32,7 +32,7 @@ export function UploadedImageField({
   const displayImageUrl = imageUrl || localPreviewUrl
   const frameClass = isDocumentFrame
     ? 'min-h-56 border border-white/12 bg-[#0d0d0d] px-4 py-4 text-white sm:min-h-72'
-    : 'min-h-64 border border-white/12 bg-transparent px-4 py-5 sm:min-h-80'
+    : 'h-64 border border-white/12 bg-transparent px-4 sm:h-80'
   const buttonClass = isDocumentFrame
     ? 'mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#ff403b]/45'
     : 'mt-2 block w-full cursor-pointer rounded-2xl border-0 bg-transparent p-0 text-left transition hover:opacity-90'
@@ -71,7 +71,7 @@ export function UploadedImageField({
                 className={
                   isDocumentFrame
                     ? 'max-h-[18rem] max-w-full object-contain'
-                    : 'max-h-56 max-w-full object-contain sm:max-h-72'
+                    : 'h-full max-w-full object-contain'
                 }
                 src={displayImageUrl}
               />
