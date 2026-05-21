@@ -128,6 +128,7 @@ export function FilmGalleryField({
 }) {
   const [pendingPreviewUrls, setPendingPreviewUrls] = useState<string[]>([])
   const previousImageCountRef = useRef(images.length)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => () => {
     pendingPreviewUrls.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
@@ -156,30 +157,41 @@ export function FilmGalleryField({
 
   const visibleImages = [...pendingPreviewUrls, ...images]
   const hasImages = visibleImages.length > 0
+  const openFilePicker = () => {
+    if (!isUploading) {
+      inputRef.current?.click()
+    }
+  }
 
   return (
     <div className="text-sm font-bold text-white/68">
       <div className="flex items-center justify-between gap-3">
         <span>รูปภาพเพิ่มเติม</span>
-        <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 px-3 text-xs font-black text-white">
+        <button
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-[#ff403b]/28 bg-[#ff403b]/12 px-3 text-xs font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isUploading}
+          onClick={openFilePicker}
+          type="button"
+        >
           <ImagePlus size={15} />
           {isUploading ? 'กำลังอัปโหลด' : 'เพิ่มรูป'}
-          <input
-            accept="image/*"
-            className="sr-only"
-            disabled={isUploading}
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0]
-              if (file) {
-                const previewUrl = URL.createObjectURL(file)
-                setPendingPreviewUrls((current) => [...current, previewUrl])
-                onFileSelect(file)
-              }
-              event.currentTarget.value = ''
-            }}
-            type="file"
-          />
-        </label>
+        </button>
+        <input
+          accept="image/*"
+          className="sr-only"
+          disabled={isUploading}
+          onChange={(event) => {
+            const file = event.currentTarget.files?.[0]
+            if (file) {
+              const previewUrl = URL.createObjectURL(file)
+              setPendingPreviewUrls((current) => [...current, previewUrl])
+              onFileSelect(file)
+            }
+            event.currentTarget.value = ''
+          }}
+          ref={inputRef}
+          type="file"
+        />
       </div>
       <div className="mt-2 grid gap-3">
         {!hasImages ? (
