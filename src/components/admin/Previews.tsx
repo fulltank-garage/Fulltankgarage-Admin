@@ -99,8 +99,11 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
         {film.galleryImages?.length ? (
           <div className="mt-5 grid gap-3">
             {film.galleryImages.slice(0, 3).map((imageUrl) => (
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0d]" key={imageUrl}>
-                <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
+              <div
+                className="grid h-48 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171717] via-[#101010] to-[#070707] p-2 sm:h-56"
+                key={imageUrl}
+              >
+                <img alt="" className="h-full w-full rounded-xl object-contain" src={imageUrl} />
               </div>
             ))}
           </div>
