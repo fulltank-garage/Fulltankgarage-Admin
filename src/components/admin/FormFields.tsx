@@ -119,6 +119,26 @@ export function FilmGalleryField({
   onFileSelect: (file: File) => void
   onRemove: (imageUrl: string) => void
 }) {
+  const [pendingPreviewUrls, setPendingPreviewUrls] = useState<string[]>([])
+
+  useEffect(() => () => {
+    pendingPreviewUrls.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
+  }, [pendingPreviewUrls])
+
+  useEffect(() => {
+    if (isUploading) {
+      return
+    }
+
+    setPendingPreviewUrls((current) => {
+      current.forEach((imageUrl) => URL.revokeObjectURL(imageUrl))
+      return []
+    })
+  }, [isUploading])
+
+  const visibleImages = [...pendingPreviewUrls, ...images]
+  const hasImages = visibleImages.length > 0
+
   return (
     <div className="text-sm font-bold text-white/68">
       <div className="flex items-center justify-between gap-3">
@@ -133,6 +153,8 @@ export function FilmGalleryField({
             onChange={(event) => {
               const file = event.currentTarget.files?.[0]
               if (file) {
+                const previewUrl = URL.createObjectURL(file)
+                setPendingPreviewUrls((current) => [...current, previewUrl])
                 onFileSelect(file)
               }
               event.currentTarget.value = ''
@@ -141,24 +163,37 @@ export function FilmGalleryField({
           />
         </label>
       </div>
-      <div className="mt-2 grid gap-2">
-        {images.length === 0 ? (
-          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-[#101010] px-5 text-center text-xs font-black leading-5 text-white/42">
+      <div className="mt-2 grid gap-3">
+        {!hasImages ? (
+          <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#161616] via-[#101010] to-[#080808] px-5 text-center text-xs font-black leading-5 text-white/42">
             เพิ่มรูปสี่เหลี่ยมผืนผ้า จัตุรัส หรือสัดส่วนอื่นสำหรับหน้าอ่านรายละเอียดฟิล์ม
           </div>
         ) : null}
-        {images.map((imageUrl) => (
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#101010]" key={imageUrl}>
-            <img alt="" className="h-auto w-full object-contain" src={imageUrl} />
-            <button
-              aria-label="ลบรูปภาพ"
-              className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-black/70 text-white"
-              onClick={() => onRemove(imageUrl)}
-              type="button"
-            >
-              <X size={17} />
-            </button>
-          </div>
+        {visibleImages.map((imageUrl) => (
+          <figure
+            className="relative grid min-h-40 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#171717] via-[#101010] to-[#070707] p-2"
+            key={imageUrl}
+          >
+            <img
+              alt=""
+              className="max-h-[18rem] w-full rounded-xl object-contain"
+              src={imageUrl}
+            />
+            {pendingPreviewUrls.includes(imageUrl) ? (
+              <figcaption className="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-[11px] font-black text-white/72">
+                กำลังอัปโหลด
+              </figcaption>
+            ) : (
+              <button
+                aria-label="ลบรูปภาพ"
+                className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-black/78 text-white shadow-[0_10px_24px_rgba(0,0,0,0.36)]"
+                onClick={() => onRemove(imageUrl)}
+                type="button"
+              >
+                <X size={17} />
+              </button>
+            )}
+          </figure>
         ))}
       </div>
     </div>
