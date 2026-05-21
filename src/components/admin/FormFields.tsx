@@ -213,12 +213,12 @@ export function FilmGalleryField({
         ) : null}
         {visibleImages.map((imageUrl) => (
           <figure
-            className="relative grid min-h-56 place-items-center overflow-hidden rounded-2xl border border-white/12 bg-[#0d0d0d] px-4 py-4 sm:min-h-72"
+            className="relative grid h-64 place-items-center overflow-hidden rounded-2xl border border-white/12 bg-transparent px-4 sm:h-80"
             key={imageUrl}
           >
             <img
               alt=""
-              className="max-h-[18rem] max-w-full object-contain"
+              className="h-full max-w-full object-contain"
               src={imageUrl}
             />
             {pendingPreviewUrls.includes(imageUrl) ? (
