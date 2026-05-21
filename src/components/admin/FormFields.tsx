@@ -32,10 +32,10 @@ export function UploadedImageField({
   const displayImageUrl = imageUrl || localPreviewUrl
   const frameClass = isDocumentFrame
     ? 'min-h-56 border border-white/12 bg-[#0d0d0d] px-4 py-4 text-white sm:min-h-72'
-    : 'aspect-square bg-transparent'
+    : 'min-h-64 border border-white/12 bg-transparent px-4 py-5 sm:min-h-80'
   const buttonClass = isDocumentFrame
     ? 'mt-2 block w-full cursor-pointer rounded-2xl border border-white/10 bg-[#101010] p-3 text-left transition hover:border-[#ff403b]/45'
-    : 'mx-auto mt-2 block w-full max-w-80 cursor-pointer rounded-2xl border-0 bg-transparent p-0 text-left transition hover:opacity-90'
+    : 'mt-2 block w-full cursor-pointer rounded-2xl border-0 bg-transparent p-0 text-left transition hover:opacity-90'
 
   useEffect(() => () => {
     if (localPreviewUrl) {
@@ -71,7 +71,7 @@ export function UploadedImageField({
                 className={
                   isDocumentFrame
                     ? 'max-h-[18rem] max-w-full object-contain'
-                    : 'max-h-full max-w-full rounded-xl border border-white/18 object-contain shadow-[0_16px_34px_rgba(0,0,0,0.22)]'
+                    : 'max-h-56 max-w-full object-contain sm:max-h-72'
                 }
                 src={displayImageUrl}
               />
