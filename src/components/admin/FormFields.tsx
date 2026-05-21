@@ -32,7 +32,7 @@ export function UploadedImageField({
   const displayImageUrl = imageUrl || localPreviewUrl
   const frameClass = isDocumentFrame
     ? 'min-h-56 border border-white/12 bg-[#0d0d0d] px-4 py-4 text-white sm:min-h-72'
-    : 'aspect-square max-w-[28rem] border border-white/12 bg-[#0d0d0d] px-4 py-4'
+    : 'aspect-square max-w-80 border border-white/12 bg-[#0d0d0d] px-4 py-4'
 
   useEffect(() => () => {
     if (localPreviewUrl) {
