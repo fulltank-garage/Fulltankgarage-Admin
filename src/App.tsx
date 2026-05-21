@@ -1531,7 +1531,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
           </div>
           <button className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white" onClick={exportCustomers} type="button">
             <Download size={15} />
-            Export
+            ส่งออกข้อมูล
           </button>
         </div>
         <label className="relative mb-4 block">
