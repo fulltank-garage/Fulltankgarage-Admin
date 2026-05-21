@@ -58,15 +58,6 @@ export function AdminPromotionPreview({ promotion }: { promotion: Partial<Promot
 export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
   const name = film.name?.trim() || 'ชื่อฟิล์ม'
   const description = film.description?.trim() || 'รายละเอียดฟิล์มจะแสดงในหน้าอ่านรายละเอียด'
-  const specs = [
-    { label: 'IRR', value: film.irr?.trim() || '-' },
-    { label: 'UV', value: film.uvProtection?.trim() || '-' },
-    { label: 'VLT', value: film.vlt?.trim() || '-' },
-    { label: 'TSER', value: film.tser?.trim() || '-' },
-    { label: 'VLR', value: film.vlr?.trim() || '-' },
-    { label: 'TYPE', value: film.filmType?.trim() || '-' },
-  ]
-  const infoItems = [film.vehicleType?.trim(), film.installPosition?.trim()].filter(Boolean)
   const highlights = film.highlights ?? []
 
   return (
@@ -122,21 +113,6 @@ export function AdminFilmPreview({ film }: { film: Partial<Film> }) {
             <img alt="" className="h-auto w-full object-contain" src={film.priceTableImageUrl} />
           </div>
         ) : null}
-        <div className="mt-5 grid grid-cols-2 gap-2">
-          {specs.map((spec) => (
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-center" key={spec.label}>
-              <p className="text-xs font-black text-[#ff4a45]">{spec.label}</p>
-              <p className="mt-1 text-lg font-black text-white">{spec.value}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 grid gap-2">
-          {infoItems.map((item, index) => (
-            <div className="rounded-xl border border-white/10 bg-[#0d0d0d] px-3 py-3 text-sm font-black text-white/76" key={`${item}-${index}`}>
-              {item}
-            </div>
-          ))}
-        </div>
         <div className="mt-3 grid gap-2">
           {highlights.map((highlight, index) => (
             <div className="rounded-xl border border-[#ff403b]/18 bg-[#ff403b]/8 px-3 py-3 text-sm font-bold text-white/72" key={`${highlight}-${index}`}>

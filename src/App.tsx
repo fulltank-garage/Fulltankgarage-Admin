@@ -1251,14 +1251,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       [
         item.name,
         item.description,
-        item.irr,
-        item.uvProtection,
-        item.vlt,
-        item.tser,
-        item.vlr,
-        item.filmType,
-        item.vehicleType,
-        item.installPosition,
         ...(item.highlights ?? []),
       ]
         .join(' ')
@@ -1283,30 +1275,6 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         placeholder="คุณสมบัติ การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
         value={form.description}
       />
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <TextInput
-          label="ประเภทรถ"
-          onChange={(value) => setForm((current) => ({ ...current, vehicleType: value }))}
-          placeholder="รถยนต์"
-          value={form.vehicleType}
-        />
-        <TextInput
-          label="ตำแหน่งติดตั้ง"
-          onChange={(value) => setForm((current) => ({ ...current, installPosition: value }))}
-          placeholder="บานหน้า / รอบคัน"
-          value={form.installPosition}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <TextInput label="IRR" onChange={(value) => setForm((current) => ({ ...current, irr: value }))} placeholder="90%+" value={form.irr} />
-        <TextInput label="UV" onChange={(value) => setForm((current) => ({ ...current, uvProtection: value }))} placeholder="99%" value={form.uvProtection} />
-        <TextInput label="TYPE" onChange={(value) => setForm((current) => ({ ...current, filmType: value }))} placeholder="AUTO" value={form.filmType} />
-      </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <TextInput label="VLT" onChange={(value) => setForm((current) => ({ ...current, vlt: value }))} placeholder="40%" value={form.vlt} />
-        <TextInput label="TSER" onChange={(value) => setForm((current) => ({ ...current, tser: value }))} placeholder="60%+" value={form.tser} />
-        <TextInput label="VLR" onChange={(value) => setForm((current) => ({ ...current, vlr: value }))} placeholder="ต่ำ" value={form.vlr} />
-      </div>
       <TextAreaInput
         label="จุดเด่นที่ลูกค้าควรรู้"
         onChange={(value) => {
