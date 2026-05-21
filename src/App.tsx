@@ -1098,6 +1098,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   const [pendingRemoveGalleryImage, setPendingRemoveGalleryImage] = useState('')
   const [query, setQuery] = useState('')
   const [isEditorOpen, setIsEditorOpen] = useState(false)
+  const [highlightText, setHighlightText] = useState('')
 
   const load = useCallback(async () => {
     try {
@@ -1149,11 +1150,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
     try {
       await filmApi.save({
         ...form,
+        highlights: textareaToList(highlightText),
         logo: form.logo?.trim() || createFilmLogo(form.name),
         summary: createCardSummary(form.description, 120),
         slug: form.slug?.trim() || undefined,
       })
       setForm(emptyFilm)
+      setHighlightText('')
       setIsEditorOpen(false)
       await load()
       onNotice('บันทึกข้อมูลฟิล์มแล้ว', 'success')
@@ -1228,11 +1231,13 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
 
   const openNewFilm = () => {
     setForm(emptyFilm)
+    setHighlightText('')
     setIsEditorOpen(true)
   }
 
   const editFilm = (film: Film) => {
     setForm(film)
+    setHighlightText(listToTextarea(film.highlights))
     setIsEditorOpen(true)
   }
 
@@ -1304,9 +1309,12 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       </div>
       <TextAreaInput
         label="จุดเด่นที่ลูกค้าควรรู้"
-        onChange={(value) => setForm((current) => ({ ...current, highlights: textareaToList(value) }))}
+        onChange={(value) => {
+          setHighlightText(value)
+          setForm((current) => ({ ...current, highlights: textareaToList(value) }))
+        }}
         placeholder={`ใส่ทีละบรรทัด เช่น\nฟิล์มรถยนต์เซรามิก\nมองชัดทั้งกลางวันและกลางคืน\nไม่รบกวน GPS และ Easy Pass`}
-        value={listToTextarea(form.highlights)}
+        value={highlightText}
       />
       <FilmGalleryField
         images={form.galleryImages ?? []}
