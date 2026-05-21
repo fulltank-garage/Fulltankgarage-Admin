@@ -68,7 +68,11 @@ export function UploadedImageField({
             <>
               <img
                 alt=""
-                className={isDocumentFrame ? 'max-h-[18rem] max-w-full object-contain' : 'max-h-full max-w-full object-contain'}
+                className={
+                  isDocumentFrame
+                    ? 'max-h-[18rem] max-w-full object-contain'
+                    : 'max-h-full max-w-full rounded-xl border border-white/18 object-contain shadow-[0_16px_34px_rgba(0,0,0,0.22)]'
+                }
                 src={displayImageUrl}
               />
               <div
