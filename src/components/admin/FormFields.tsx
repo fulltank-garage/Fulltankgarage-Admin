@@ -29,7 +29,7 @@ export function UploadedImageField({
   const isDocumentFrame = frame === 'document'
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState('')
-  const displayImageUrl = imageUrl || localPreviewUrl
+  const displayImageUrl = localPreviewUrl || imageUrl
   const frameClass = isDocumentFrame
     ? 'min-h-56 border border-white/12 bg-[#080205] px-4 py-4 text-white sm:min-h-72'
     : 'h-64 border border-white/12 bg-transparent px-4 sm:h-80'

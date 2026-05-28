@@ -19,6 +19,7 @@ import {
   filmApi,
   getStoredSession,
   promotionApi,
+  resolveImageUrl,
   storeSession,
   subscribeFulltankEvents,
   uploadApi,
@@ -28,6 +29,7 @@ import {
   type Promotion,
   type RealtimeStatus,
   type SerialNumber,
+  type WarrantyRegistrationFormPayload,
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import { CustomerTable } from './components/admin/CustomerTable'
@@ -194,6 +196,34 @@ const emptyPromotion: Partial<Promotion> = {
   startsAt: '',
   endsAt: '',
 }
+
+const emptyWarrantyRegistrationForm: WarrantyRegistrationFormPayload = {
+  customerName: '',
+  phone: '',
+  carModel: '',
+  licensePlate: '',
+  filmBrand: '',
+  filmModel: '',
+  installDate: '',
+  branch: '',
+  installerName: '',
+  remarks: '',
+}
+
+const toWarrantyForm = (
+  registration?: WarrantyRegistration | null,
+): WarrantyRegistrationFormPayload => ({
+  customerName: registration?.customerName ?? '',
+  phone: registration?.phone ?? '',
+  carModel: registration?.carModel ?? '',
+  licensePlate: registration?.licensePlate ?? '',
+  filmBrand: registration?.filmBrand ?? '',
+  filmModel: registration?.filmModel ?? '',
+  installDate: registration?.installDate?.slice(0, 10) ?? '',
+  branch: registration?.branch ?? '',
+  installerName: registration?.installerName ?? '',
+  remarks: registration?.remarks ?? '',
+})
 
 const escapeCsvCell = (value: unknown) => {
   const text = String(value ?? '')
@@ -1409,12 +1439,76 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
   )
 }
 
+function WarrantyRegistrationEditor({
+  currentReceiptFile,
+  form,
+  isSaving,
+  onChange,
+  onReceiptFileChange,
+  onSubmit,
+  serialNumber,
+  submitLabel,
+}: {
+  currentReceiptFile?: string
+  form: WarrantyRegistrationFormPayload
+  isSaving: boolean
+  onChange: (field: keyof WarrantyRegistrationFormPayload, value: string) => void
+  onReceiptFileChange: (file: File) => void
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  serialNumber?: string
+  submitLabel: string
+}) {
+  return (
+    <form className="space-y-4 rounded-2xl border border-white/10 bg-[#151515] p-4" onSubmit={onSubmit}>
+      {serialNumber ? (
+        <div className="rounded-2xl border border-white/10 bg-[#101010] p-3">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#C0392B]">Serial Number</p>
+          <p className="mt-1 break-all text-lg font-black text-white">{serialNumber}</p>
+        </div>
+      ) : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <TextInput label="ชื่อลูกค้า" onChange={(value) => onChange('customerName', value)} placeholder="ชื่อ-นามสกุล" value={form.customerName} />
+        <TextInput label="เบอร์โทร" onChange={(value) => onChange('phone', value.replace(/[^\d+]/g, ''))} placeholder="0818468089" value={form.phone} />
+        <TextInput label="รุ่นรถ" onChange={(value) => onChange('carModel', value)} placeholder="Mercedes-Benz GLC 300e" value={form.carModel} />
+        <TextInput label="ทะเบียนรถ" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
+        <TextInput label="แบรนด์ฟิล์ม" onChange={(value) => onChange('filmBrand', value)} placeholder="SolarKey" value={form.filmBrand} />
+        <TextInput label="รุ่นฟิล์ม" onChange={(value) => onChange('filmModel', value)} placeholder="Ultra ir" value={form.filmModel} />
+        <TextInput label="วันที่ติดตั้ง" onChange={(value) => onChange('installDate', value)} type="date" value={form.installDate} />
+        <TextInput label="สาขา" onChange={(value) => onChange('branch', value)} placeholder="บางแค" value={form.branch} />
+        <TextInput label="ชื่อช่างติดตั้ง" onChange={(value) => onChange('installerName', value)} placeholder="ชื่อช่าง" value={form.installerName} />
+      </div>
+      <UploadedImageField
+        frame="document"
+        help="เพิ่มรูปใบเสร็จหรือหลักฐาน"
+        imageUrl={resolveImageUrl(currentReceiptFile)}
+        isUploading={isSaving}
+        label="รูปใบเสร็จ/หลักฐาน"
+        onFileSelect={onReceiptFileChange}
+      />
+      <div className="flex justify-end">
+        <button
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-4 text-sm font-black text-white disabled:opacity-60"
+          disabled={isSaving}
+          type="submit"
+        >
+          <Plus size={17} />
+          {isSaving ? 'กำลังบันทึก...' : submitLabel}
+        </button>
+      </div>
+    </form>
+  )
+}
+
 function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone) => void }) {
   const [registrations, setRegistrations] = useState<WarrantyRegistration[]>([])
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true)
   const [query, setQuery] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [editingCustomer, setEditingCustomer] = useState<WarrantyRegistration | null>(null)
+  const [customerForm, setCustomerForm] = useState<WarrantyRegistrationFormPayload>(emptyWarrantyRegistrationForm)
+  const [customerReceiptFile, setCustomerReceiptFile] = useState<File | null>(null)
+  const [isSavingCustomer, setIsSavingCustomer] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -1439,7 +1533,8 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
     onEvent: (event) => {
       if (
         event.type === 'warranty_registration.created' ||
-        event.type === 'warranty_registration.linked'
+        event.type === 'warranty_registration.linked' ||
+        event.type === 'warranty_registration.updated'
       ) {
         setRegistrations((current) => upsertWarrantyRegistration(current, event.data))
       }
@@ -1451,29 +1546,73 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
 
       if (
         event.type === 'warranty_registration.created' ||
-        event.type === 'warranty_registration.linked'
+        event.type === 'warranty_registration.linked' ||
+        event.type === 'warranty_registration.updated'
       ) {
         onNotice(
           event.type === 'warranty_registration.created'
             ? `มีลูกค้าลงทะเบียนใหม่: ${event.data.serialNumber}`
-            : `อัปเดตบัตรรับประกัน: ${event.data.serialNumber}`,
+            : `อัปเดตข้อมูลลูกค้า: ${event.data.serialNumber}`,
           'success',
         )
       }
     },
   }), [onNotice])
 
+  const openCustomerEditor = (customer: WarrantyRegistration) => {
+    setEditingCustomer(customer)
+    setCustomerForm(toWarrantyForm(customer))
+    setCustomerReceiptFile(null)
+  }
+
+  const updateCustomerForm = (field: keyof WarrantyRegistrationFormPayload, value: string) => {
+    setCustomerForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const closeCustomerEditor = () => {
+    setEditingCustomer(null)
+    setCustomerForm(emptyWarrantyRegistrationForm)
+    setCustomerReceiptFile(null)
+  }
+
+  const saveCustomer = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!editingCustomer) {
+      return
+    }
+    if (!customerForm.customerName.trim() || !customerForm.phone.trim()) {
+      onNotice('กรุณากรอกชื่อลูกค้าและเบอร์โทร', 'error')
+      return
+    }
+
+    try {
+      setIsSavingCustomer(true)
+      const updated = await warrantyApi.updateRegistration(
+        editingCustomer.id,
+        customerForm,
+        customerReceiptFile,
+      )
+      setRegistrations((current) => upsertWarrantyRegistration(current, updated))
+      closeCustomerEditor()
+      onNotice('บันทึกข้อมูลลูกค้าแล้ว', 'success')
+    } catch {
+      onNotice('บันทึกข้อมูลลูกค้าไม่สำเร็จ', 'error')
+    } finally {
+      setIsSavingCustomer(false)
+    }
+  }
+
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
-    if (!term) {
-      return registrations
-    }
 
     return registrations.filter((item) => {
       const installDate = item.installDate?.slice(0, 10) ?? ''
       const matchesDate =
         (!startDate || installDate >= startDate) &&
         (!endDate || installDate <= endDate)
+      if (!term) {
+        return matchesDate
+      }
       const matchesTerm = [
         item.serialNumber,
         item.customerName,
@@ -1512,6 +1651,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
   }
 
   return (
+    <>
     <PageShell title="จัดการข้อมูลลูกค้า" subtitle="ข้อมูลลงทะเบียนรับประกัน">
       <section className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-3 sm:p-4">
         <div className="mb-3 grid gap-3 lg:grid-cols-4 lg:items-end">
@@ -1543,9 +1683,26 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
             value={query}
           />
         </label>
-        <CustomerTable customers={filtered} isLoading={isLoadingCustomers} />
+        <CustomerTable customers={filtered} isLoading={isLoadingCustomers} onEdit={openCustomerEditor} />
       </section>
     </PageShell>
+    <BottomEditorSheet
+      isOpen={Boolean(editingCustomer)}
+      onClose={closeCustomerEditor}
+      title="แก้ไขข้อมูลลูกค้า"
+    >
+      <WarrantyRegistrationEditor
+        currentReceiptFile={editingCustomer?.receiptFile}
+        form={customerForm}
+        isSaving={isSavingCustomer}
+        onChange={updateCustomerForm}
+        onReceiptFileChange={setCustomerReceiptFile}
+        onSubmit={saveCustomer}
+        serialNumber={editingCustomer?.serialNumber}
+        submitLabel="บันทึกข้อมูลลูกค้า"
+      />
+    </BottomEditorSheet>
+    </>
   )
 }
 
@@ -1554,6 +1711,10 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   const [isLoadingSerials, setIsLoadingSerials] = useState(true)
   const [query, setQuery] = useState('')
   const [batchCount, setBatchCount] = useState('10')
+  const [selectedSerial, setSelectedSerial] = useState<SerialNumber | null>(null)
+  const [serialCustomerForm, setSerialCustomerForm] = useState<WarrantyRegistrationFormPayload>(emptyWarrantyRegistrationForm)
+  const [serialCustomerReceiptFile, setSerialCustomerReceiptFile] = useState<File | null>(null)
+  const [isSavingSerialCustomer, setIsSavingSerialCustomer] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -1600,6 +1761,57 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
       onNotice(`สร้าง Serial Number แล้ว ${created.length} รายการ`, 'success')
     } catch {
       onNotice('สร้าง Serial Number แบบชุดไม่สำเร็จ', 'error')
+    }
+  }
+
+  const openSerialCustomerEditor = (serial: SerialNumber) => {
+    if (serial.status !== 'available') {
+      onNotice('เพิ่มข้อมูลลูกค้าได้เฉพาะ Serial Number ที่พร้อมใช้งาน', 'error')
+      return
+    }
+    setSelectedSerial(serial)
+    setSerialCustomerForm(emptyWarrantyRegistrationForm)
+    setSerialCustomerReceiptFile(null)
+  }
+
+  const updateSerialCustomerForm = (field: keyof WarrantyRegistrationFormPayload, value: string) => {
+    setSerialCustomerForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const closeSerialCustomerEditor = () => {
+    setSelectedSerial(null)
+    setSerialCustomerForm(emptyWarrantyRegistrationForm)
+    setSerialCustomerReceiptFile(null)
+  }
+
+  const saveSerialCustomer = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!selectedSerial) {
+      return
+    }
+    if (selectedSerial.status !== 'available') {
+      onNotice('Serial Number นี้ถูกใช้งานแล้ว', 'error')
+      return
+    }
+    if (!serialCustomerForm.customerName.trim() || !serialCustomerForm.phone.trim()) {
+      onNotice('กรุณากรอกชื่อลูกค้าและเบอร์โทร', 'error')
+      return
+    }
+
+    try {
+      setIsSavingSerialCustomer(true)
+      const result = await warrantyApi.createRegistrationForSerial(
+        selectedSerial.serialNumber,
+        serialCustomerForm,
+        serialCustomerReceiptFile,
+      )
+      setSerials((current) => upsertSerialNumber(current, result.serialNumber))
+      closeSerialCustomerEditor()
+      onNotice(`เพิ่มข้อมูลลูกค้าให้ ${result.registration.serialNumber} แล้ว`, 'success')
+    } catch {
+      onNotice('เพิ่มข้อมูลลูกค้าไม่สำเร็จ', 'error')
+    } finally {
+      setIsSavingSerialCustomer(false)
     }
   }
 
@@ -1706,6 +1918,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
   }
 
   return (
+    <>
     <PageShell title="จัดการ Serial Number" subtitle="เจนและจัดการ Serial สำหรับลงทะเบียนรับประกัน">
       <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,23rem)_1fr]">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151515] p-4 xl:sticky xl:top-24 xl:self-start">
@@ -1752,7 +1965,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
           <div className="max-h-[calc(100dvh-15rem)] space-y-2 overflow-auto pr-1">
             {isLoadingSerials ? <SerialListSkeleton /> : null}
             {filteredSerials.map((serial) => (
-              <SerialRow key={serial.id} serial={serial} />
+              <SerialRow key={serial.id} onAddCustomer={openSerialCustomerEditor} serial={serial} />
             ))}
             {!isLoadingSerials && filteredSerials.length === 0 ? (
               <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">
@@ -1763,6 +1976,22 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
         </div>
       </section>
     </PageShell>
+    <BottomEditorSheet
+      isOpen={Boolean(selectedSerial)}
+      onClose={closeSerialCustomerEditor}
+      title="เพิ่มข้อมูลลูกค้า"
+    >
+      <WarrantyRegistrationEditor
+        form={serialCustomerForm}
+        isSaving={isSavingSerialCustomer}
+        onChange={updateSerialCustomerForm}
+        onReceiptFileChange={setSerialCustomerReceiptFile}
+        onSubmit={saveSerialCustomer}
+        serialNumber={selectedSerial?.serialNumber}
+        submitLabel="เพิ่มข้อมูลลูกค้า"
+      />
+    </BottomEditorSheet>
+    </>
   )
 }
 

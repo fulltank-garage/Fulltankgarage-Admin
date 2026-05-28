@@ -33,6 +33,24 @@ export type SerialNumber = {
   createdAt: string
 }
 
+export type WarrantyRegistrationFormPayload = {
+  customerName: string
+  phone: string
+  carModel: string
+  licensePlate: string
+  filmBrand: string
+  filmModel: string
+  installDate: string
+  branch: string
+  installerName: string
+  remarks?: string
+}
+
+export type WarrantyRegistrationCreateResponse = {
+  registration: WarrantyRegistration
+  serialNumber: SerialNumber
+}
+
 export type Film = {
   id: number
   slug: string
@@ -115,6 +133,7 @@ export type RichMenuSyncEvent = {
 export type FulltankRealtimeEvent =
   | { type: 'warranty_registration.created'; data: WarrantyRegistration }
   | { type: 'warranty_registration.linked'; data: WarrantyRegistration }
+  | { type: 'warranty_registration.updated'; data: WarrantyRegistration }
   | { type: 'serial_number.created'; data: SerialNumber }
   | { type: 'serial_number.updated'; data: SerialNumber }
   | { type: 'promotion.created'; data: Promotion }
@@ -129,7 +148,7 @@ const apiBaseUrl =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ||
   (import.meta.env.DEV ? 'http://localhost:8080/api' : '/api')
 
-const resolveImageUrl = (value?: string | null) => {
+export const resolveImageUrl = (value?: string | null) => {
   const imageUrl = value?.trim()
   if (!imageUrl) {
     return ''
@@ -298,6 +317,20 @@ export const dashboardApi = {
   },
 }
 
+const createWarrantyFormData = (
+  payload: WarrantyRegistrationFormPayload,
+  receiptFile?: File | null,
+) => {
+  const formData = new FormData()
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, value ?? '')
+  })
+  if (receiptFile) {
+    formData.append('receiptFile', receiptFile)
+  }
+  return formData
+}
+
 export const warrantyApi = {
   async listRegistrations() {
     const { data } = await api.get<WarrantyRegistration[]>('/warranty/registrations')
@@ -309,6 +342,28 @@ export const warrantyApi = {
   },
   async createSerial(serialNumber: string) {
     const { data } = await api.post<SerialNumber>('/serial-numbers', { serialNumber })
+    return data
+  },
+  async updateRegistration(
+    id: number,
+    payload: WarrantyRegistrationFormPayload,
+    receiptFile?: File | null,
+  ) {
+    const { data } = await api.patch<WarrantyRegistration>(
+      `/warranty/registrations/${id}`,
+      createWarrantyFormData(payload, receiptFile),
+    )
+    return data
+  },
+  async createRegistrationForSerial(
+    serialNumber: string,
+    payload: WarrantyRegistrationFormPayload,
+    receiptFile?: File | null,
+  ) {
+    const { data } = await api.post<WarrantyRegistrationCreateResponse>(
+      `/serial-numbers/${encodeURIComponent(serialNumber)}/warranty-registration`,
+      createWarrantyFormData(payload, receiptFile),
+    )
     return data
   },
 }

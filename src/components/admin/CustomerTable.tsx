@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react'
 import type { WarrantyRegistration } from '../../services/fulltankApi'
 import { formatCustomerInstallDate } from '../../utils/adminFormatters'
 import { CustomerTableSkeleton } from './Skeletons'
@@ -5,9 +6,11 @@ import { CustomerTableSkeleton } from './Skeletons'
 export function CustomerTable({
   customers,
   isLoading = false,
+  onEdit,
 }: {
   customers: WarrantyRegistration[]
   isLoading?: boolean
+  onEdit?: (customer: WarrantyRegistration) => void
 }) {
   if (isLoading) {
     return <CustomerTableSkeleton />
@@ -61,6 +64,16 @@ export function CustomerTable({
                 </dd>
               </div>
             </dl>
+            {onEdit ? (
+              <button
+                className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white"
+                onClick={() => onEdit(customer)}
+                type="button"
+              >
+                <Pencil size={15} />
+                แก้ไขข้อมูล
+              </button>
+            ) : null}
           </article>
         ))}
       </div>
@@ -75,6 +88,7 @@ export function CustomerTable({
               <th className="px-3 py-2">ฟิล์ม</th>
               <th className="px-3 py-2">ติดตั้ง</th>
               <th className="px-3 py-2">สาขา</th>
+              {onEdit ? <th className="px-3 py-2 text-right">จัดการ</th> : null}
             </tr>
           </thead>
           <tbody>
@@ -93,7 +107,19 @@ export function CustomerTable({
                   {customer.filmBrand} {customer.filmModel}
                 </td>
                 <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
-                <td className="rounded-r-xl px-3 py-3">{customer.branch || '-'}</td>
+                <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.branch || '-'}</td>
+                {onEdit ? (
+                  <td className="rounded-r-xl px-3 py-3 text-right">
+                    <button
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white"
+                      onClick={() => onEdit(customer)}
+                      type="button"
+                    >
+                      <Pencil size={15} />
+                      แก้ไข
+                    </button>
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>
