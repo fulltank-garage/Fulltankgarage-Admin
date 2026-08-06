@@ -74,6 +74,12 @@ export function CustomerTable({
                   {customer.branch || '-'}
                 </dd>
               </div>
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">ผู้ติดตั้ง</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {customer.installerName || '-'}
+                </dd>
+              </div>
             </dl>
             {onEdit ? (
               <button
@@ -100,6 +106,7 @@ export function CustomerTable({
               <th className="px-3 py-2">ติดตั้ง</th>
               <th className="px-3 py-2">รับประกัน</th>
               <th className="px-3 py-2">สาขา</th>
+              <th className="px-3 py-2">ผู้ติดตั้ง</th>
               {onEdit ? <th className="px-3 py-2 text-right">จัดการ</th> : null}
             </tr>
           </thead>
@@ -123,7 +130,8 @@ export function CustomerTable({
                 </td>
                 <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
                 <td className="px-3 py-3">{formatWarrantyPeriod(customer.warrantyExpiresAt, customer.installDate)}</td>
-                <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.branch || '-'}</td>
+                <td className="px-3 py-3">{customer.branch || '-'}</td>
+                <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.installerName || '-'}</td>
                 {onEdit ? (
                   <td className="rounded-r-xl px-3 py-3 text-right">
                     <button
