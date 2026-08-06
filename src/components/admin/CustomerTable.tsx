@@ -49,6 +49,11 @@ export function CustomerTable({
                 <dt className="text-xs font-black text-white/38">ฟิล์ม</dt>
                 <dd className="min-w-0 break-words text-white/78">
                   {customer.filmBrand || '-'} {customer.filmModel || ''}
+                  {customer.frontFilmCode || customer.fullCarFilmCode || customer.sunroofFilmCode ? (
+                    <span className="mt-1 block text-xs text-white/42">
+                      หน้า: {customer.frontFilmCode || '-'} · รอบคัน: {customer.fullCarFilmCode || '-'} · ซันรูฟ: {customer.sunroofFilmCode || '-'}
+                    </span>
+                  ) : null}
                 </dd>
               </div>
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
@@ -104,7 +109,10 @@ export function CustomerTable({
                   <p className="text-xs text-white/42">{customer.licensePlate}</p>
                 </td>
                 <td className="px-3 py-3">
-                  {customer.filmBrand} {customer.filmModel}
+                  <p>{customer.filmBrand} {customer.filmModel}</p>
+                  {customer.frontFilmCode || customer.fullCarFilmCode || customer.sunroofFilmCode ? (
+                    <p className="text-xs text-white/42">หน้า: {customer.frontFilmCode || '-'} · รอบคัน: {customer.fullCarFilmCode || '-'} · ซันรูฟ: {customer.sunroofFilmCode || '-'}</p>
+                  ) : null}
                 </td>
                 <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
                 <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.branch || '-'}</td>

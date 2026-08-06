@@ -18,6 +18,9 @@ export type WarrantyRegistration = {
   licensePlate: string
   filmBrand: string
   filmModel: string
+  frontFilmCode: string
+  fullCarFilmCode: string
+  sunroofFilmCode: string
   installDate: string
   branch: string
   installerName: string
@@ -40,6 +43,9 @@ export type WarrantyRegistrationFormPayload = {
   licensePlate: string
   filmBrand: string
   filmModel: string
+  frontFilmCode: string
+  fullCarFilmCode: string
+  sunroofFilmCode: string
   installDate: string
   branch: string
   installerName: string

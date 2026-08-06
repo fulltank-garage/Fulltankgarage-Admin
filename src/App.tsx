@@ -204,6 +204,9 @@ const emptyWarrantyRegistrationForm: WarrantyRegistrationFormPayload = {
   licensePlate: '',
   filmBrand: '',
   filmModel: '',
+  frontFilmCode: '',
+  fullCarFilmCode: '',
+  sunroofFilmCode: '',
   installDate: '',
   branch: '',
   installerName: '',
@@ -219,6 +222,9 @@ const toWarrantyForm = (
   licensePlate: registration?.licensePlate ?? '',
   filmBrand: registration?.filmBrand ?? '',
   filmModel: registration?.filmModel ?? '',
+  frontFilmCode: registration?.frontFilmCode ?? '',
+  fullCarFilmCode: registration?.fullCarFilmCode ?? '',
+  sunroofFilmCode: registration?.sunroofFilmCode ?? '',
   installDate: registration?.installDate?.slice(0, 10) ?? '',
   branch: registration?.branch ?? '',
   installerName: registration?.installerName ?? '',
@@ -1473,6 +1479,9 @@ function WarrantyRegistrationEditor({
         <TextInput label="ทะเบียนรถ" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
         <TextInput label="แบรนด์ฟิล์ม" onChange={(value) => onChange('filmBrand', value)} placeholder="SolarKey" value={form.filmBrand} />
         <TextInput label="รุ่นฟิล์ม" onChange={(value) => onChange('filmModel', value)} placeholder="Ultra ir" value={form.filmModel} />
+        <TextInput label="รหัสฟิล์มบานหน้า" onChange={(value) => onChange('frontFilmCode', value)} value={form.frontFilmCode} />
+        <TextInput label="รหัสฟิล์มรอบคัน" onChange={(value) => onChange('fullCarFilmCode', value)} value={form.fullCarFilmCode} />
+        <TextInput label="รหัสฟิล์มซันรูฟ" onChange={(value) => onChange('sunroofFilmCode', value)} value={form.sunroofFilmCode} />
         <TextInput label="วันที่ติดตั้ง" onChange={(value) => onChange('installDate', value)} type="date" value={form.installDate} />
         <TextInput label="สาขา" onChange={(value) => onChange('branch', value)} placeholder="บางแค" value={form.branch} />
         <TextInput label="ชื่อช่างติดตั้ง" onChange={(value) => onChange('installerName', value)} placeholder="ชื่อช่าง" value={form.installerName} />
@@ -1621,6 +1630,9 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         item.licensePlate,
         item.filmBrand,
         item.filmModel,
+        item.frontFilmCode,
+        item.fullCarFilmCode,
+        item.sunroofFilmCode,
       ]
         .join(' ')
         .toLowerCase()
@@ -1642,6 +1654,9 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         customer.licensePlate,
         customer.filmBrand,
         customer.filmModel,
+        customer.frontFilmCode,
+        customer.fullCarFilmCode,
+        customer.sunroofFilmCode,
         formatCustomerInstallDate(customer.installDate),
         customer.branch,
         customer.installerName,
