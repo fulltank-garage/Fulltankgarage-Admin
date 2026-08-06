@@ -65,7 +65,7 @@ export function CustomerTable({
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
                 <dt className="text-xs font-black text-white/38">รับประกัน</dt>
                 <dd className="min-w-0 break-words text-white/78">
-                  {formatWarrantyPeriod(customer.warrantyExpiresAt)}
+                  {formatWarrantyPeriod(customer.warrantyExpiresAt, customer.installDate)}
                 </dd>
               </div>
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
@@ -122,7 +122,7 @@ export function CustomerTable({
                   ) : null}
                 </td>
                 <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
-                <td className="px-3 py-3">{formatWarrantyPeriod(customer.warrantyExpiresAt)}</td>
+                <td className="px-3 py-3">{formatWarrantyPeriod(customer.warrantyExpiresAt, customer.installDate)}</td>
                 <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.branch || '-'}</td>
                 {onEdit ? (
                   <td className="rounded-r-xl px-3 py-3 text-right">

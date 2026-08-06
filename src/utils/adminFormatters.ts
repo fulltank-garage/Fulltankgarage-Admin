@@ -57,9 +57,28 @@ export const formatCustomerInstallDate = (value?: string) => {
   })
 }
 
-export const formatWarrantyPeriod = (value?: string | null) => {
-  const expiryDate = formatCustomerInstallDate(value ?? undefined)
+export const formatWarrantyPeriod = (
+  warrantyExpiresAt?: string | null,
+  installDate?: string | null,
+) => {
+  const expiryDate = formatCustomerInstallDate(
+    warrantyExpiresAt ?? getWarrantyExpiryFromInstallDate(installDate),
+  )
   return expiryDate === '-' ? '-' : `7 ปี ถึง ${expiryDate}`
+}
+
+const getWarrantyExpiryFromInstallDate = (installDate?: string | null) => {
+  if (!installDate) {
+    return undefined
+  }
+
+  const date = new Date(installDate)
+  if (Number.isNaN(date.getTime())) {
+    return undefined
+  }
+
+  date.setFullYear(date.getFullYear() + 7)
+  return date.toISOString()
 }
 
 export const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
