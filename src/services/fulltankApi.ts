@@ -22,6 +22,7 @@ export type WarrantyRegistration = {
   fullCarFilmCode: string
   sunroofFilmCode: string
   installDate: string
+  warrantyExpiresAt?: string | null
   branch: string
   installerName: string
   receiptFile: string

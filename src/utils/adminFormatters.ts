@@ -57,6 +57,11 @@ export const formatCustomerInstallDate = (value?: string) => {
   })
 }
 
+export const formatWarrantyPeriod = (value?: string | null) => {
+  const expiryDate = formatCustomerInstallDate(value ?? undefined)
+  return expiryDate === '-' ? '-' : `7 ปี ถึง ${expiryDate}`
+}
+
 export const formatDateInput = (date: Date) => date.toISOString().slice(0, 10)
 
 export const createCardSummary = (value: string | undefined, maxLength = 140) => {

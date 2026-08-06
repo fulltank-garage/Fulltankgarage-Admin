@@ -1,6 +1,6 @@
 import { Pencil } from 'lucide-react'
 import type { WarrantyRegistration } from '../../services/fulltankApi'
-import { formatCustomerInstallDate } from '../../utils/adminFormatters'
+import { formatCustomerInstallDate, formatWarrantyPeriod } from '../../utils/adminFormatters'
 import { CustomerTableSkeleton } from './Skeletons'
 
 export function CustomerTable({
@@ -63,6 +63,12 @@ export function CustomerTable({
                 </dd>
               </div>
               <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
+                <dt className="text-xs font-black text-white/38">รับประกัน</dt>
+                <dd className="min-w-0 break-words text-white/78">
+                  {formatWarrantyPeriod(customer.warrantyExpiresAt)}
+                </dd>
+              </div>
+              <div className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
                 <dt className="text-xs font-black text-white/38">สาขา</dt>
                 <dd className="min-w-0 break-words text-white/78">
                   {customer.branch || '-'}
@@ -84,7 +90,7 @@ export function CustomerTable({
       </div>
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="min-w-[58rem] w-full border-separate border-spacing-y-2">
+        <table className="min-w-[68rem] w-full border-separate border-spacing-y-2">
           <thead>
             <tr className="text-left text-xs font-black uppercase tracking-wide text-white/42">
               <th className="px-3 py-2">Serial</th>
@@ -92,6 +98,7 @@ export function CustomerTable({
               <th className="px-3 py-2">รถ</th>
               <th className="px-3 py-2">ฟิล์ม</th>
               <th className="px-3 py-2">ติดตั้ง</th>
+              <th className="px-3 py-2">รับประกัน</th>
               <th className="px-3 py-2">สาขา</th>
               {onEdit ? <th className="px-3 py-2 text-right">จัดการ</th> : null}
             </tr>
@@ -115,6 +122,7 @@ export function CustomerTable({
                   ) : null}
                 </td>
                 <td className="px-3 py-3">{formatCustomerInstallDate(customer.installDate)}</td>
+                <td className="px-3 py-3">{formatWarrantyPeriod(customer.warrantyExpiresAt)}</td>
                 <td className={onEdit ? 'px-3 py-3' : 'rounded-r-xl px-3 py-3'}>{customer.branch || '-'}</td>
                 {onEdit ? (
                   <td className="rounded-r-xl px-3 py-3 text-right">
