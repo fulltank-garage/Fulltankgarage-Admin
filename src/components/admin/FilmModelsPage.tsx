@@ -111,11 +111,22 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
           {!isLoading && filteredItems.length === 0 ? <p className="rounded-xl border border-white/10 bg-[#101010] px-4 py-8 text-center text-sm font-bold text-white/48">ยังไม่มีรุ่นฟิล์ม</p> : null}
           <div className="space-y-2">
             {filteredItems.map((item) => (
-              <article className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3" key={item.id}>
-                <div className="min-w-0 flex-1"><p className="font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p><p className="mt-1 text-xs font-bold leading-5 text-white/62">หน้า: {item.frontCodes.join(', ') || '-'} · รอบคัน: {item.fullCarCodes.join(', ') || '-'} · ซันรูฟ: {item.sunroofCodes.join(', ') || '-'}</p>{item.notes ? <p className="mt-1 text-xs text-white/38">{item.notes}</p> : null}</div>
-                <span className={item.isActive ? 'rounded-full bg-emerald-400/12 px-2 py-1 text-xs font-black text-emerald-300' : 'rounded-full bg-white/8 px-2 py-1 text-xs font-black text-white/45'}>{item.isActive ? 'ใช้งาน' : 'ปิดใช้'}</span>
-                <button aria-label="แก้ไขรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-white/70" onClick={() => openEditor(item)} type="button"><Pencil size={15} /></button>
-                <button aria-label="ลบรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-[#ff6b61]" onClick={() => setDeletingItem(item)} type="button"><Trash2 size={15} /></button>
+              <article className="rounded-xl border border-white/10 bg-[#101010] p-3" key={item.id}>
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                      <FilmCodeGroup codes={item.frontCodes} label="บานหน้า" />
+                      <FilmCodeGroup codes={item.fullCarCodes} label="รอบคัน" />
+                      <FilmCodeGroup codes={item.sunroofCodes} label="ซันรูฟ" />
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className={item.isActive ? 'rounded-full bg-emerald-400/12 px-2 py-1 text-xs font-black text-emerald-300' : 'rounded-full bg-white/8 px-2 py-1 text-xs font-black text-white/45'}>{item.isActive ? 'ใช้งาน' : 'ปิดใช้'}</span>
+                    <button aria-label="แก้ไขรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-white/70" onClick={() => openEditor(item)} type="button"><Pencil size={15} /></button>
+                    <button aria-label="ลบรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-[#ff6b61]" onClick={() => setDeletingItem(item)} type="button"><Trash2 size={15} /></button>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
@@ -128,13 +139,25 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
           <TextAreaInput label="รหัสฟิล์มบานหน้า" name="film-model-front-codes" onChange={(value) => setForm((current) => ({ ...current, frontCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.frontCodes)} />
           <TextAreaInput label="รหัสฟิล์มรอบคัน" name="film-model-full-car-codes" onChange={(value) => setForm((current) => ({ ...current, fullCarCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.fullCarCodes)} />
           <TextAreaInput label="รหัสฟิล์มซันรูฟ" name="film-model-sunroof-codes" onChange={(value) => setForm((current) => ({ ...current, sunroofCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.sunroofCodes)} />
-          <TextInput label="หมายเหตุ (ถ้ามี)" name="film-model-notes" onChange={(notes) => setForm((current) => ({ ...current, notes }))} value={form.notes ?? ''} />
           <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3 text-sm font-black text-white"><input checked={form.isActive ?? true} className="size-4 accent-[#C0392B]" name="film-model-is-active" onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} type="checkbox" />เปิดให้ใช้งาน</label>
           <button className="h-11 w-full rounded-xl bg-[#C0392B] text-sm font-black text-white disabled:opacity-55" disabled={isSaving} onClick={() => void save()} type="button">{isSaving ? 'กำลังบันทึก…' : 'บันทึกรุ่นฟิล์ม'}</button>
         </div>
       </BottomEditorSheet>
       <ConfirmationDialog cancelLabel="ยกเลิก" confirmLabel="ลบรุ่นฟิล์ม" description={`ต้องการลบ ${deletingItem?.brand ?? ''} ${deletingItem?.series ?? ''} ใช่หรือไม่`} isOpen={Boolean(deletingItem)} onCancel={() => setDeletingItem(null)} onConfirm={() => void remove()} title="ยืนยันการลบ" variant="danger" />
     </>
+  )
+}
+
+function FilmCodeGroup({ codes, label }: { codes: string[]; label: string }) {
+  return (
+    <div className="rounded-lg border border-white/8 bg-black/15 px-2.5 py-2">
+      <p className="text-[11px] font-black text-white/42">{label}</p>
+      {codes.length > 0 ? (
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {codes.map((code) => <span className="rounded-md bg-white/8 px-1.5 py-0.5 text-xs font-black text-white/78" key={code}>{code}</span>)}
+        </div>
+      ) : <p className="mt-1.5 text-xs font-bold text-white/32">ไม่มีรหัส</p>}
+    </div>
   )
 }
 
