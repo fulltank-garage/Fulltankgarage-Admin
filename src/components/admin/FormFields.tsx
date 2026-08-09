@@ -295,6 +295,7 @@ export function TextAreaInput({
 }
 
 export function TextInput({
+  disabled = false,
   label,
   name,
   onChange,
@@ -302,6 +303,7 @@ export function TextInput({
   type = 'text',
   value,
 }: {
+  disabled?: boolean
   label: string
   name?: string
   onChange: (value: string) => void
@@ -334,9 +336,10 @@ export function TextInput({
       {label}
       <input
         className={[
-          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#C0392B]',
+          'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#C0392B] disabled:cursor-not-allowed disabled:opacity-50',
           isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
         ].join(' ')}
+        disabled={disabled}
         name={name ?? label}
         onClick={(event) => openDatePicker(event.currentTarget)}
         onFocus={(event) => openDatePicker(event.currentTarget)}

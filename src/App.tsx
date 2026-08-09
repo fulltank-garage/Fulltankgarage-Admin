@@ -198,6 +198,8 @@ const emptyPromotion: Partial<Promotion> = {
   endsAt: '',
 }
 
+const fulltankBangKhaeBranch = 'FULLTANK Garage สาขาบางแค'
+
 const emptyWarrantyRegistrationForm: WarrantyRegistrationFormPayload = {
   customerName: '',
   phone: '',
@@ -209,7 +211,7 @@ const emptyWarrantyRegistrationForm: WarrantyRegistrationFormPayload = {
   fullCarFilmCode: '',
   sunroofFilmCode: '',
   installDate: '',
-  branch: '',
+  branch: fulltankBangKhaeBranch,
   installerName: '',
   remarks: '',
 }
@@ -227,7 +229,7 @@ const toWarrantyForm = (
   fullCarFilmCode: registration?.fullCarFilmCode ?? '',
   sunroofFilmCode: registration?.sunroofFilmCode ?? '',
   installDate: registration?.installDate?.slice(0, 10) ?? '',
-  branch: registration?.branch ?? '',
+  branch: fulltankBangKhaeBranch,
   installerName: registration?.installerName ?? '',
   remarks: registration?.remarks ?? '',
 })
@@ -1494,8 +1496,7 @@ function WarrantyRegistrationEditor({
         <TextInput label="รหัสฟิล์มรอบคัน" name="customer-full-car-film-code" onChange={(value) => onChange('fullCarFilmCode', value)} value={form.fullCarFilmCode} />
         <TextInput label="รหัสฟิล์มซันรูฟ" name="customer-sunroof-film-code" onChange={(value) => onChange('sunroofFilmCode', value)} value={form.sunroofFilmCode} />
         <TextInput label="วันที่ติดตั้ง" name="customer-install-date" onChange={(value) => onChange('installDate', value)} type="date" value={form.installDate} />
-        <TextInput label="สาขา" name="customer-branch" onChange={(value) => onChange('branch', value)} placeholder="บางแค" value={form.branch} />
-        <TextInput label="ชื่อช่างติดตั้ง" name="customer-installer-name" onChange={(value) => onChange('installerName', value)} placeholder="ชื่อช่าง" value={form.installerName} />
+        <TextInput disabled label="สาขา" name="customer-branch" onChange={(value) => onChange('branch', value)} value={form.branch} />
       </div>
       <UploadedImageField
         frame="document"
