@@ -81,6 +81,17 @@ export type Film = {
   createdAt: string
 }
 
+export type FilmModel = {
+  id: number
+  brand: string
+  series: string
+  code: string
+  notes: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export type Promotion = {
   id: number
   title: string
@@ -390,6 +401,24 @@ export const filmApi = {
   },
   async remove(id: number) {
     await api.delete(`/films/${id}`)
+  },
+}
+
+export const filmModelApi = {
+  async list() {
+    const { data } = await api.get<FilmModel[]>('/film-models')
+    return data
+  },
+  async save(payload: Partial<FilmModel>) {
+    if (payload.id) {
+      const { data } = await api.patch<FilmModel>(`/film-models/${payload.id}`, payload)
+      return data
+    }
+    const { data } = await api.post<FilmModel>('/film-models', payload)
+    return data
+  },
+  async remove(id: number) {
+    await api.delete(`/film-models/${id}`)
   },
 }
 

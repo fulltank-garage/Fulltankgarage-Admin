@@ -33,6 +33,7 @@ import {
   type WarrantyRegistration,
 } from './services/fulltankApi'
 import { CustomerTable } from './components/admin/CustomerTable'
+import { FilmModelsPage } from './components/admin/FilmModelsPage'
 import { FilmGalleryField, TextAreaInput, TextInput, UploadedImageField } from './components/admin/FormFields'
 import { BottomEditorSheet, ManagementToolbar, PageShell } from './components/admin/Layout'
 import { LoginPage } from './components/admin/LoginPage'
@@ -711,6 +712,7 @@ function App() {
         {activePage === 'dashboard' ? <DashboardPage onNotice={showNotice} /> : null}
         {activePage === 'promotions' ? <PromotionsPage onNotice={showNotice} /> : null}
         {activePage === 'films' ? <FilmsPage onNotice={showNotice} /> : null}
+        {activePage === 'film-models' ? <FilmModelsPage onNotice={showNotice} /> : null}
         {activePage === 'customers' ? <CustomersPage onNotice={showNotice} /> : null}
         {activePage === 'serials' ? <SerialNumbersPage onNotice={showNotice} /> : null}
       </main>

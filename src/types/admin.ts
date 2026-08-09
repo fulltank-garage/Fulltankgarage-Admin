@@ -1,3 +1,3 @@
-export type Page = 'dashboard' | 'promotions' | 'films' | 'customers' | 'serials'
+export type Page = 'dashboard' | 'promotions' | 'films' | 'film-models' | 'customers' | 'serials'
 
 export type NoticeTone = 'success' | 'error' | 'info'
