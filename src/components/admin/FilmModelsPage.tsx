@@ -3,13 +3,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { filmModelApi, type FilmModel } from '../../services/fulltankApi'
 import type { NoticeTone } from '../../types/admin'
 import { ConfirmationDialog } from '../ConfirmationDialog'
-import { TextInput } from './FormFields'
+import { TextAreaInput, TextInput } from './FormFields'
 import { BottomEditorSheet, PageShell } from './Layout'
 
 const emptyFilmModel: Partial<FilmModel> = {
   brand: '',
   series: '',
-  code: '',
+  frontCodes: [],
+  fullCarCodes: [],
+  sunroofCodes: [],
   notes: '',
   isActive: true,
 }
@@ -47,7 +49,7 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
     if (!term) {
       return items
     }
-    return items.filter((item) => [item.brand, item.series, item.code, item.notes].join(' ').toLowerCase().includes(term))
+    return items.filter((item) => [item.brand, item.series, ...item.frontCodes, ...item.fullCarCodes, ...item.sunroofCodes, item.notes].join(' ').toLowerCase().includes(term))
   }, [items, query])
 
   const closeEditor = () => {
@@ -60,8 +62,8 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
   }
 
   const save = async () => {
-    if (!form.brand?.trim() || !form.series?.trim() || !form.code?.trim()) {
-      onNotice('กรุณากรอกแบรนด์ ซีรีส์ และรหัสรุ่นฟิล์ม', 'error')
+    if (!form.brand?.trim() || !form.series?.trim()) {
+      onNotice('กรุณากรอกแบรนด์และซีรีส์ฟิล์ม', 'error')
       return
     }
     try {
@@ -70,7 +72,7 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
       setItems((current) => {
         const exists = current.some((item) => item.id === saved.id)
         return (exists ? current.map((item) => item.id === saved.id ? saved : item) : [...current, saved])
-          .toSorted((left, right) => `${left.brand} ${left.series} ${left.code}`.localeCompare(`${right.brand} ${right.series} ${right.code}`))
+          .toSorted((left, right) => `${left.brand} ${left.series}`.localeCompare(`${right.brand} ${right.series}`))
       })
       closeEditor()
       onNotice('บันทึกรุ่นฟิล์มแล้ว', 'success')
@@ -110,7 +112,7 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
           <div className="space-y-2">
             {filteredItems.map((item) => (
               <article className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3" key={item.id}>
-                <div className="min-w-0 flex-1"><p className="font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p><p className="mt-1 text-sm font-bold text-white/62">{item.code}{item.notes ? <span className="text-white/38"> · {item.notes}</span> : null}</p></div>
+                <div className="min-w-0 flex-1"><p className="font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p><p className="mt-1 text-xs font-bold leading-5 text-white/62">หน้า: {item.frontCodes.join(', ') || '-'} · รอบคัน: {item.fullCarCodes.join(', ') || '-'} · ซันรูฟ: {item.sunroofCodes.join(', ') || '-'}</p>{item.notes ? <p className="mt-1 text-xs text-white/38">{item.notes}</p> : null}</div>
                 <span className={item.isActive ? 'rounded-full bg-emerald-400/12 px-2 py-1 text-xs font-black text-emerald-300' : 'rounded-full bg-white/8 px-2 py-1 text-xs font-black text-white/45'}>{item.isActive ? 'ใช้งาน' : 'ปิดใช้'}</span>
                 <button aria-label="แก้ไขรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-white/70" onClick={() => openEditor(item)} type="button"><Pencil size={15} /></button>
                 <button aria-label="ลบรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-[#ff6b61]" onClick={() => setDeletingItem(item)} type="button"><Trash2 size={15} /></button>
@@ -123,13 +125,18 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
         <div className="space-y-4">
           <TextInput label="แบรนด์" onChange={(brand) => setForm((current) => ({ ...current, brand }))} placeholder="เช่น 3M" value={form.brand ?? ''} />
           <TextInput label="ซีรีส์" onChange={(series) => setForm((current) => ({ ...current, series }))} placeholder="เช่น Crystalline" value={form.series ?? ''} />
-          <TextInput label="รหัสรุ่นฟิล์ม" onChange={(code) => setForm((current) => ({ ...current, code }))} placeholder="เช่น C 70" value={form.code ?? ''} />
+          <TextAreaInput label="รหัสฟิล์มบานหน้า" onChange={(value) => setForm((current) => ({ ...current, frontCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.frontCodes)} />
+          <TextAreaInput label="รหัสฟิล์มรอบคัน" onChange={(value) => setForm((current) => ({ ...current, fullCarCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.fullCarCodes)} />
+          <TextAreaInput label="รหัสฟิล์มซันรูฟ" onChange={(value) => setForm((current) => ({ ...current, sunroofCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.sunroofCodes)} />
           <TextInput label="หมายเหตุ (ถ้ามี)" onChange={(notes) => setForm((current) => ({ ...current, notes }))} value={form.notes ?? ''} />
           <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3 text-sm font-black text-white"><input checked={form.isActive ?? true} className="size-4 accent-[#C0392B]" onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} type="checkbox" />เปิดให้ใช้งาน</label>
           <button className="h-11 w-full rounded-xl bg-[#C0392B] text-sm font-black text-white disabled:opacity-55" disabled={isSaving} onClick={() => void save()} type="button">{isSaving ? 'กำลังบันทึก…' : 'บันทึกรุ่นฟิล์ม'}</button>
         </div>
       </BottomEditorSheet>
-      <ConfirmationDialog cancelLabel="ยกเลิก" confirmLabel="ลบรุ่นฟิล์ม" description={`ต้องการลบ ${deletingItem?.brand ?? ''} ${deletingItem?.series ?? ''} ${deletingItem?.code ?? ''} ใช่หรือไม่`} isOpen={Boolean(deletingItem)} onCancel={() => setDeletingItem(null)} onConfirm={() => void remove()} title="ยืนยันการลบ" variant="danger" />
+      <ConfirmationDialog cancelLabel="ยกเลิก" confirmLabel="ลบรุ่นฟิล์ม" description={`ต้องการลบ ${deletingItem?.brand ?? ''} ${deletingItem?.series ?? ''} ใช่หรือไม่`} isOpen={Boolean(deletingItem)} onCancel={() => setDeletingItem(null)} onConfirm={() => void remove()} title="ยืนยันการลบ" variant="danger" />
     </>
   )
 }
+
+const parseCodes = (value: string) => value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean)
+const formatCodes = (codes?: string[]) => (codes ?? []).join('\n')

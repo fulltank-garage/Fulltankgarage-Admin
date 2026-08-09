@@ -86,11 +86,21 @@ export type FilmModel = {
   brand: string
   series: string
   code: string
+  frontCodes: string[]
+  fullCarCodes: string[]
+  sunroofCodes: string[]
   notes: string
   isActive: boolean
   createdAt: string
   updatedAt: string
 }
+
+const normalizeFilmModel = (item: FilmModel): FilmModel => ({
+  ...item,
+  frontCodes: item.frontCodes ?? [],
+  fullCarCodes: item.fullCarCodes ?? [],
+  sunroofCodes: item.sunroofCodes ?? [],
+})
 
 export type Promotion = {
   id: number
@@ -407,15 +417,15 @@ export const filmApi = {
 export const filmModelApi = {
   async list() {
     const { data } = await api.get<FilmModel[]>('/film-models')
-    return data
+    return data.map(normalizeFilmModel)
   },
   async save(payload: Partial<FilmModel>) {
     if (payload.id) {
       const { data } = await api.patch<FilmModel>(`/film-models/${payload.id}`, payload)
-      return data
+      return normalizeFilmModel(data)
     }
     const { data } = await api.post<FilmModel>('/film-models', payload)
-    return data
+    return normalizeFilmModel(data)
   },
   async remove(id: number) {
     await api.delete(`/film-models/${id}`)
