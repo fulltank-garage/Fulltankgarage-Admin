@@ -1000,21 +1000,23 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         imageUrl={form.imageUrl}
         isUploading={isUploadingImage}
         label="รูปโปรโมชัน"
+        name="promotion-image"
         onFileSelect={uploadPromotionImage}
       />
-      <TextInput label="ชื่อโปรโมชัน" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
+      <TextInput label="ชื่อโปรโมชัน" name="promotion-title" onChange={(value) => setForm((current) => ({ ...current, title: value }))} placeholder="เช่น ติดฟิล์มรอบคัน ราคาพิเศษ" value={form.title} />
       <TextAreaInput
         label="รายละเอียดโปรโมชัน"
+        name="promotion-detail"
         onChange={(value) => setForm((current) => ({ ...current, detail: value }))}
         placeholder="เงื่อนไข ส่วนลด ระยะเวลา วิธีใช้สิทธิ์ หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
         value={form.detail}
       />
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-6">
         <div className="min-w-0">
-          <TextInput label="เริ่ม" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
+          <TextInput label="เริ่ม" name="promotion-starts-at" onChange={(value) => setForm((current) => ({ ...current, startsAt: value }))} type="date" value={form.startsAt} />
         </div>
         <div className="min-w-0">
-          <TextInput label="สิ้นสุด" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
+          <TextInput label="สิ้นสุด" name="promotion-ends-at" onChange={(value) => setForm((current) => ({ ...current, endsAt: value }))} type="date" value={form.endsAt} />
         </div>
       </div>
       <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
@@ -1025,6 +1027,7 @@ function PromotionsPage({ onNotice }: { onNotice: (message: string, tone?: Notic
         <input
           checked={form.isActive ?? true}
           className="size-5 shrink-0 accent-[#C0392B]"
+          name="promotion-is-active"
           onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
           type="checkbox"
         />
@@ -1304,17 +1307,20 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         imageUrl={form.imageUrl}
         isUploading={isUploadingImage}
         label="รูปโลโก้ฟิล์ม"
+        name="film-logo-image"
         onFileSelect={uploadFilmImage}
       />
-      <TextInput label="ชื่อฟิล์ม" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
+      <TextInput label="ชื่อฟิล์ม" name="film-name" onChange={(value) => setForm((current) => ({ ...current, name: value }))} placeholder="เช่น VK CERAMIC" value={form.name} />
       <TextAreaInput
         label="รายละเอียดฟิล์ม"
+        name="film-description"
         onChange={(value) => setForm((current) => ({ ...current, description: value }))}
         placeholder="คุณสมบัติ การกันความร้อน การกัน UV หรือรายละเอียดเพิ่มเติมสำหรับหน้าอ่านรายละเอียด"
         value={form.description}
       />
       <TextAreaInput
         label="จุดเด่นที่ลูกค้าควรรู้"
+        name="film-highlights"
         onChange={(value) => {
           setHighlightText(value)
           setForm((current) => ({ ...current, highlights: textareaToList(value) }))
@@ -1325,6 +1331,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
       <FilmGalleryField
         images={form.galleryImages ?? []}
         isUploading={isUploadingGallery}
+        name="film-gallery-images"
         onFileSelect={uploadFilmGalleryImage}
         onRemove={setPendingRemoveGalleryImage}
       />
@@ -1334,6 +1341,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         imageUrl={form.priceTableImageUrl}
         isUploading={isUploadingPriceTable}
         label="รูปตารางราคาฟิล์ม"
+        name="film-price-table-image"
         onFileSelect={uploadFilmPriceTableImage}
       />
       <label className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3">
@@ -1344,6 +1352,7 @@ function FilmsPage({ onNotice }: { onNotice: (message: string, tone?: NoticeTone
         <input
           checked={form.isActive ?? true}
           className="size-5 shrink-0 accent-[#C0392B]"
+          name="film-is-active"
           onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))}
           type="checkbox"
         />
@@ -1475,18 +1484,18 @@ function WarrantyRegistrationEditor({
         </div>
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
-        <TextInput label="ชื่อลูกค้า" onChange={(value) => onChange('customerName', value)} placeholder="ชื่อ-นามสกุล" value={form.customerName} />
-        <TextInput label="เบอร์โทร" onChange={(value) => onChange('phone', value.replace(/[^\d+]/g, ''))} placeholder="0818468089" value={form.phone} />
-        <TextInput label="รุ่นรถ" onChange={(value) => onChange('carModel', value)} placeholder="Mercedes-Benz GLC 300e" value={form.carModel} />
-        <TextInput label="ทะเบียนรถ" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
-        <TextInput label="แบรนด์ฟิล์ม" onChange={(value) => onChange('filmBrand', value)} placeholder="SolarKey" value={form.filmBrand} />
-        <TextInput label="รุ่นฟิล์ม" onChange={(value) => onChange('filmModel', value)} placeholder="Ultra ir" value={form.filmModel} />
-        <TextInput label="รหัสฟิล์มบานหน้า" onChange={(value) => onChange('frontFilmCode', value)} value={form.frontFilmCode} />
-        <TextInput label="รหัสฟิล์มรอบคัน" onChange={(value) => onChange('fullCarFilmCode', value)} value={form.fullCarFilmCode} />
-        <TextInput label="รหัสฟิล์มซันรูฟ" onChange={(value) => onChange('sunroofFilmCode', value)} value={form.sunroofFilmCode} />
-        <TextInput label="วันที่ติดตั้ง" onChange={(value) => onChange('installDate', value)} type="date" value={form.installDate} />
-        <TextInput label="สาขา" onChange={(value) => onChange('branch', value)} placeholder="บางแค" value={form.branch} />
-        <TextInput label="ชื่อช่างติดตั้ง" onChange={(value) => onChange('installerName', value)} placeholder="ชื่อช่าง" value={form.installerName} />
+        <TextInput label="ชื่อลูกค้า" name="customer-name" onChange={(value) => onChange('customerName', value)} placeholder="ชื่อ-นามสกุล" value={form.customerName} />
+        <TextInput label="เบอร์โทร" name="customer-phone" onChange={(value) => onChange('phone', value.replace(/[^\d+]/g, ''))} placeholder="0818468089" value={form.phone} />
+        <TextInput label="รุ่นรถ" name="customer-car-model" onChange={(value) => onChange('carModel', value)} placeholder="Mercedes-Benz GLC 300e" value={form.carModel} />
+        <TextInput label="ทะเบียนรถ" name="customer-license-plate" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
+        <TextInput label="แบรนด์ฟิล์ม" name="customer-film-brand" onChange={(value) => onChange('filmBrand', value)} placeholder="SolarKey" value={form.filmBrand} />
+        <TextInput label="รุ่นฟิล์ม" name="customer-film-model" onChange={(value) => onChange('filmModel', value)} placeholder="Ultra ir" value={form.filmModel} />
+        <TextInput label="รหัสฟิล์มบานหน้า" name="customer-front-film-code" onChange={(value) => onChange('frontFilmCode', value)} value={form.frontFilmCode} />
+        <TextInput label="รหัสฟิล์มรอบคัน" name="customer-full-car-film-code" onChange={(value) => onChange('fullCarFilmCode', value)} value={form.fullCarFilmCode} />
+        <TextInput label="รหัสฟิล์มซันรูฟ" name="customer-sunroof-film-code" onChange={(value) => onChange('sunroofFilmCode', value)} value={form.sunroofFilmCode} />
+        <TextInput label="วันที่ติดตั้ง" name="customer-install-date" onChange={(value) => onChange('installDate', value)} type="date" value={form.installDate} />
+        <TextInput label="สาขา" name="customer-branch" onChange={(value) => onChange('branch', value)} placeholder="บางแค" value={form.branch} />
+        <TextInput label="ชื่อช่างติดตั้ง" name="customer-installer-name" onChange={(value) => onChange('installerName', value)} placeholder="ชื่อช่าง" value={form.installerName} />
       </div>
       <UploadedImageField
         frame="document"
@@ -1494,6 +1503,7 @@ function WarrantyRegistrationEditor({
         imageUrl={resolveImageUrl(currentReceiptFile)}
         isUploading={isSaving}
         label="รูปใบเสร็จ/หลักฐาน"
+        name="customer-receipt-file"
         onFileSelect={onReceiptFileChange}
       />
       <div className="flex justify-end">
@@ -1674,10 +1684,10 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
         <div className="mb-3 grid gap-3 lg:grid-cols-4 lg:items-end">
           <div className="grid min-w-0 grid-cols-3 items-end gap-3 lg:contents">
             <div className="min-w-0">
-              <TextInput label="ตั้งแต่วันที่ติดตั้ง" onChange={setStartDate} type="date" value={startDate} />
+              <TextInput label="ตั้งแต่วันที่ติดตั้ง" name="customer-filter-start-date" onChange={setStartDate} type="date" value={startDate} />
             </div>
             <div className="min-w-0">
-              <TextInput label="ถึงวันที่ติดตั้ง" onChange={setEndDate} type="date" value={endDate} />
+              <TextInput label="ถึงวันที่ติดตั้ง" name="customer-filter-end-date" onChange={setEndDate} type="date" value={endDate} />
             </div>
             <div className="min-w-0 text-sm font-bold text-white/68">
               <span className="invisible block">ล้างวันที่</span>
@@ -1695,6 +1705,7 @@ function CustomersPage({ onNotice }: { onNotice: (message: string, tone?: Notice
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
           <input
             className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
+            name="customer-search"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="ค้นหาชื่อ เบอร์โทร Serial ทะเบียนรถ"
             value={query}
@@ -1947,6 +1958,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
           <div className="mt-4 rounded-2xl border border-white/10 bg-[#101010] p-3">
             <TextInput
               label="จำนวนที่ต้องการเจน"
+              name="serial-batch-count"
               onChange={(value) => setBatchCount(value.replace(/\D/g, ''))}
               placeholder="10"
               value={batchCount}
@@ -1968,6 +1980,7 @@ function SerialNumbersPage({ onNotice }: { onNotice: (message: string, tone?: No
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
               <input
                 className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
+                name="serial-search"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="ค้นหา Serial หรือสถานะ"
                 value={query}

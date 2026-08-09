@@ -39,6 +39,7 @@ export function ManagementToolbar({
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
           <input
             className="h-12 w-full rounded-xl border border-white/12 bg-[#080205] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]"
+            name="management-search"
             onChange={(event) => onSearch(event.target.value)}
             placeholder={placeholder}
             value={query}

@@ -17,6 +17,7 @@ export function UploadedImageField({
   imageUrl,
   isUploading,
   label,
+  name,
   onFileSelect,
 }: {
   frame?: 'square' | 'document'
@@ -24,6 +25,7 @@ export function UploadedImageField({
   imageUrl?: string
   isUploading: boolean
   label: string
+  name?: string
   onFileSelect: (file: File) => void
 }) {
   const isDocumentFrame = frame === 'document'
@@ -106,6 +108,7 @@ export function UploadedImageField({
         accept="image/*"
         className="sr-only"
         disabled={isUploading}
+        name={name ?? label}
         onChange={(event) => {
           const file = event.currentTarget.files?.[0]
           if (file) {
@@ -130,11 +133,13 @@ export function UploadedImageField({
 export function FilmGalleryField({
   images,
   isUploading,
+  name = 'film-gallery-images',
   onFileSelect,
   onRemove,
 }: {
   images: string[]
   isUploading: boolean
+  name?: string
   onFileSelect: (file: File) => void
   onRemove: (imageUrl: string) => void
 }) {
@@ -192,6 +197,7 @@ export function FilmGalleryField({
           accept="image/*"
           className="sr-only"
           disabled={isUploading}
+          name={name}
           onChange={(event) => {
             const file = event.currentTarget.files?.[0]
             if (file) {
@@ -244,11 +250,13 @@ export function FilmGalleryField({
 
 export function TextAreaInput({
   label,
+  name,
   onChange,
   placeholder,
   value,
 }: {
   label: string
+  name?: string
   onChange: (value: string) => void
   placeholder?: string
   value?: string
@@ -275,6 +283,7 @@ export function TextAreaInput({
       {label}
       <textarea
         className="mt-2 max-h-72 min-h-28 w-full resize-none rounded-xl border border-white/12 bg-[#101010] px-3 py-3 text-sm font-bold leading-6 text-white outline-none focus:border-[#C0392B]"
+        name={name ?? label}
         onChange={handleChange}
         placeholder={placeholder}
         ref={textareaRef}
@@ -287,12 +296,14 @@ export function TextAreaInput({
 
 export function TextInput({
   label,
+  name,
   onChange,
   placeholder,
   type = 'text',
   value,
 }: {
   label: string
+  name?: string
   onChange: (value: string) => void
   placeholder?: string
   type?: string
@@ -326,6 +337,7 @@ export function TextInput({
           'mt-2 h-11 w-full min-w-0 max-w-full rounded-xl border border-white/12 bg-[#101010] font-bold text-white outline-none focus:border-[#C0392B]',
           isDateInput ? 'px-1.5 text-[clamp(0.68rem,2.8vw,0.82rem)]' : 'px-3 text-sm',
         ].join(' ')}
+        name={name ?? label}
         onClick={(event) => openDatePicker(event.currentTarget)}
         onFocus={(event) => openDatePicker(event.currentTarget)}
         onChange={(event) => onChange(event.target.value)}

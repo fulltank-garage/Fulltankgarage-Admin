@@ -103,7 +103,7 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
           <div className="mb-4 flex gap-2">
             <label className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/36" size={18} />
-              <input className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]" onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาแบรนด์ ซีรีส์ หรือรหัสฟิล์ม" value={query} />
+              <input className="h-11 w-full rounded-xl border border-white/12 bg-[#101010] pl-10 pr-3 text-sm font-bold text-white outline-none focus:border-[#C0392B]" name="film-model-search" onChange={(event) => setQuery(event.target.value)} placeholder="ค้นหาแบรนด์ ซีรีส์ หรือรหัสฟิล์ม" value={query} />
             </label>
             <button className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#C0392B] px-3 text-xs font-black text-white" onClick={() => openEditor()} type="button"><Plus size={16} />เพิ่มรุ่น</button>
           </div>
@@ -123,13 +123,13 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
       </PageShell>
       <BottomEditorSheet isOpen={isEditorOpen} onClose={closeEditor} title={form.id ? 'แก้ไขรุ่นฟิล์ม' : 'เพิ่มรุ่นฟิล์ม'}>
         <div className="space-y-4">
-          <TextInput label="แบรนด์" onChange={(brand) => setForm((current) => ({ ...current, brand }))} placeholder="เช่น 3M" value={form.brand ?? ''} />
-          <TextInput label="ซีรีส์" onChange={(series) => setForm((current) => ({ ...current, series }))} placeholder="เช่น Crystalline" value={form.series ?? ''} />
-          <TextAreaInput label="รหัสฟิล์มบานหน้า" onChange={(value) => setForm((current) => ({ ...current, frontCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.frontCodes)} />
-          <TextAreaInput label="รหัสฟิล์มรอบคัน" onChange={(value) => setForm((current) => ({ ...current, fullCarCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.fullCarCodes)} />
-          <TextAreaInput label="รหัสฟิล์มซันรูฟ" onChange={(value) => setForm((current) => ({ ...current, sunroofCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.sunroofCodes)} />
-          <TextInput label="หมายเหตุ (ถ้ามี)" onChange={(notes) => setForm((current) => ({ ...current, notes }))} value={form.notes ?? ''} />
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3 text-sm font-black text-white"><input checked={form.isActive ?? true} className="size-4 accent-[#C0392B]" onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} type="checkbox" />เปิดให้ใช้งาน</label>
+          <TextInput label="แบรนด์" name="film-model-brand" onChange={(brand) => setForm((current) => ({ ...current, brand }))} placeholder="เช่น 3M" value={form.brand ?? ''} />
+          <TextInput label="ซีรีส์" name="film-model-series" onChange={(series) => setForm((current) => ({ ...current, series }))} placeholder="เช่น Crystalline" value={form.series ?? ''} />
+          <TextAreaInput label="รหัสฟิล์มบานหน้า" name="film-model-front-codes" onChange={(value) => setForm((current) => ({ ...current, frontCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.frontCodes)} />
+          <TextAreaInput label="รหัสฟิล์มรอบคัน" name="film-model-full-car-codes" onChange={(value) => setForm((current) => ({ ...current, fullCarCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.fullCarCodes)} />
+          <TextAreaInput label="รหัสฟิล์มซันรูฟ" name="film-model-sunroof-codes" onChange={(value) => setForm((current) => ({ ...current, sunroofCodes: parseCodes(value) }))} placeholder="ใส่ได้หลายรหัส คั่นด้วยบรรทัดใหม่หรือเครื่องหมาย ," value={formatCodes(form.sunroofCodes)} />
+          <TextInput label="หมายเหตุ (ถ้ามี)" name="film-model-notes" onChange={(notes) => setForm((current) => ({ ...current, notes }))} value={form.notes ?? ''} />
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#101010] px-3 py-3 text-sm font-black text-white"><input checked={form.isActive ?? true} className="size-4 accent-[#C0392B]" name="film-model-is-active" onChange={(event) => setForm((current) => ({ ...current, isActive: event.target.checked }))} type="checkbox" />เปิดให้ใช้งาน</label>
           <button className="h-11 w-full rounded-xl bg-[#C0392B] text-sm font-black text-white disabled:opacity-55" disabled={isSaving} onClick={() => void save()} type="button">{isSaving ? 'กำลังบันทึก…' : 'บันทึกรุ่นฟิล์ม'}</button>
         </div>
       </BottomEditorSheet>
