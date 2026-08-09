@@ -1487,7 +1487,7 @@ function WarrantyRegistrationEditor({
         <TextInput label="ชื่อลูกค้า" name="customer-name" onChange={(value) => onChange('customerName', value)} placeholder="ชื่อ-นามสกุล" value={form.customerName} />
         <TextInput label="เบอร์โทร" name="customer-phone" onChange={(value) => onChange('phone', value.replace(/[^\d+]/g, ''))} placeholder="0818468089" value={form.phone} />
         <TextInput label="รุ่นรถ" name="customer-car-model" onChange={(value) => onChange('carModel', value)} placeholder="Mercedes-Benz GLC 300e" value={form.carModel} />
-        <TextInput label="ทะเบียนรถ" name="customer-license-plate" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
+        <TextInput label="ทะเบียนรถ / กรณีป้ายแดงใส่เลขตัวถัง" name="customer-license-plate" onChange={(value) => onChange('licensePlate', value)} placeholder="1กก 1234" value={form.licensePlate} />
         <TextInput label="แบรนด์ฟิล์ม" name="customer-film-brand" onChange={(value) => onChange('filmBrand', value)} placeholder="SolarKey" value={form.filmBrand} />
         <TextInput label="รุ่นฟิล์ม" name="customer-film-model" onChange={(value) => onChange('filmModel', value)} placeholder="Ultra ir" value={form.filmModel} />
         <TextInput label="รหัสฟิล์มบานหน้า" name="customer-front-film-code" onChange={(value) => onChange('frontFilmCode', value)} value={form.frontFilmCode} />
