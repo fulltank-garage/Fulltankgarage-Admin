@@ -1,6 +1,6 @@
 import { Plus, Search, X } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function PageShell({
   children,
@@ -69,6 +69,9 @@ export function BottomEditorSheet({
   onClose: () => void
   title: string
 }) {
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
     if (!isOpen) {
       return
@@ -82,29 +85,39 @@ export function BottomEditorSheet({
     }
   }, [isOpen])
 
+  useEffect(() => {
+    if (!isOpen) {
+      previouslyFocusedElementRef.current?.focus()
+      return
+    }
+
+    previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null
+    const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 0)
+
+    return () => window.clearTimeout(focusTimer)
+  }, [isOpen])
+
+  if (!isOpen) {
+    return null
+  }
+
   return (
     <div
-      aria-hidden={!isOpen}
-      className={[
-        'fixed inset-y-0 left-0 right-0 z-50 lg:left-72',
-        isOpen ? 'pointer-events-auto' : 'pointer-events-none',
-      ].join(' ')}
+      aria-modal="true"
+      className="fixed inset-y-0 left-0 right-0 z-50 lg:left-72"
+      role="dialog"
     >
       <button
         aria-label="ปิดฟอร์ม"
-        className={[
-          'absolute inset-0 bg-black/72 backdrop-blur-sm transition-opacity duration-300',
-          isOpen ? 'opacity-100' : 'opacity-0',
-        ].join(' ')}
+        className="absolute inset-0 bg-black/72 backdrop-blur-sm"
         onClick={onClose}
         type="button"
       />
       <aside
         aria-label={title}
-        className={[
-          'absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto transform-gpu flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080205] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform lg:inset-x-8 lg:bottom-8 lg:top-[5.5rem]',
-          isOpen ? 'translate-y-0' : 'translate-y-[calc(100%+6rem)]',
-        ].join(' ')}
+        className="absolute inset-x-3 bottom-3 top-[5.25rem] mx-auto flex w-auto flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#080205] shadow-[0_-28px_80px_rgba(0,0,0,0.72)] lg:inset-x-8 lg:bottom-8 lg:top-[5.5rem]"
       >
         <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080205]/96 px-4 py-3 backdrop-blur">
           <h2 className="text-lg font-black text-white">{title}</h2>
@@ -112,6 +125,7 @@ export function BottomEditorSheet({
             aria-label="ปิดฟอร์ม"
             className="grid size-10 place-items-center rounded-xl border border-white/10 bg-[#101010] text-white/72"
             onClick={onClose}
+            ref={closeButtonRef}
             type="button"
           >
             <X size={18} />
