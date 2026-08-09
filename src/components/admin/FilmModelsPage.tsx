@@ -1,4 +1,4 @@
-import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
+import { Plus, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { filmModelApi, type FilmModel } from '../../services/fulltankApi'
 import type { NoticeTone } from '../../types/admin'
@@ -112,20 +112,18 @@ export function FilmModelsPage({ onNotice }: { onNotice: (message: string, tone?
           <div className="space-y-2">
             {filteredItems.map((item) => (
               <article className="rounded-xl border border-white/10 bg-[#101010] p-3" key={item.id}>
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      <FilmCodeGroup codes={item.frontCodes} label="บานหน้า" />
-                      <FilmCodeGroup codes={item.fullCarCodes} label="รอบคัน" />
-                      <FilmCodeGroup codes={item.sunroofCodes} label="ซันรูฟ" />
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className={item.isActive ? 'rounded-full bg-emerald-400/12 px-2 py-1 text-xs font-black text-emerald-300' : 'rounded-full bg-white/8 px-2 py-1 text-xs font-black text-white/45'}>{item.isActive ? 'ใช้งาน' : 'ปิดใช้'}</span>
-                    <button aria-label="แก้ไขรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-white/70" onClick={() => openEditor(item)} type="button"><Pencil size={15} /></button>
-                    <button aria-label="ลบรุ่นฟิล์ม" className="grid size-9 place-items-center rounded-lg border border-white/10 text-[#ff6b61]" onClick={() => setDeletingItem(item)} type="button"><Trash2 size={15} /></button>
-                  </div>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="min-w-0 font-black text-white">{item.brand} <span className="text-white/58">/ {item.series}</span></p>
+                  <span className={item.isActive ? 'shrink-0 rounded-full bg-[#00d084] px-3.5 py-1.5 text-xs font-black text-white' : 'shrink-0 rounded-full bg-[#080205] px-3.5 py-1.5 text-xs font-black text-white'}>{item.isActive ? 'ใช้งาน' : 'ปิดใช้'}</span>
+                </div>
+                <div className="mt-3 grid w-full gap-2 md:grid-cols-3">
+                  <FilmCodeGroup codes={item.frontCodes} label="บานหน้า" />
+                  <FilmCodeGroup codes={item.fullCarCodes} label="รอบคัน" />
+                  <FilmCodeGroup codes={item.sunroofCodes} label="ซันรูฟ" />
+                </div>
+                <div className="mt-3 flex justify-end gap-2 border-t border-white/10 pt-3">
+                  <button className="rounded-xl border border-white/10 px-4 py-2 text-sm font-black text-white/70" onClick={() => openEditor(item)} type="button">แก้ไข</button>
+                  <button className="inline-flex items-center gap-1 rounded-xl border border-[#C0392B]/30 px-4 py-2 text-sm font-black text-[#C0392B]" onClick={() => setDeletingItem(item)} type="button"><Trash2 size={14} />ลบ</button>
                 </div>
               </article>
             ))}
